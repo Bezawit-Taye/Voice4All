@@ -370,6 +370,15 @@ function updateTicketStatus(requestId, newStatus, metadata = {}) {
       ticket.screen_share_active = true;
       ticket.screenShareStartedAt = now;
     }
+
+    // Add agent greeting to message thread
+    ticket.messages.push({
+      id: `msg-${ticket.messages.length + 1}`,
+      sender: 'agent',
+      senderName: ticket.agentName,
+      text: `Hello! I am ${ticket.agentName}. I have joined your support session to assist you.`,
+      timestamp: now
+    });
   } else if (newStatus === 'resolved') {
     ticket.resolvedAt = now;
     ticket.resolutionNotes = metadata.resolutionNotes || 'Resolved with learner confirmation.';
