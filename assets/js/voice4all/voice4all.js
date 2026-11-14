@@ -711,18 +711,17 @@
       if (voiceBtn) voiceBtn.disabled = false;
     }
   }
-}
 
   function updateStarterChips(suggestions) {
-  const wrap = document.querySelector('.v4a-starters-wrap');
-  if (!wrap) return;
+    const wrap = document.querySelector('.v4a-starters-wrap');
+    if (!wrap) return;
 
-  wrap.innerHTML = suggestions.map((s) => `
+    wrap.innerHTML = suggestions.map((s) => `
       <button type="button" class="v4a-starter-chip" data-v4a-prompt="${root.Voice4AllUI.escapeHTML(s)}">
         ${root.Voice4AllUI.escapeHTML(s)}
       </button>
     `).join(' ');
-}
+  }
 
 // =========================================================================
 // Live Help Logic & Support Requests
