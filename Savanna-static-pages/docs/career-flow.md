@@ -1,109 +1,105 @@
-# Voice4All — Career Opportunities & Accommodation Drafting Flow
+# Voice4All — Career Opportunities, Q&A & Notification Interfaces (Phase 2)
 
-## 1. Overview and Philosophy
+## 1. Overview and Accessibility Principles
 
-The **Voice4All Career Module** is designed to build disability self-advocacy skills for learners completing the Savanna curriculum (e.g. *VA-1: VA Foundations & Professional Identity*).
+The **Voice4All Career Module** bridges Savanna learners with inclusive, remote-first virtual assistant opportunities while equipping them with self-advocacy tools:
 
-### Guiding Principles:
-1. **Self-Advocacy & Preparation:** Learners identify workplace accommodations (e.g., screen reader friendly task management, asynchronous standups, flexible schedules) and practice formulating clear, professional accommodation requests.
-2. **Explicit Draft Isolation ("Not Sent" Guarantee):** 
+1. **Transparent Job Browsing & Multilingual Filtering:** Explores inclusive positions with bilingual metadata (English & Amharic), filtering by work arrangement (`remote`, `fulltime`, `parttime`) and verified accessibility accommodations.
+2. **Career Opportunity Q&A:** An intelligent advisory endpoint answering learner inquiries about role requirements, assistive software support, and workplace accommodations.
+3. **Interview Accommodation Drafting ("Not Sent" Policy):** 
    > **Do not imply it has been sent to an employer unless actual delivery exists.**
-   
-   All accommodation requests are strictly generated as **personal drafts** (`status: "draft"`). The platform explicitly clarifies that drafts are saved locally for the learner's own reference and have **not** been dispatched to any external employer.
-3. **Synthetic, Labeled Sample Data:** All job listings are simulated opportunities labeled with prominent disclaimers (`isSample: true`). No real individual or corporate private data is used.
+   All accommodation requests are strictly generated as **interview preparation drafts** (`status: "draft_recorded"`). The system provides learners with a structured self-advocacy checklist.
+4. **Low-Bandwidth Multi-Channel Notifications:**
+   - **Telegram Integration:** Markdown-formatted job broadcasts formatted for screen readers.
+   - **SMS Interface:** Concise, single-segment 160-character alerts engineered for feature phones and low-connectivity environments.
 
 ---
 
-## 2. Learner Accommodation Request Workflow
+## 2. Career Architecture & Workflows
 
 ```mermaid
 flowchart TD
-    A[Learner navigates to Voice4All Career Section] --> B[GET /api/career/jobs]
-    B --> C[UI displays Sample Job Opportunities with Accessibility Details]
-    C --> D[Learner selects an Opportunity e.g. 'Remote Virtual Executive Assistant']
-    D --> E[Learner reviews Accessibility Features & selects required Accommodations]
-    E --> F[Learner enters optional Justification / context]
-    F --> G[Submit POST /api/career/accommodation-requests]
+    A[Learner Browses Careers / Asks Questions] --> B{Action Type}
     
-    G --> H[Backend validates jobId and accommodations list]
-    H -- Invalid Job or Empty Accommodations --> I[Return 400 or 404 Error]
-    H -- Validation Passes --> J[Generate Draft ID e.g. draft_acc_1794...]
+    B -- Browse & Filter --> C[GET /api/career/jobs?q=...&type=...&lang=...]
+    B -- Ask Advice --> D[POST /api/career/questions]
+    B -- Draft Accommodations --> E[POST /api/career/accommodation-requests]
+    B -- Receive Notifications --> F{Channel Selection}
     
-    J --> K[Assign status = 'draft' and isDelivered = false]
-    K --> L[Attach Delivery Notice: 'DRAFT ONLY: NOT sent to employer']
-    L --> M[Save in In-Memory Draft Store]
-    M --> N[Return 201 Created with Draft Details & Delivery Disclaimer]
-    N --> O[UI displays Download / Copy Draft Button for learner's private use]
+    C --> G[UI Displays Bilingual Job Cards with Accessibility Tags]
+    D --> H[Intelligent Answer with Matched Jobs & Suggestions]
+    E --> I[Draft Generated: status='draft_recorded', isDelivered=false]
+    I --> J[Learner Receives Interview Self-Advocacy Checklist]
+    
+    F -- Telegram --> K[POST /api/career/notifications/telegram/subscribe]
+    F -- Low-Bandwidth SMS --> L[POST /api/career/notifications/sms/subscribe]
+    
+    K --> M[Screen-Reader Optimized Markdown Alert Broadcast]
+    L --> N[160-Character Single-Segment Compressed SMS Alert]
 ```
 
 ---
 
-## 3. Sample Job Dataset (`backend/data/jobs.json`)
+## 3. Bilingual Sample Job Dataset (`backend/data/jobs.json`)
 
-All sample records conform to the schema required by the hackathon specifications:
+All sample records are synthetic opportunities designed for demonstration and training:
 
-| Field | Type | Description |
+| Field | Description | Example |
 | :--- | :--- | :--- |
-| `id` | `string` | Unique identifier (e.g., `job-sample-01`) |
-| `title` | `string` | Professional job role title |
-| `organization` | `string` | Fictitious employer name clearly labeled as sample |
-| `description` | `string` | Summary of core duties and daily responsibilities |
-| `location` | `string` | Remote region or time-zone preference |
-| `accessibilityOrAccommodation` | `string` | Explicit accessibility features and supported accommodations |
-| `isSample` | `boolean` | Always `true` to ensure programmatic transparency |
-| `sampleOpportunityNotice` | `string` | User-facing simulation disclaimer |
-
-### Summary of Included Opportunities
-
-1. **`job-sample-01` — Remote Virtual Executive Assistant**
-   - *Organization:* EquiWorks Global (Sample Organization)
-   - *Location:* Remote (Global / Africa Flexible)
-   - *Accessibility:* 100% remote asynchronous-first team. Software stack tested for full screen reader compatibility (NVDA, JAWS, VoiceOver). Closed captioning provided for all team video syncs. Flexible working hours and neurodivergent-friendly written task handoffs.
-2. **`job-sample-02` — Accessibility QA & Documentation Assistant**
-   - *Organization:* InclusiTech Solutions (Sample Organization)
-   - *Location:* Remote (East Africa / CET Timezone Preferred)
-   - *Accessibility:* Ergonomic hardware allowance, adjustable magnification display options, assistive voice-to-text dictation tools provided, flexible break schedule, and alternative audio/written check-in formats.
-3. **`job-sample-03` — Digital Operations & Workflow Coordinator**
-   - *Organization:* Apex Distributed Ventures (Sample Organization)
-   - *Location:* Remote (Sub-Saharan Africa)
-   - *Accessibility:* Structured, predictable weekly sprints. Reduced meeting culture with asynchronous Slack/Notion updates. Screen reader accessible ticketing system. Accommodations available for motor impairment.
-4. **`job-sample-04` — Bilingual Customer Support Virtual Assistant**
-   - *Organization:* Kibo Cloud Services (Sample Organization)
-   - *Location:* Remote (Pan-African / Flexible Shifts)
-   - *Accessibility:* Text-first customer interactions (no mandatory high-volume inbound phone calls). Dual-monitor hardware reimbursement, captioning support, speech-to-text software integration, and quiet work cadence.
-5. **`job-sample-05` — Social Media & Content Virtual Assistant**
-   - *Organization:* Sahara Creative Media (Sample Organization)
-   - *Location:* Remote (Flexible)
-   - *Accessibility:* High-contrast visual design tools, automated audio-description generators, flexible work pacing, and dedicated accessibility mentor during onboarding.
+| `id` | Unique opportunity identifier | `v4a-job-001` |
+| `title` / `title_am` | Role title in English and Amharic | `Executive Virtual Assistant` / `ዋና ሥራ አስፈጻሚ ቨርቹዋል ረዳት` |
+| `company` / `organization` | Sample employer name | `AfriTech Global Solutions (Sample)` |
+| `location` / `location_am` | Location and time zone details | `Remote (Pan-Africa)` / `የርቀት ሥራ (አፍሪካ አቀፍ)` |
+| `type` / `type_label` | Employment type | `fulltime` (`Full-Time` / `ሙሉ ጊዜ`), `parttime`, `remote` |
+| `accessible_workplace` | Boolean flag | `true` |
+| `accessibilityOrAccommodation` | Full accessibility disclosure | Screen reader verified, captioning for syncs, asynchronous updates |
+| `interviewAccommodationsOffered` | Supported interview adaptations | Advance written questions, camera-optional, extended time |
+| `isSample` | Simulation transparency flag | Always `true` |
 
 ---
 
-## 4. API Specification
+## 4. API Reference
 
-### Endpoint: `GET /api/career/jobs`
-Retrieves the list of sample opportunities with optional search filters.
+### 4.1 `GET /api/career/jobs`
+Retrieves sample job listings with flexible filtering and language localization.
 
 #### Query Parameters
-- `search` *(optional)*: Filter by keyword in title, description, or accommodations.
-- `location` *(optional)*: Filter by location substring.
+- `q` / `search`: Filter by keyword in title, company, description, or tags.
+- `type`: Filter by `all`, `remote`, `fulltime`, or `parttime`.
+- `location`: Substring search on location.
+- `lang`: Localization language (`en` or `am`). When `am`, returns Amharic fields.
+- `accessible_only`: Filter only verified accessible workplaces.
+
+#### Example Request
+```http
+GET /api/career/jobs?q=screen+reader&type=remote&lang=en
+```
 
 #### Response (`200 OK`)
 ```json
 {
   "success": true,
-  "total": 5,
+  "total": 2,
+  "language": "en",
   "isSampleDataset": true,
-  "datasetNotice": "SIMULATED SAMPLE OPPORTUNITIES — For accessibility demonstration and accommodation drafting practice only. Not active employer vacancies.",
+  "datasetNotice": "SIMULATED SAMPLE OPPORTUNITIES — For accessibility demonstration...",
   "jobs": [
     {
-      "id": "job-sample-01",
-      "title": "Remote Virtual Executive Assistant",
-      "organization": "EquiWorks Global (Sample Organization)",
-      "description": "Provide comprehensive administrative support to leadership...",
-      "location": "Remote (Global / Africa Flexible)",
-      "accessibilityOrAccommodation": "100% remote asynchronous-first team. Software stack tested for full screen reader compatibility...",
-      "isSample": true,
-      "sampleOpportunityNotice": "SIMULATED SAMPLE OPPORTUNITY — NOT AN ACTIVE EMPLOYER VACANCY"
+      "id": "v4a-job-001",
+      "title": "Executive Virtual Assistant",
+      "company": "AfriTech Global Solutions (Sample)",
+      "location": "Remote (Pan-Africa)",
+      "type": "fulltime",
+      "type_label": "Full-Time",
+      "tags": ["Remote", "Screen-reader verified", "Flexible hours"],
+      "accessible_workplace": true,
+      "accessibilityOrAccommodation": "100% remote asynchronous-first team...",
+      "interviewAccommodationsOffered": [
+        "Advance interview questions provided in writing (24 hours prior)",
+        "Live human captions and transcript during video calls",
+        "Camera-optional interview format"
+      ],
+      "isSample": true
     }
   ]
 }
@@ -111,126 +107,106 @@ Retrieves the list of sample opportunities with optional search filters.
 
 ---
 
-### Endpoint: `POST /api/career/accommodation-requests`
-Creates a new accommodation request draft.
+### 4.2 `POST /api/career/questions`
+Answers learner questions regarding job opportunities, skills, and accommodations in English or Amharic.
 
-#### Request Headers
-```http
-Content-Type: application/json
-```
-
-#### Request Payload
+#### Request Body
 ```json
 {
-  "jobId": "job-sample-01",
-  "accommodations": [
-    "Screen reader compatible task management software (NVDA verified)",
-    "Written asynchronous summaries of all video standup meetings",
-    "Flexible 15-minute breaks during long continuous computer work"
-  ],
-  "justification": "Enables high-efficiency document review and prevents cognitive fatigue.",
-  "learnerIdentifier": "Learner-Amara"
+  "question": "Which jobs accommodate screen readers and are 100% remote?",
+  "language": "en"
 }
 ```
-
-#### Successful Response (`201 Created`)
-```json
-{
-  "success": true,
-  "draftId": "draft_acc_1794654799939_wnkw5g",
-  "status": "draft",
-  "isDelivered": false,
-  "deliveryStatus": "NOT_SENT_DRAFT_ONLY",
-  "deliveryNotice": "DRAFT ONLY: This accommodation request is saved locally as a self-advocacy draft. It has NOT been sent to the employer or any external party.",
-  "draft": {
-    "draftId": "draft_acc_1794654799939_wnkw5g",
-    "job": {
-      "id": "job-sample-01",
-      "title": "Remote Virtual Executive Assistant",
-      "organization": "EquiWorks Global (Sample Organization)",
-      "location": "Remote (Global / Africa Flexible)",
-      "isSample": true
-    },
-    "requestedAccommodations": [
-      "Screen reader compatible task management software (NVDA verified)",
-      "Written asynchronous summaries of all video standup meetings",
-      "Flexible 15-minute breaks during long continuous computer work"
-    ],
-    "justification": "Enables high-efficiency document review and prevents cognitive fatigue.",
-    "learnerIdentifier": "Learner-Amara",
-    "createdAt": "2026-11-14T11:46:00.000Z"
-  }
-}
-```
-
-#### Error Response — Missing `jobId` (`400 Bad Request`)
-```json
-{
-  "success": false,
-  "error": "A valid jobId is required to draft an accommodation request.",
-  "field": "jobId",
-  "isDelivered": false,
-  "deliveryNotice": "DRAFT ONLY: Requests are not transmitted to employers in this simulation."
-}
-```
-
-#### Error Response — Job Not Found (`404 Not Found`)
-```json
-{
-  "success": false,
-  "error": "Sample job not found for ID: non-existent-id",
-  "field": "jobId",
-  "isDelivered": false,
-  "deliveryNotice": "DRAFT ONLY: Requests are not transmitted to employers in this simulation."
-}
-```
-
-#### Error Response — Empty Accommodations (`400 Bad Request`)
-```json
-{
-  "success": false,
-  "error": "At least one accommodation must be specified in the request draft.",
-  "field": "accommodations",
-  "isDelivered": false,
-  "deliveryNotice": "DRAFT ONLY: Requests are not transmitted to employers in this simulation."
-}
-```
-
----
-
-### Endpoint: `GET /api/career/accommodation-requests/:id`
-Retrieves a previously saved draft by its `draftId`.
 
 #### Response (`200 OK`)
 ```json
 {
   "success": true,
-  "draft": {
-    "draftId": "draft_acc_1794654799939_wnkw5g",
-    "status": "draft",
-    "isDelivered": false,
-    "deliveryStatus": "NOT_SENT_DRAFT_ONLY",
-    "deliveryNotice": "DRAFT ONLY: This accommodation request is saved locally as a self-advocacy draft...",
-    "job": {
-      "id": "job-sample-01",
-      "title": "Remote Virtual Executive Assistant"
-    },
-    "requestedAccommodations": [
-      "Screen reader compatible task management software (NVDA verified)"
-    ]
-  }
+  "question": "Which jobs accommodate screen readers and are 100% remote?",
+  "language": "en",
+  "answer": "We found 2 opportunities with verified screen reader compatibility and accessibility accommodations:\n\n• Executive Virtual Assistant at AfriTech Global Solutions (Remote (Pan-Africa))...\n\nYou can prepare an Interview Accommodation Request draft for any of these roles directly on this platform.",
+  "matchedJobsCount": 2,
+  "matchingJobIds": ["v4a-job-001", "v4a-job-003"],
+  "suggestions": [
+    "How do I request interview accommodations?",
+    "Which jobs are 100% remote?",
+    "Tell me about the Accessibility QA role"
+  ],
+  "isSample": true
 }
 ```
 
 ---
 
-## 5. Verification and Test Results
+### 4.3 `POST /api/career/accommodation-requests`
+Drafts an interview or workplace accommodation request.
 
-Verified using automated test suite (`scratch/test_career.js`):
-1. **TC-CAR-01 (Retrieve All Jobs):** Returns 5 sample jobs, all flagged with `isSample: true` and complete accessibility info. (PASSED)
-2. **TC-CAR-02 (Retrieve Job by ID):** Successfully retrieves `job-sample-01`. (PASSED)
-3. **TC-CAR-03 (Search Filter):** Filtering by `"Screen Reader"` returns matching accessible roles. (PASSED)
-4. **TC-CAR-04 (Draft Accommodation Request):** Successfully creates a draft with unique `draft_acc_` ID, `status: "draft"`, `isDelivered: false`, and clear delivery notice. (PASSED)
-5. **TC-CAR-05 (Job ID Validation):** Rejects missing `jobId` with HTTP 400 and invalid `jobId` with HTTP 404. (PASSED)
-6. **TC-CAR-06 (Accommodation List Validation):** Rejects empty accommodation requests with HTTP 400. (PASSED)
-7. **TC-CAR-07 (Delivery Status Assertion):** Confirms that `isDelivered` is strictly `false` and that response disclaimers explicitly warn that the draft has not been sent to any employer. (PASSED)
+#### Request Body (supports Member 1 frontend and Phase 1 schemas)
+```json
+{
+  "job_id": "v4a-job-001",
+  "job_title": "Executive Virtual Assistant",
+  "accommodations": [
+    "Advance interview questions provided in writing (24 hours prior)",
+    "Live captions and transcript during video calls",
+    "Camera-optional interview format"
+  ],
+  "details": "Enables optimal verbal participation and prevents visual fatigue.",
+  "contact_email": "amara.learner@example.org",
+  "language": "en"
+}
+```
+
+#### Response (`201 Created`)
+```json
+{
+  "success": true,
+  "draftId": "ACC-2026-8921",
+  "request_id": "ACC-2026-8921",
+  "status": "draft_recorded",
+  "isDelivered": false,
+  "deliveryStatus": "NOT_SENT_DRAFT_ONLY",
+  "deliveryNotice": "DRAFT ONLY: This accommodation request is saved locally as an interview self-advocacy draft. It has NOT been sent to the employer. Voice4All provides preparation and drafting tools; actual submission requires external recruiter coordination.",
+  "interviewChecklist": [
+    "Review your requested accommodations with your career mentor or peer coach.",
+    "Send this written draft to your employer recruiter or interview coordinator at least 48 hours prior to the conversation.",
+    "Test your assistive software (screen reader, captions, or speech-to-text) on the video platform before the interview.",
+    "Prepare 2-3 examples of how you deliver excellent VA work using your accommodations."
+  ],
+  "draft": { ... }
+}
+```
+
+---
+
+### 4.4 Telegram Integration Endpoints
+
+- `POST /api/career/notifications/telegram/subscribe`:
+  Registers learner chat ID and notification preferences.
+- `POST /api/career/notifications/telegram/broadcast`:
+  Dispatches screen-reader formatted Markdown alerts.
+- `GET /api/career/notifications/telegram/status`:
+  Returns integration status and mode (`live_gateway` if `TELEGRAM_BOT_TOKEN` set; otherwise `simulated_demo`).
+
+---
+
+### 4.5 SMS-Compatible Notification Interface
+
+- `POST /api/career/notifications/sms/preview`:
+  Returns exact SMS text, character count, and verifies single-segment (≤ 160 characters) GSM-7 compliance.
+- `POST /api/career/notifications/sms/subscribe`:
+  Subscribes a mobile number for feature-phone SMS job alerts.
+- `POST /api/career/notifications/sms/send`:
+  Simulates SMS alert delivery with delivery timestamp and segment count.
+
+---
+
+## 5. Documentation of Incomplete & Simulated Functionality
+
+| Capability | Current Implementation Status | Production Roadmap |
+| :--- | :--- | :--- |
+| **Job Browsing & Multilingual Filtering** | **Fully Functional:** Filter by keyword, category, location, and English/Amharic languages. | Real-time synchronization with external applicant tracking systems (ATS). |
+| **Career Guidance Q&A** | **Fully Functional:** Analyzes job dataset and generates structured guidance in English and Amharic. | Augment with live LLM embeddings for deeper semantic matching. |
+| **Interview Accommodation Drafting** | **Fully Functional:** Drafts requests with `isDelivered: false` and produces self-advocacy preparation checklists. | Optional encrypted email dispatch with learner confirmation. |
+| **Telegram Job Alerts** | **Functional with Simulated Fallback:** Complete Markdown formatting and subscription management. If `TELEGRAM_BOT_TOKEN` is present in `.env`, dispatches live to Telegram Bot API; otherwise operates in simulated mode. | Set up webhook receiver for interactive Telegram bot inline keyboards. |
+| **Low-Bandwidth SMS Delivery** | **Simulated Gateway:** Formatter enforces 160-char GSM-7 single-segment constraints and calculates UCS-2 multi-segment payloads. Real cellular delivery is simulated. | In production, plug into Twilio or Africa's Talking SMS API gateway using production API credentials. |
