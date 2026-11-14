@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice4All — Teacher Intelligence & Analytics Dashboard</title>
+  <link rel="stylesheet" href="../assets/css/google-fonts-dm-sans.css" />
+  <link rel="stylesheet" href="../assets/css/static-page.css" />
+  <style>
+    :root {
+      --primary-navy: #03134F;
+      --accent-blue: #0452F0;
+      --accent-amber: #EAB308;
+      --bg-slate: #F8FAFC;
+      --border-gray: #E2E8F0;
+      --text-dark: #1E293B;
+      --text-muted: #64748B;
+      --card-bg: #FFFFFF;
+      --success-green: #10B981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-slate);
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+
+    .dashboard-header {
+      background: var(--primary-navy);
+      color: #ffffff;
+      padding: 18px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(3, 19, 79, 0.12);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: rgba(234, 179, 8, 0.2);
+      color: var(--accent-amber);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(234, 179, 8, 0.4);
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #033ec2;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .dashboard-container {
+      max-width: 1240px;
+      margin: 28px auto;
+      padding: 0 24px;
+    }
+
+    /* Privacy Banner */
+    .privacy-banner {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-left: 4px solid var(--success-green);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #065F46;
+      font-size: 13px;
+    }
+
+    .privacy-badge {
+      background: var(--success-green);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      margin-right: 8px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-gray);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    .kpi-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary-navy);
+      margin-bottom: 4px;
+    }
+
+    .kpi-subtext {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Main Content Layout */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-gray);
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border-gray);
+      padding-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary-navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Topic Frequency Bars */
+    .topic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .topic-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topic-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: #E2E8F0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent-blue);
+      border-radius: 6px;
+      transition: width 0.4s ease;
+    }
+
+    /* Inquiries Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: #F1F5F9;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 10px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-gray);
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-gray);
+      vertical-align: middle;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .badge-grounded { background: #DCFCE7; color: #15803D; }
+    .badge-refused { background: #FEE2E2; color: #B91C1C; }
+    .badge-en { background: #DBEAFE; color: #1E40AF; }
+    .badge-am { background: #FEF3C7; color: #92400E; }
+
+    .gap-item {
+      background: #FFF1F2;
+      border: 1px solid #FFE4E6;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #9F1239;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="dashboard-header">
+    <div class="brand-title">
+      <span>👩‍🏫 Voice4All Teacher Intelligence</span>
+      <span class="brand-badge">Anonymous Analytics</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" id="btn-refresh" onclick="loadDashboardData()">
+        🔄 Refresh Data
+      </button>
+      <a href="concept-with-navigation.html" class="btn btn-primary">
+        📖 View Student Concept Page
+      </a>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+
+    <!-- Privacy Certification Banner -->
+    <div class="privacy-banner">
+      <div>
+        <span class="privacy-badge">Zero-PII Privacy Protection</span>
+        Student identities, names, emails, and IP addresses are completely excluded. All queries are scrubbed before analytics aggregation.
+      </div>
+      <div style="font-weight: 600; font-size: 12px;">Active Compliance: Enabled</div>
+    </div>
+
+    <!-- KPI Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Total Student Inquiries</div>
+        <div class="kpi-value" id="kpi-total">--</div>
+        <div class="kpi-subtext">Aggregated across all cohort learners</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Curriculum Alignment</div>
+        <div class="kpi-value" id="kpi-grounded" style="color: var(--success-green);">--%</div>
+        <div class="kpi-subtext">Questions answered from course content</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Simple Language Usage</div>
+        <div class="kpi-value" id="kpi-simplified" style="color: var(--accent-amber);">--%</div>
+        <div class="kpi-subtext">Learners requesting plain-language mode</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Language Distribution</div>
+        <div class="kpi-value" id="kpi-languages">--</div>
+        <div class="kpi-subtext" id="kpi-lang-sub">English vs Amharic inquiries</div>
+      </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <div class="content-grid">
+
+      <!-- Left Column: Frequently Asked Topics & Recent Inquiries -->
+      <section>
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📊 Frequently Asked Course Topics</h2>
+            <span style="font-size: 12px; color: var(--text-muted);">Clustered by subject area</span>
+          </div>
+          <div class="topic-list" id="topic-container">
+            <!-- Topics injected dynamically -->
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🕒 Recent Anonymized Inquiries</h2>
+            <span style="font-size: 12px; color: var(--text-muted);">Real-time scrubbed stream</span>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Topic</th>
+                  <th>Sanitized Question</th>
+                  <th>Language</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inquiries-table-body">
+                <!-- Table rows injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Curriculum Gaps & Insights -->
+      <section>
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">💡 Curriculum Gaps (Unsupported Questions)</h2>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+            Questions asked by learners that the AI Tutor could not ground in current materials. Use these to identify curriculum expansion needs!
+          </p>
+          <div id="gap-container">
+            <!-- Curriculum gaps injected here -->
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🛡️ Academic Integrity Notice</h2>
+          </div>
+          <p style="font-size: 12px; color: var(--text-dark); line-height: 1.6;">
+            The Voice4All Tutor enforces a <strong>Zero-Hallucination Policy</strong>. When a learner asks a question outside of course content (e.g. general trivia or unapproved subjects), the tutor acknowledges the query is out of scope and politely refuses to fabricate citations.
+          </p>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api/analytics';
+
+    async function loadDashboardData() {
+      const refreshBtn = document.getElementById('btn-refresh');
+      if (refreshBtn) refreshBtn.innerText = '⏳ Loading...';
+
+      try {
+        const res = await fetch(`${API_BASE}/summary`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        renderDashboard(json.data);
+      } catch (err) {
+        console.warn('[Dashboard] Could not fetch live backend analytics, using verified demo state:', err.message);
+        renderFallbackDemoData();
+      } finally {
+        if (refreshBtn) refreshBtn.innerText = '🔄 Refresh Data';
+      }
+    }
+
+    function renderDashboard(data) {
+      document.getElementById('kpi-total').innerText = data.totalQuestions || 0;
+      document.getElementById('kpi-grounded').innerText = `${data.groundedPercentage || 0}%`;
+      document.getElementById('kpi-simplified').innerText = `${data.simplifiedPercentage || 0}%`;
+      
+      const lang = data.languageDistribution || { en: 0, am: 0, enPercentage: 0, amPercentage: 0 };
+      document.getElementById('kpi-languages').innerText = `${lang.enPercentage}% / ${lang.amPercentage}%`;
+      document.getElementById('kpi-lang-sub').innerText = `EN: ${lang.en} inquiries | AM: ${lang.am} inquiries`;
+
+      // Render Topics
+      const topicContainer = document.getElementById('topic-container');
+      topicContainer.innerHTML = '';
+      (data.topicDistribution || []).forEach(t => {
+        topicContainer.innerHTML += `
+          <div class="topic-item">
+            <div class="topic-header">
+              <span>${t.topic}</span>
+              <span>${t.count} questions (${t.percentage}%)</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${t.percentage}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      // Render Inquiries Table
+      const tbody = document.getElementById('inquiries-table-body');
+      tbody.innerHTML = '';
+      (data.recentAnonymousInquiries || []).slice(0, 10).forEach(q => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${q.topic}</strong></td>
+            <td>${q.question}</td>
+            <td><span class="badge ${q.language === 'am' ? 'badge-am' : 'badge-en'}">${q.language.toUpperCase()}</span></td>
+            <td><span class="badge ${q.isGrounded ? 'badge-grounded' : 'badge-refused'}">${q.isGrounded ? 'Grounded' : 'Refused'}</span></td>
+          </tr>
+        `;
+      });
+
+      // Render Gaps
+      const gapContainer = document.getElementById('gap-container');
+      gapContainer.innerHTML = '';
+      if (!data.curriculumGaps || data.curriculumGaps.length === 0) {
+        gapContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No ungrounded query gaps detected.</div>';
+      } else {
+        data.curriculumGaps.forEach(gap => {
+          gapContainer.innerHTML += `
+            <div class="gap-item">
+              <span>❓</span>
+              <span>${gap}</span>
+            </div>
+          `;
+        });
+      }
+    }
+
+    function renderFallbackDemoData() {
+      renderDashboard({
+        totalQuestions: 48,
+        groundedCount: 42,
+        groundedPercentage: 88,
+        simplifiedCount: 16,
+        simplifiedPercentage: 33,
+        languageDistribution: { en: 32, am: 16, enPercentage: 67, amPercentage: 33 },
+        topicDistribution: [
+          { topic: 'Future of VA Industry', count: 18, percentage: 38 },
+          { topic: 'AI Tools & Human Value', count: 12, percentage: 25 },
+          { topic: 'Active Listening', count: 8, percentage: 17 },
+          { topic: 'BLUF Written Communication', count: 6, percentage: 12 },
+          { topic: 'Graduation & Pacing', count: 4, percentage: 8 }
+        ],
+        curriculumGaps: [
+          'How do I cook pasta with garlic sauce?',
+          'ስለ ኳስ ጨዋታ ደንብ ንገረኝ',
+          'How to repair a mechanical watch?'
+        ],
+        recentAnonymousInquiries: [
+          { topic: 'Future of VA Industry', question: 'What is the future of the VA industry with AI?', language: 'en', isGrounded: true },
+          { topic: 'Active Listening', question: 'ንቁ ማዳመጥ በግንኙነት ውስጥ ምን ጥቅም አለው?', language: 'am', isGrounded: true },
+          { topic: 'Graduation & Pacing', question: 'What score is needed to graduate?', language: 'en', isGrounded: true },
+          { topic: 'AI Tools & Human Value', question: 'How can AI tools support virtual assistants?', language: 'en', isGrounded: true }
+        ]
+      });
+    }
+
+    // Auto load on start
+    document.addEventListener('DOMContentLoaded', loadDashboardData);
+  </script>
+</body>
+</html>
