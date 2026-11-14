@@ -201,12 +201,32 @@ Drafts an interview or workplace accommodation request.
 
 ---
 
+### 4.6 Learning & Development Resources Endpoints (Phase 4)
+
+- `GET /api/career/resources`:
+  Retrieves structured learning and professional development modules with category filtering (`assistive_tech`, `va_skills`, `self_advocacy`, `certifications`), keyword query (`q`), and language localization (`en` or `am`).
+- `GET /api/career/resources/:id`:
+  Retrieves full interactive study guide, key takeaways, and action steps for a specific module.
+
+---
+
 ## 5. Documentation of Incomplete & Simulated Functionality
 
 | Capability | Current Implementation Status | Production Roadmap |
 | :--- | :--- | :--- |
 | **Job Browsing & Multilingual Filtering** | **Fully Functional:** Filter by keyword, category, location, and English/Amharic languages. | Real-time synchronization with external applicant tracking systems (ATS). |
+| **Learning & Skills Pathways** | **Fully Functional:** 8 modules across 4 categories with local progress tracking and study guides. | Sync course progress with ALX Savanna LMS backend credentials. |
 | **Career Guidance Q&A** | **Fully Functional:** Analyzes job dataset and generates structured guidance in English and Amharic. | Augment with live LLM embeddings for deeper semantic matching. |
 | **Interview Accommodation Drafting** | **Fully Functional:** Drafts requests with `isDelivered: false` and produces self-advocacy preparation checklists. | Optional encrypted email dispatch with learner confirmation. |
 | **Telegram Job Alerts** | **Functional with Simulated Fallback:** Complete Markdown formatting and subscription management. If `TELEGRAM_BOT_TOKEN` is present in `.env`, dispatches live to Telegram Bot API; otherwise operates in simulated mode. | Set up webhook receiver for interactive Telegram bot inline keyboards. |
 | **Low-Bandwidth SMS Delivery** | **Simulated Gateway:** Formatter enforces 160-char GSM-7 single-segment constraints and calculates UCS-2 multi-segment payloads. Real cellular delivery is simulated. | In production, plug into Twilio or Africa's Talking SMS API gateway using production API credentials. |
+
+---
+
+## 6. Phase 4 Frontend Architecture (`pages/career-development.html`)
+
+The learner-facing Career Development portal provides an accessible, responsive experience integrated with Savanna:
+1. **WCAG 2.1 AA Compliance:** Skip links, semantic landmarks (`role="main"`, `role="tablist"`), visible focus rings (`:focus-visible`), and high-contrast / large-text switches.
+2. **Tabbed Navigation:** ARIA-compliant tab navigation with Arrow key keyboard navigation between Opportunities Hub, Career Advisor, Learning Pathways, Accommodation Drafter, Job Alerts, and Portfolio.
+3. **Interactive Drafter:** Generates copyable, print-ready self-advocacy letters with honest `isDelivered: false` labeling.
+4. **Learning Progress:** Persists completed modules and bookmarked roles via `localStorage`.

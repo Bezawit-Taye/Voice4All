@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Career & Professional Development | Voice4All & ALX Savanna</title>
+
+  <!-- Savanna Core Stylesheets -->
+  <link rel="stylesheet" href="../assets/css/typekit-xgz4ilr-css.css">
+  <link rel="stylesheet" href="../assets/css/application_alx.css" media="all">
+  <link rel="stylesheet" href="../assets/css/app.css" media="all">
+  <link rel="stylesheet" href="../assets/css/static-page.css" media="all">
+
+  <!-- Voice4All Career Stylesheet (WCAG 2.1 AA Compliant) -->
+  <link rel="stylesheet" href="../assets/css/career.css" media="all">
+</head>
+
+<body class="signed_in env_development notranslate" translate="no" data-theme-suffix="_alx">
+  <!-- Skip to Main Content Link for Keyboard and Screen Reader Accessibility -->
+  <a href="#career-main-content" class="career-skip-link">Skip to main career content</a>
+
+  <!-- Savanna Application Header -->
+  <header class="header d-flex align-items-center position-fixed top-0 w-100" style="z-index: 1000;" role="banner">
+    <div class="header-left align-items-center d-flex position-fixed px-2" style="z-index: 2;">
+      <button type="button" class="hamburger mb-0 p-2 color-primary" aria-label="Toggle navigation menu" style="cursor: pointer; font-size: 24px; background: none; border: none;">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+      <a class="logo-container p-1" href="homepage-v1-self-paced.html" aria-label="ALX Savanna Home">
+        <div class="logo mx-auto" style="background-image: url('../assets/img/holberton-logo-full-alx.png');" role="img" aria-label="ALX Logo"></div>
+      </a>
+    </div>
+    <div class="header-right d-flex align-items-center flex-grow-1 justify-content-end px-4" style="z-index: 1;">
+      <span class="badge" style="background: #2563eb; color: #fff; font-size: 13px; padding: 6px 12px; border-radius: 9999px;">
+        <i class="fa-solid fa-briefcase" aria-hidden="true"></i> Career Development Gateway
+      </span>
+    </div>
+  </header>
+
+  <!-- Savanna Sidebar Navigation -->
+  <nav class="sidebar navigation bg-white border-end position-fixed overflow-scroll bottom-0 start-0 expanded" id="sidebar" aria-label="Primary navigation" style="background-color: rgb(255, 255, 255); border-color: rgb(238, 238, 238);">
+    <ul class="px-2" style="list-style: none; padding-left: 0;">
+      <li>
+        <a href="homepage-v1-self-paced.html">
+          <div class="icon"><i aria-hidden="true" class="fa-solid fa-home"></i></div>
+          <div class="ps-3 overflow-hidden text-nowrap">Home</div>
+        </a>
+      </li>
+      <li>
+        <a href="concept-with-navigation.html">
+          <div class="icon"><i aria-hidden="true" class="fa-solid fa-chalkboard-teacher"></i></div>
+          <div class="ps-3 overflow-hidden text-nowrap">Access my learning</div>
+        </a>
+      </li>
+      <li class="active-item" style="background: #eff6ff; border-radius: 6px;">
+        <a href="career-development.html" aria-current="page">
+          <div class="icon active" style="color: #2563eb;"><i aria-hidden="true" class="fa-solid fa-briefcase"></i></div>
+          <div class="ps-3 overflow-hidden text-nowrap fw-semibold" style="color: #1e40af;">Career Development</div>
+        </a>
+      </li>
+      <li>
+        <a href="support-dashboard.html">
+          <div class="icon"><i aria-hidden="true" class="fa-solid fa-headset"></i></div>
+          <div class="ps-3 overflow-hidden text-nowrap">Live Help & Support</div>
+        </a>
+      </li>
+      <hr title="Resources" style="margin: 12px 0;">
+      <li>
+        <a href="concept-with-navigation.html">
+          <div class="icon"><i aria-hidden="true" class="fa-solid fa-graduation-cap"></i></div>
+          <div class="ps-3 overflow-hidden text-nowrap">My courses</div>
+        </a>
+      </li>
+      <li>
+        <a href="concept-with-navigation.html">
+          <div class="icon"><i aria-hidden="true" class="fa-solid fa-file-text"></i></div>
+          <div class="ps-3 overflow-hidden text-nowrap">Concepts</div>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content Wrapper -->
+  <main id="career-main-content" class="content" style="padding-top: 80px;" role="main">
+    <div class="career-container">
+
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumb" style="margin-bottom: 16px; font-size: 14px; color: #64748b;">
+        <ol style="list-style: none; display: flex; gap: 8px; padding: 0; margin: 0;">
+          <li><a href="homepage-v1-self-paced.html" style="color: #2563eb; text-decoration: none;">Home</a></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" style="color: #0f172a; font-weight: 600;">Career & Professional Development</li>
+        </ol>
+      </nav>
+
+      <!-- Accessibility Toolbar -->
+      <aside class="career-a11y-bar" aria-label="Accessibility options">
+        <div style="font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-universal-access" style="color: #2563eb;" aria-hidden="true"></i>
+          <span>Accessibility Preferences:</span>
+        </div>
+        <div class="career-a11y-controls">
+          <button type="button" id="btn-toggle-hc" class="btn-a11y-toggle" aria-pressed="false">
+            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+            <span>High Contrast</span>
+          </button>
+          <button type="button" id="btn-toggle-lt" class="btn-a11y-toggle" aria-pressed="false">
+            <i class="fa-solid fa-text-height" aria-hidden="true"></i>
+            <span>Large Text</span>
+          </button>
+          <button type="button" id="btn-toggle-lang" class="btn-a11y-toggle">
+            <i class="fa-solid fa-language" aria-hidden="true"></i>
+            <span>አማርኛ</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Hero Section -->
+      <section class="career-hero" aria-labelledby="career-hero-heading">
+        <div class="career-hero-content">
+          <h1 id="career-hero-heading" class="career-hero-title" data-i18n="hero_title">Career & Professional Development</h1>
+          <p class="career-hero-subtitle" data-i18n="hero_subtitle">
+            Explore inclusive virtual assistant opportunities, develop in-demand digital accessibility skills, and draft professional interview accommodations.
+          </p>
+        </div>
+        <div class="career-hero-actions">
+          <span class="career-badge career-badge-accessible" style="font-size: 13px; padding: 6px 12px;">
+            <i class="fa-solid fa-check" aria-hidden="true"></i> Screen-Reader Verified
+          </span>
+          <span class="career-badge career-badge-remote" style="font-size: 13px; padding: 6px 12px;">
+            <i class="fa-solid fa-earth-africa" aria-hidden="true"></i> Inclusive Remote Work
+          </span>
+        </div>
+      </section>
+
+      <!-- Honest Simulation Disclaimer -->
+      <div class="career-honesty-banner" role="note" aria-label="Simulation transparency notice">
+        <i class="fa-solid fa-circle-exclamation" style="font-size: 20px; color: #b45309; margin-top: 2px;" aria-hidden="true"></i>
+        <div>
+          <strong data-i18n="honesty_notice_title">Simulated Demonstration Opportunities & Drafter Practice</strong>
+          <span data-i18n="honesty_notice_text">
+            All sample job listings and accommodation drafts are simulated for learning and self-advocacy practice. Accommodation drafts are saved locally for your preparation and are NOT transmitted to employers.
+          </span>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="career-tabs-nav" role="tablist" aria-label="Career development sections">
+        <button type="button" class="career-tab-btn" role="tab" id="tab-jobs" data-tab="jobs" aria-selected="true" aria-controls="panel-jobs" tabindex="0">
+          <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+          <span data-i18n="tab_jobs">Opportunities Hub</span>
+        </button>
+        <button type="button" class="career-tab-btn" role="tab" id="tab-guidance" data-tab="guidance" aria-selected="false" aria-controls="panel-guidance" tabindex="-1">
+          <i class="fa-solid fa-comments" aria-hidden="true"></i>
+          <span data-i18n="tab_guidance">Career Advisor & Q&A</span>
+        </button>
+        <button type="button" class="career-tab-btn" role="tab" id="tab-resources" data-tab="resources" aria-selected="false" aria-controls="panel-resources" tabindex="-1">
+          <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
+          <span data-i18n="tab_resources">Learning & Skills Pathways</span>
+        </button>
+        <button type="button" class="career-tab-btn" role="tab" id="tab-drafter" data-tab="drafter" aria-selected="false" aria-controls="panel-drafter" tabindex="-1">
+          <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+          <span data-i18n="tab_drafter">Interview Accommodation Drafter</span>
+        </button>
+        <button type="button" class="career-tab-btn" role="tab" id="tab-notifications" data-tab="notifications" aria-selected="false" aria-controls="panel-notifications" tabindex="-1">
+          <i class="fa-solid fa-bell" aria-hidden="true"></i>
+          <span data-i18n="tab_notifications">Job Alerts & SMS</span>
+        </button>
+        <button type="button" class="career-tab-btn" role="tab" id="tab-saved" data-tab="saved" aria-selected="false" aria-controls="panel-saved" tabindex="-1">
+          <i class="fa-solid fa-bookmark" aria-hidden="true"></i>
+          <span data-i18n="tab_saved">My Portfolio</span>
+        </button>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- TAB 1: OPPORTUNITIES HUB                                          -->
+      <!-- ================================================================= -->
+      <section class="career-tab-panel active" id="panel-jobs" role="tabpanel" aria-labelledby="tab-jobs">
+        <!-- Search & Filter Controls -->
+        <div class="career-filter-card">
+          <div class="career-filter-row">
+            <div class="career-search-input-wrap">
+              <i class="fa-solid fa-magnifying-glass career-search-icon" aria-hidden="true"></i>
+              <label for="job-search-input" class="career-sr-only">Search roles, skills, or accommodations</label>
+              <input type="search" id="job-search-input" class="career-search-input" placeholder="Search roles, skills, or accommodations..." data-i18n-placeholder="search_placeholder">
+            </div>
+
+            <div class="career-select-wrap">
+              <label for="job-type-select" class="career-sr-only">Filter by work arrangement</label>
+              <select id="job-type-select" class="career-select">
+                <option value="all" data-i18n="all_types">All Work Types</option>
+                <option value="remote" data-i18n="remote_only">100% Remote</option>
+                <option value="fulltime" data-i18n="fulltime">Full-Time</option>
+                <option value="parttime" data-i18n="parttime">Part-Time</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="career-checkbox-label">
+                <input type="checkbox" id="job-a11y-check">
+                <span data-i18n="accessible_only_label">Verified Accessible Workplaces Only</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jobs Grid Container -->
+        <div class="career-grid" id="jobs-grid-container" aria-live="polite">
+          <!-- Populated dynamically via career-app.js -->
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 2: CAREER ADVISOR & Q&A                                       -->
+      <!-- ================================================================= -->
+      <section class="career-tab-panel" id="panel-guidance" role="tabpanel" aria-labelledby="tab-guidance" hidden>
+        <div class="career-qa-container">
+          <!-- Left: Prompting Form -->
+          <div class="career-qa-box">
+            <h2 style="font-size: 20px; font-weight: 700; margin: 0 0 10px 0; color: #0f172a;">
+              <i class="fa-solid fa-comments" style="color: #2563eb;" aria-hidden="true"></i> Career Guidance Advisor
+            </h2>
+            <p style="font-size: 14px; color: #475569; margin-bottom: 16px;">
+              Ask questions about virtual assistant career pathways, assistive technology compatibility, or workplace accommodation policies.
+            </p>
+
+            <span style="font-size: 13px; font-weight: 600; color: #64748b;">Suggested inquiries:</span>
+            <div class="career-prompt-pills" role="group" aria-label="Suggested questions">
+              <button type="button" class="btn-prompt-pill">Which jobs accommodate screen readers and are 100% remote?</button>
+              <button type="button" class="btn-prompt-pill">How do I request accommodations for video interviews?</button>
+              <button type="button" class="btn-prompt-pill">What skills does an Accessibility QA Assistant need?</button>
+              <button type="button" class="btn-prompt-pill">የርቀት የሥራ ዕድሎች የትኞቹ ናቸው?</button>
+            </div>
+
+            <form id="advisor-ask-form" style="margin-top: 16px;">
+              <label for="advisor-question-input" class="career-sr-only">Your career question</label>
+              <textarea id="advisor-question-input" rows="3" class="career-search-input" style="padding-left: 14px; resize: vertical;" placeholder="Type your career inquiry here..." required></textarea>
+              <div style="margin-top: 12px; text-align: right;">
+                <button type="submit" id="btn-ask-advisor" class="btn-career btn-career-primary">
+                  <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                  <span data-i18n="ask_btn">Ask Advisor</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Structured Answer Output -->
+          <div class="career-qa-box">
+            <h3 style="font-size: 18px; font-weight: 700; margin: 0 0 10px 0; color: #0f172a;">
+              <i class="fa-solid fa-lightbulb" style="color: #f59e0b;" aria-hidden="true"></i> Guidance & Job Matches
+            </h3>
+            <div id="advisor-answer-container">
+              <div class="career-empty-state" style="padding: 28px 16px;">
+                <i class="fa-solid fa-robot career-empty-icon" style="font-size: 32px;"></i>
+                <p style="color: #64748b; margin: 0; font-size: 14px;">
+                  Select a suggested question above or type your inquiry to receive grounded advice and matching job listings.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 3: LEARNING & SKILLS PATHWAYS                                 -->
+      <!-- ================================================================= -->
+      <section class="career-tab-panel" id="panel-resources" role="tabpanel" aria-labelledby="tab-resources" hidden>
+        <!-- Progress Bar Card -->
+        <div class="career-filter-card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; font-size: 15px; color: #0f172a;">
+              <i class="fa-solid fa-graduation-cap" style="color: #15803d;" aria-hidden="true"></i> Your Learning Progress
+            </span>
+            <span id="learning-progress-label" style="font-size: 13px; font-weight: 600; color: #475569;">0 of 8 modules completed (0%)</span>
+          </div>
+          <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="learning-progress-bar" style="background: #15803d; width: 0%; height: 100%; transition: width 0.3s;"></div>
+          </div>
+        </div>
+
+        <!-- Category Filters -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+          <button type="button" class="btn-career btn-career-primary btn-resource-cat-pill" data-cat="all">All Modules</button>
+          <button type="button" class="btn-career btn-career-outline btn-resource-cat-pill" data-cat="assistive_tech">Assistive Technology</button>
+          <button type="button" class="btn-career btn-career-outline btn-resource-cat-pill" data-cat="va_skills">VA Core Competencies</button>
+          <button type="button" class="btn-career btn-career-outline btn-resource-cat-pill" data-cat="self_advocacy">Self-Advocacy & Rights</button>
+          <button type="button" class="btn-career btn-career-outline btn-resource-cat-pill" data-cat="certifications">Certifications & Pathways</button>
+        </div>
+
+        <!-- Resources Grid -->
+        <div class="career-grid" id="resources-grid-container" aria-live="polite">
+          <!-- Populated dynamically via career-app.js -->
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 4: INTERVIEW ACCOMMODATION DRAFTER                             -->
+      <!-- ================================================================= -->
+      <section class="career-tab-panel" id="panel-drafter" role="tabpanel" aria-labelledby="tab-drafter" hidden>
+        <div class="career-drafter-card">
+          <h2 style="font-size: 22px; font-weight: 700; margin: 0 0 8px 0; color: #0f172a;">
+            <i class="fa-solid fa-file-pen" style="color: #2563eb;" aria-hidden="true"></i> Interview Accommodation Request Drafter
+          </h2>
+          <p style="font-size: 14px; color: #475569; margin-bottom: 24px;">
+            Prepare an assertive, professional self-advocacy letter requesting interview accommodations. Saved locally as a draft for your interview preparation.
+          </p>
+
+          <form id="drafter-form">
+            <!-- Step 1: Select Target Role -->
+            <div class="drafter-step">
+              <label for="drafter-job-select" class="drafter-step-title">
+                <span>1. Select Target Job / Opportunity</span>
+              </label>
+              <select id="drafter-job-select" class="career-select" style="max-width: 100%;">
+                <!-- Populated dynamically with available jobs -->
+              </select>
+            </div>
+
+            <!-- Step 2: Choose Accommodations -->
+            <div class="drafter-step">
+              <div class="drafter-step-title">
+                <span>2. Select Requested Accommodations</span>
+              </div>
+              <div class="drafter-checklist" id="drafter-checklist-container">
+                <!-- Checkboxes populated based on selected job -->
+              </div>
+            </div>
+
+            <!-- Step 3: Additional Context & Contact Info -->
+            <div class="drafter-step">
+              <label for="drafter-details-input" class="drafter-step-title">
+                <span>3. Specific Assistive Tools / Notes (Optional)</span>
+              </label>
+              <textarea id="drafter-details-input" rows="2" class="career-search-input" style="padding-left: 14px; margin-bottom: 14px;" placeholder="e.g. I use NVDA screen reader software on Windows. Requesting questions in plain text 24 hours prior."></textarea>
+
+              <label for="drafter-email-input" class="drafter-step-title">
+                <span>4. Recruiter or Learner Contact Email</span>
+              </label>
+              <input type="email" id="drafter-email-input" class="career-search-input" style="padding-left: 14px;" placeholder="learner.name@example.org">
+            </div>
+
+            <div style="text-align: right; margin-top: 20px;">
+              <button type="submit" id="btn-generate-draft" class="btn-career btn-career-primary" style="font-size: 15px; padding: 10px 20px;">
+                <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Generate Official Self-Advocacy Draft
+              </button>
+            </div>
+          </form>
+
+          <!-- Generated Draft Output Area -->
+          <div id="drafter-output-container" style="display: none; margin-top: 32px; border-top: 2px solid #e2e8f0; padding-top: 24px;">
+            <div class="career-honesty-banner">
+              <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px; color: #b45309;" aria-hidden="true"></i>
+              <div>
+                <strong>Official Draft Generated: Ref <span id="draft-id-display">ACC-2026-XXXX</span></strong>
+                <span id="draft-notice-display">DRAFT ONLY: Saved locally for your interview preparation. This has NOT been transmitted to any employer.</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px 0;">
+              <h3 style="font-size: 16px; margin: 0; font-weight: 700;">Formatted Self-Advocacy Letter:</h3>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span id="copy-status-notice" style="font-size: 13px; color: #15803d; font-weight: 600;" aria-live="polite"></span>
+                <button type="button" id="btn-copy-draft" class="btn-career btn-career-outline">
+                  <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                  <span data-i18n="copy_letter">Copy Letter to Clipboard</span>
+                </button>
+                <button type="button" id="btn-print-draft" class="btn-career btn-career-outline">
+                  <i class="fa-solid fa-print" aria-hidden="true"></i>
+                  <span data-i18n="print_pdf">Print / Save PDF</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="printable-draft-area">
+              <pre id="draft-letter-preview" class="draft-output-preview"></pre>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-top: 20px;">
+              <h4 style="font-size: 15px; margin: 0 0 10px 0; color: #1e3a8a;">
+                <i class="fa-solid fa-list-check" aria-hidden="true"></i> 4-Step Self-Advocacy Preparation Checklist:
+              </h4>
+              <ul id="draft-checklist-ul" style="padding-left: 20px; line-height: 1.6; margin: 0; color: #334155;">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 5: JOB ALERTS & SMS NOTIFICATIONS                             -->
+      <!-- ================================================================= -->
+      <section class="career-tab-panel" id="panel-notifications" role="tabpanel" aria-labelledby="tab-notifications" hidden>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Telegram Integration -->
+          <div class="career-card">
+            <div class="career-card-header">
+              <div class="career-card-type-row">
+                <span class="career-badge career-badge-remote">
+                  <i class="fa-brands fa-telegram" aria-hidden="true"></i> Telegram Bot Channel
+                </span>
+                <span id="tg-status-badge" class="career-badge career-badge-simulated">Checking...</span>
+              </div>
+              <h3 class="career-card-title">Screen-Reader Optimized Telegram Alerts</h3>
+            </div>
+            <p class="career-card-desc">
+              Receive structured markdown job notifications formatted with semantic headers and bullet points directly on your desktop or mobile Telegram client.
+            </p>
+
+            <div style="margin-bottom: 16px;">
+              <label for="tg-chat-id" style="font-size: 13px; font-weight: 600;">Telegram Chat ID (Optional):</label>
+              <input type="text" id="tg-chat-id" class="career-search-input" style="padding-left: 14px; margin-top: 4px;" placeholder="e.g. 987654321">
+            </div>
+
+            <button type="button" id="btn-test-telegram" class="btn-career btn-career-primary">
+              <i class="fa-brands fa-telegram" aria-hidden="true"></i> Dispatch Test Career Alert
+            </button>
+
+            <div id="telegram-result-box" style="display: none; margin-top: 16px;"></div>
+          </div>
+
+          <!-- Low-Bandwidth SMS Interface -->
+          <div class="career-card">
+            <div class="career-card-header">
+              <div class="career-card-type-row">
+                <span class="career-badge career-badge-fulltime">
+                  <i class="fa-solid fa-comment-sms" aria-hidden="true"></i> Feature-Phone SMS
+                </span>
+                <span class="career-badge career-badge-simulated">160-Char Compliant</span>
+              </div>
+              <h3 class="career-card-title">Single-Segment SMS Job Alerts</h3>
+            </div>
+            <p class="career-card-desc">
+              Designed for zero mobile data environments across Africa. Formats concise, 1-segment cellular alerts compatible with any basic handset.
+            </p>
+
+            <div style="margin-bottom: 12px;">
+              <label for="sms-job-select" style="font-size: 13px; font-weight: 600;">Preview Alert for Role:</label>
+              <select id="sms-job-select" class="career-select" style="margin-top: 4px;">
+                <option value="v4a-job-001">Executive Virtual Assistant</option>
+                <option value="v4a-job-002">Digital Customer Care VA</option>
+                <option value="v4a-job-003">Accessibility QA Assistant</option>
+                <option value="v4a-job-004">Digital Operations Coordinator</option>
+              </select>
+            </div>
+
+            <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+                <strong>Live SMS Payload:</strong>
+                <span id="sms-char-counter" style="font-weight: 600;">Calculating...</span>
+              </div>
+              <div id="sms-preview-text" style="font-family: monospace; font-size: 13px; color: #0f172a; white-space: pre-wrap;"></div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="sms-phone-input" style="font-size: 13px; font-weight: 600;">Mobile Number:</label>
+              <input type="tel" id="sms-phone-input" class="career-search-input" style="padding-left: 14px; margin-top: 4px;" placeholder="+251911000000">
+            </div>
+
+            <button type="button" id="btn-send-test-sms" class="btn-career btn-career-primary">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Simulate SMS Alert Delivery
+            </button>
+
+            <div id="sms-result-box" style="display: none; margin-top: 16px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 6: MY PORTFOLIO / SAVED ITEMS                                 -->
+      <!-- ================================================================= -->
+      <section class="career-tab-panel" id="panel-saved" role="tabpanel" aria-labelledby="tab-saved" hidden>
+        <div id="saved-portfolio-container">
+          <!-- Populated dynamically via career-app.js -->
+        </div>
+      </section>
+
+      <!-- Hidden Live Region for Screen Reader Announcements -->
+      <div id="career-live-announcer" class="career-sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    </div>
+  </main>
+
+  <!-- Job Details Modal Dialog -->
+  <div class="career-modal-backdrop" id="job-modal" role="dialog" aria-modal="true" aria-labelledby="job-modal-title" hidden>
+    <div class="career-modal-dialog">
+      <div class="career-modal-header">
+        <h2 id="job-modal-title" style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a;">Role Details</h2>
+        <button type="button" class="career-modal-close-btn" id="job-modal-close" aria-label="Close dialog">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="job-modal-body"></div>
+      <div style="margin-top: 20px; text-align: right; border-top: 1px solid #e2e8f0; padding-top: 14px;">
+        <button type="button" class="btn-career btn-career-primary" id="btn-modal-draft">
+          <i class="fa-solid fa-file-pen" aria-hidden="true"></i> Prepare Accommodation Request Draft
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resource Study Guide Modal Dialog -->
+  <div class="career-modal-backdrop" id="resource-modal" role="dialog" aria-modal="true" aria-labelledby="resource-modal-title" hidden>
+    <div class="career-modal-dialog">
+      <div class="career-modal-header">
+        <h2 id="resource-modal-title" style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a;">Study Guide</h2>
+        <button type="button" class="career-modal-close-btn" id="resource-modal-close" aria-label="Close dialog">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="resource-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Core Scripts -->
+  <script src="../assets/js/popper.js"></script>
+  <script src="../assets/js/bootstrap.bundle.js"></script>
+  <script src="../assets/js/static-page.js"></script>
+
+  <!-- Voice4All Career Client & Application Controller -->
+  <script src="../assets/js/voice4all/career/career-client.js"></script>
+  <script src="../assets/js/voice4all/career/career-app.js"></script>
+</body>
+</html>

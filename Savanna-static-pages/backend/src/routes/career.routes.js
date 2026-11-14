@@ -60,6 +60,44 @@ function handleGetJobById(req, res) {
 }
 
 /**
+ * GET /resources
+ * Retrieves learning and development resources with category and keyword filters
+ */
+function handleGetResources(req, res) {
+  try {
+    const filters = req.query || {};
+    const result = careerService.getResources(filters);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve learning resources.'
+    });
+  }
+}
+
+/**
+ * GET /resources/:id
+ */
+function handleGetResourceById(req, res) {
+  const resourceId = req.params?.id || (req.url && req.url.split('/').pop());
+  const lang = req.query?.lang || req.query?.language || 'en';
+  const resource = careerService.getResourceById(resourceId, lang);
+
+  if (!resource) {
+    return res.status(404).json({
+      success: false,
+      error: `Resource not found for ID: ${resourceId}`
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    resource
+  });
+}
+
+/**
  * POST /questions
  * Answers learner questions about available job opportunities and accommodations
  */
@@ -240,6 +278,12 @@ router.get('/career/jobs', handleGetJobs);
 
 router.get('/jobs/:id', handleGetJobById);
 router.get('/career/jobs/:id', handleGetJobById);
+
+router.get('/resources', handleGetResources);
+router.get('/career/resources', handleGetResources);
+
+router.get('/resources/:id', handleGetResourceById);
+router.get('/career/resources/:id', handleGetResourceById);
 
 router.post('/questions', handleCareerQuestion);
 router.post('/career/questions', handleCareerQuestion);
