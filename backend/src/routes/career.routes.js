@@ -164,13 +164,13 @@ function handleTelegramSubscribe(req, res) {
   }
 }
 
-function handleTelegramBroadcast(req, res) {
+async function handleTelegramBroadcast(req, res) {
   try {
     const { jobId, chatId } = req.body || {};
     if (!jobId) {
       return res.status(400).json({ success: false, error: 'jobId is required for broadcast.' });
     }
-    const result = careerService.broadcastJobTelegram(jobId, chatId);
+    const result = await careerService.broadcastJobTelegram(jobId, chatId);
     res.status(200).json(result);
   } catch (err) {
     const status = err.statusCode || 400;
@@ -211,13 +211,13 @@ function handleSMSSubscribe(req, res) {
   }
 }
 
-function handleSMSSend(req, res) {
+async function handleSMSSend(req, res) {
   try {
     const { jobId, phoneNumber, lang } = req.body || {};
     if (!jobId || !phoneNumber) {
       return res.status(400).json({ success: false, error: 'Both jobId and phoneNumber are required.' });
     }
-    const result = careerService.sendJobSMS(jobId, phoneNumber, lang || 'en');
+    const result = await careerService.sendJobSMS(jobId, phoneNumber, lang || 'en');
     res.status(200).json(result);
   } catch (err) {
     const status = err.statusCode || 400;
