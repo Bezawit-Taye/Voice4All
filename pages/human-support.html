@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice4All — Human Support</title>
+  <meta name="description" content="Request live support from a course mentor, peer coach, or accessibility specialist." />
+  <link rel="stylesheet" href="../assets/css/google-fonts-dm-sans.css" />
+  <link rel="stylesheet" href="../assets/css/human-support.css" />
+</head>
+
+<body class="v4a-hs-page">
+
+  <!-- Skip Link -->
+  <a href="#v4a-hs-main" class="v4a-hs-skip">Skip to main content</a>
+
+  <!-- Live Announcer (screen readers) -->
+  <div id="v4a-hs-announcer" aria-live="polite" aria-atomic="true" class="v4a-hs-sr-only"></div>
+
+  <!-- Header -->
+  <header class="v4a-hs-header" role="banner">
+    <div>
+      <h1 class="v4a-hs-header-title">
+        <span aria-hidden="true">🤝</span>
+        <span data-i18n="page_title">Human Support</span>
+        <span class="v4a-hs-badge v4a-hs-badge-demo">Demo</span>
+      </h1>
+      <p class="v4a-hs-header-subtitle" data-i18n="page_desc">
+        Get help from a course mentor, peer coach, or accessibility specialist.
+      </p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button type="button" data-lang="en" class="v4a-hs-btn v4a-hs-btn-sm v4a-hs-btn-outline" style="color:#CBD5E1;border-color:rgba(255,255,255,0.3);" aria-label="Switch to English">EN</button>
+      <button type="button" data-lang="am" class="v4a-hs-btn v4a-hs-btn-sm v4a-hs-btn-outline" style="color:#CBD5E1;border-color:rgba(255,255,255,0.3);" aria-label="Switch to Amharic">አማ</button>
+      <a href="../index.html" class="v4a-hs-nav-back" aria-label="Back to Savanna pages">
+        <span aria-hidden="true">←</span> Back
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="v4a-hs-main" class="v4a-hs-container" role="main">
+
+    <!-- Global Alert -->
+    <div id="v4a-hs-alert" class="v4a-hs-alert" tabindex="-1"></div>
+
+    <!-- ═══ LANDING VIEW ═══ -->
+    <section id="v4a-hs-landing" aria-labelledby="v4a-hs-landing-heading">
+      <h2 id="v4a-hs-landing-heading" class="v4a-hs-section-title" data-i18n="page_title">Human Support</h2>
+
+      <div class="v4a-hs-card">
+        <p class="v4a-hs-card-desc" style="font-size:15px;color:var(--v4a-hs-text);">
+          Voice4All connects you with real human support when you need it.
+          Choose your preferred channel and describe your issue — a support specialist will assist you.
+        </p>
+      </div>
+
+      <!-- Support Options -->
+      <div class="v4a-hs-options" role="list">
+        <div class="v4a-hs-option-card" role="listitem">
+          <span class="v4a-hs-option-icon" aria-hidden="true">💬</span>
+          <h3 class="v4a-hs-option-title" data-i18n="option_chat">Text Chat</h3>
+          <p class="v4a-hs-option-desc" data-i18n="option_chat_desc">Message a support specialist in real time.</p>
+        </div>
+        <div class="v4a-hs-option-card" role="listitem">
+          <span class="v4a-hs-option-icon" aria-hidden="true">🖥️</span>
+          <h3 class="v4a-hs-option-title" data-i18n="option_screen">Screen Share</h3>
+          <p class="v4a-hs-option-desc" data-i18n="option_screen_desc">Share your screen with explicit consent for guided help.</p>
+        </div>
+        <div class="v4a-hs-option-card" role="listitem">
+          <span class="v4a-hs-option-icon" aria-hidden="true">📖</span>
+          <h3 class="v4a-hs-option-title" data-i18n="option_faq">Browse FAQs</h3>
+          <p class="v4a-hs-option-desc" data-i18n="option_faq_desc">Find answers to common questions.</p>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:32px;">
+        <button type="button" id="v4a-hs-request-btn" class="v4a-hs-btn v4a-hs-btn-primary" style="font-size:16px;padding:14px 32px;">
+          <span aria-hidden="true">✋</span>
+          <span data-i18n="btn_submit">Submit Support Request</span>
+        </button>
+      </div>
+
+      <!-- FAQ Section (always visible on landing) -->
+      <section aria-labelledby="v4a-hs-faq-heading">
+        <h2 id="v4a-hs-faq-heading" class="v4a-hs-section-title" data-i18n="faq_title">Frequently Asked Questions</h2>
+        <div class="v4a-hs-faq-search">
+          <label for="v4a-hs-faq-search-input" class="v4a-hs-sr-only" data-i18n="faq_search">Search FAQs…</label>
+          <input type="search" id="v4a-hs-faq-search-input" class="v4a-hs-input"
+                 placeholder="Search FAQs…" data-i18n="faq_search" data-i18n-attr="placeholder"
+                 aria-label="Search frequently asked questions" />
+        </div>
+        <div id="v4a-hs-faq-list" role="list" aria-label="FAQ items"></div>
+      </section>
+    </section>
+
+    <!-- ═══ FORM VIEW ═══ -->
+    <section id="v4a-hs-form-section" style="display:none;" aria-labelledby="v4a-hs-form-heading">
+      <div style="margin-bottom:16px;">
+        <button type="button" id="v4a-hs-back-form" class="v4a-hs-btn v4a-hs-btn-outline v4a-hs-btn-sm">
+          <span aria-hidden="true">←</span> Back to Support Options
+        </button>
+      </div>
+
+      <h2 id="v4a-hs-form-heading" class="v4a-hs-section-title" data-i18n="form_title">Submit a Support Request</h2>
+
+      <div class="v4a-hs-card">
+        <form id="v4a-hs-form" novalidate>
+
+          <!-- Topic -->
+          <div class="v4a-hs-form-group">
+            <label for="v4a-hs-topic" class="v4a-hs-label" data-i18n="label_topic">
+              Assistance Topic
+            </label>
+            <select id="v4a-hs-topic" class="v4a-hs-select" required>
+              <option value="General Course Assistance" data-i18n="topic_general">General Course Assistance</option>
+              <option value="Lesson Concept Clarification" data-i18n="topic_concept">Lesson Concept Clarification</option>
+              <option value="Quiz or Assignment Assistance" data-i18n="topic_quiz">Quiz or Assignment Assistance</option>
+              <option value="Platform or Technical Issue" data-i18n="topic_tech">Platform or Technical Issue</option>
+              <option value="Accessibility Accommodation Need" data-i18n="topic_accessibility">Accessibility Accommodation Need</option>
+            </select>
+          </div>
+
+          <!-- Message -->
+          <div class="v4a-hs-form-group">
+            <label for="v4a-hs-message" class="v4a-hs-label">
+              <span data-i18n="label_message">Describe Your Issue</span>
+              <span class="v4a-hs-required" aria-hidden="true">*</span>
+            </label>
+            <textarea id="v4a-hs-message" class="v4a-hs-textarea" required minlength="10"
+                      placeholder="Briefly describe your question, context, or where you are stuck…"
+                      aria-describedby="v4a-hs-message-hint v4a-hs-message-error"
+                      aria-required="true"></textarea>
+            <div id="v4a-hs-message-hint" class="v4a-hs-hint">Minimum 10 characters.</div>
+            <div id="v4a-hs-message-error" class="v4a-hs-error-msg"></div>
+          </div>
+
+          <!-- Urgency -->
+          <div class="v4a-hs-form-group">
+            <label for="v4a-hs-urgency" class="v4a-hs-label" data-i18n="label_urgency">
+              Urgency Level
+            </label>
+            <select id="v4a-hs-urgency" class="v4a-hs-select">
+              <option value="low" data-i18n="urgency_low">Low — Not time-sensitive</option>
+              <option value="medium" selected data-i18n="urgency_medium">Medium — Needs attention soon</option>
+              <option value="high" data-i18n="urgency_high">High — Blocking my progress</option>
+            </select>
+          </div>
+
+          <!-- Preferred Mode -->
+          <div class="v4a-hs-form-group">
+            <label for="v4a-hs-mode" class="v4a-hs-label" data-i18n="label_mode">
+              Preferred Channel
+            </label>
+            <select id="v4a-hs-mode" class="v4a-hs-select">
+              <option value="chat" data-i18n="mode_chat">Text Chat</option>
+              <option value="screen_share" data-i18n="mode_screen">Screen Share (requires consent)</option>
+            </select>
+          </div>
+
+          <!-- Consent (shown when screen_share selected) -->
+          <div class="v4a-hs-form-group" id="v4a-hs-consent-group" style="display:none;">
+            <div class="v4a-hs-checkbox-group">
+              <input type="checkbox" id="v4a-hs-consent" class="v4a-hs-checkbox"
+                     aria-describedby="v4a-hs-consent-error" />
+              <label for="v4a-hs-consent" class="v4a-hs-checkbox-label" data-i18n="label_consent">
+                I consent to sharing my screen with the support specialist.
+              </label>
+            </div>
+            <div id="v4a-hs-consent-error" class="v4a-hs-error-msg"></div>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" id="v4a-hs-submit-btn" class="v4a-hs-btn v4a-hs-btn-primary v4a-hs-btn-block">
+            <span data-i18n="btn_submit">Submit Support Request</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ═══ TRACKER VIEW ═══ -->
+    <section id="v4a-hs-tracker" class="v4a-hs-tracker" aria-labelledby="v4a-hs-tracker-heading">
+      <h2 id="v4a-hs-tracker-heading" class="v4a-hs-section-title">Your Support Request</h2>
+
+      <!-- Status Bar -->
+      <div id="v4a-hs-status-bar" class="v4a-hs-status-bar" role="status" aria-live="polite">
+        <span id="v4a-hs-status-dot" class="v4a-hs-status-dot v4a-hs-status-dot-waiting" aria-hidden="true"></span>
+        <span id="v4a-hs-status-text" class="v4a-hs-status-text" data-i18n="status_queued">Waiting in queue</span>
+      </div>
+
+      <!-- Meta Grid -->
+      <div class="v4a-hs-meta-grid">
+        <div class="v4a-hs-meta-item">
+          <div class="v4a-hs-meta-label" data-i18n="meta_ticket_id">Ticket ID</div>
+          <div class="v4a-hs-meta-value" id="v4a-hs-meta-id">—</div>
+        </div>
+        <div class="v4a-hs-meta-item">
+          <div class="v4a-hs-meta-label" data-i18n="meta_position">Queue Position</div>
+          <div class="v4a-hs-meta-value" id="v4a-hs-meta-position">—</div>
+        </div>
+        <div class="v4a-hs-meta-item">
+          <div class="v4a-hs-meta-label" data-i18n="meta_wait">Est. Wait</div>
+          <div class="v4a-hs-meta-value" id="v4a-hs-meta-wait">—</div>
+        </div>
+        <div class="v4a-hs-meta-item">
+          <div class="v4a-hs-meta-label" data-i18n="meta_agent">Support Agent</div>
+          <div class="v4a-hs-meta-value" id="v4a-hs-meta-agent">—</div>
+        </div>
+      </div>
+
+      <!-- Messages Thread -->
+      <div class="v4a-hs-card">
+        <h3 style="font-size:15px;font-weight:700;margin:0 0 12px;">Messages</h3>
+        <div id="v4a-hs-messages" class="v4a-hs-messages" aria-label="Support conversation messages" role="log" aria-live="polite">
+          <p class="v4a-hs-card-desc" style="text-align:center;padding:20px;">
+            Messages will appear here once the conversation begins.
+          </p>
+        </div>
+
+        <!-- Message Input (visible when agent connected) -->
+        <div id="v4a-hs-msg-row" class="v4a-hs-msg-input-row" style="display:none;">
+          <label for="v4a-hs-msg-input" class="v4a-hs-sr-only" data-i18n="msg_placeholder">Type your message…</label>
+          <input type="text" id="v4a-hs-msg-input" class="v4a-hs-input"
+                 placeholder="Type your message…" data-i18n="msg_placeholder" data-i18n-attr="placeholder"
+                 aria-label="Type your message" />
+          <button type="button" id="v4a-hs-send-btn" class="v4a-hs-btn v4a-hs-btn-primary v4a-hs-btn-sm" data-i18n="btn_send">
+            Send
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="v4a-hs-actions">
+        <button type="button" id="v4a-hs-cancel-btn" class="v4a-hs-btn v4a-hs-btn-danger" data-i18n="btn_cancel">
+          Cancel Request
+        </button>
+        <button type="button" id="v4a-hs-new-btn" class="v4a-hs-btn v4a-hs-btn-primary" style="display:none;" data-i18n="btn_new">
+          New Support Request
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="v4a-hs-footer" role="contentinfo">
+    <p>
+      Voice4All Human Support · ALX Digital Bridge Accessibility Hackathon<br />
+      <a href="../index.html">← Back to Savanna Pages</a>
+      &nbsp;·&nbsp;
+      <a href="concept-with-navigation.html">Concept Page</a>
+      &nbsp;·&nbsp;
+      <a href="support-dashboard.html">Support Dashboard (Agents)</a>
+    </p>
+  </footer>
+
+  <!-- Scripts: support-client.js is the API service layer, human-support-ui.js is the UI controller -->
+  <script src="../assets/js/voice4all/support/support-client.js"></script>
+  <script src="../assets/js/voice4all/support/human-support-ui.js"></script>
+
+</body>
+</html>
