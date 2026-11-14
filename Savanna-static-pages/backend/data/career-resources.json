@@ -1,0 +1,210 @@
+[
+  {
+    "id": "res-at-01",
+    "category": "assistive_tech",
+    "category_label": "Assistive Technology Mastery",
+    "category_label_am": "የአጋዥ ቴክኖሎጂ ክህሎት",
+    "title": "Screen Reader Productivity for Virtual Assistants (NVDA & JAWS)",
+    "title_am": "ለቨርቹዋል ረዳቶች የስክሪን አንባቢ የሥራ ቅልጥፍና (NVDA እና JAWS)",
+    "summary": "Master essential keyboard navigation, heading hops, and document skimming shortcuts to excel in remote administrative workflows.",
+    "summary_am": "የርቀት አስተዳደራዊ ሥራዎችን በብቃት ለመወጣት አስፈላጊ የቁልፍ ሰሌዳ አቋራጮችን እና የሰነድ አሰሳ ዘዴዎችን ይማሩ።",
+    "duration": "30 mins",
+    "difficulty": "Beginner to Intermediate",
+    "tags": ["NVDA", "JAWS", "Keyboard Shortcuts", "Productivity"],
+    "tags_am": ["ስክሪን አንባቢ", "የቁልፍ ሰሌዳ አቋራጭ", "ቅልጥፍና"],
+    "accessibility_features": ["Screen Reader Optimized", "Keyboard navigable", "Audio transcript available"],
+    "key_takeaways": [
+      "Use 'H' and 'Shift+H' for lightning-fast heading navigation across Google Docs and Notion pages.",
+      "Navigate data tables in spreadsheets using Ctrl+Alt+Arrow keys (NVDA) or Alt+Ctrl+Arrow keys (JAWS).",
+      "Configure speech rate profiles: faster for email triage, moderate for complex contracts."
+    ],
+    "action_steps": [
+      "Audit your favorite browser extensions with screen reader speech turned on.",
+      "Practice navigating the ALX Savanna curriculum using only keyboard shortcuts (Tab, Shift+Tab, Enter, Space).",
+      "Set up quick-switch speech synthesizer profiles for bilingual English and Amharic pronunciation."
+    ],
+    "guide_content": "# Screen Reader Productivity for Virtual Assistants\n\nAs a modern Virtual Assistant, your assistive software is your superpower. By mastering structured navigation:\n\n1. **Heading Hierarchy (H key):** Instantly jump between Major Project Goals (H1), Weekly Tasks (H2), and Deliverable Items (H3).\n2. **Form Fields (F and E keys):** Quickly populate client onboarding questionnaires and calendar bookings without visual fatigue.\n3. **Spreadsheet Orientation:** When managing executive budgets or client trackers, lock top row headers in Google Sheets (`Alt + V` -> `Freeze 1 row`) so your screen reader announces column headers automatically."
+  },
+  {
+    "id": "res-at-02",
+    "category": "assistive_tech",
+    "category_label": "Assistive Technology Mastery",
+    "category_label_am": "የአጋዥ ቴክኖሎጂ ክህሎት",
+    "title": "Voice Typing & Speech-to-Text for High-Volume Communications",
+    "title_am": "ከፍተኛ መጠን ላላቸው ግንኙነቶች የድምፅ ጽሕፈት እና ንግግር-ወደ-ጽሑፍ ቴክኖሎጂ",
+    "summary": "Implement fatigue-reducing voice dictation tools (Google Voice Typing, Whisper, Mac Dictation) for customer care and drafting.",
+    "summary_am": "የድካም ስሜትን የሚቀንሱ የድምጽ ጽሕፈት መሣሪያዎችን ለደንበኞች አገልግሎት እና ረቂቅ ጽሑፎች ዝግጅት ይጠቀሙ።",
+    "duration": "20 mins",
+    "difficulty": "All Levels",
+    "tags": ["Speech-to-Text", "Ergonomics", "Fatigue Reduction"],
+    "tags_am": ["ድምጽ ወደ ጽሑፍ", "የድካም ቅነሳ"],
+    "accessibility_features": ["Low-effort input", "Clear punctuation commands", "Ergonomic benefit"],
+    "key_takeaways": [
+      "Combine voice typing with keyboard editing to achieve 80+ words per minute drafting speed.",
+      "Master punctuation commands: 'period', 'comma', 'new paragraph', 'open quotes'.",
+      "Reduce repetitive strain injury (RSI) risks during long administrative shifts."
+    ],
+    "action_steps": [
+      "Enable Google Docs Voice Typing (`Ctrl+Shift+S`) and test dictating a 200-word executive briefing.",
+      "Configure noise cancellation on your headset microphone for error-free voice recognition.",
+      "Create a personal dictionary of frequent client names and industry jargon."
+    ],
+    "guide_content": "# Voice Typing Workflows for Virtual Assistants\n\nVoice dictation allows administrative assistants with motor, visual, or RSI challenges to produce clean text at high velocity.\n\n- **Pre-dictation Planning:** Outline your message points mentally before initiating dictation.\n- **Punctuation Mastery:** Speak punctuation deliberately ('Dear Sarah comma new line...').\n- **Two-Pass Proofreading:** Always perform a quick review pass using text-to-speech to catch homophones."
+  },
+  {
+    "id": "res-va-01",
+    "category": "va_skills",
+    "category_label": "Virtual Assistant Core Competencies",
+    "category_label_am": "የቨርቹዋል ረዳት ዋና ክህሎቶች",
+    "title": "Asynchronous Remote Coordination in Global Teams",
+    "title_am": "በዓለም አቀፍ ቡድኖች ውስጥ የተከታታይ የጽሑፍ ግንኙነት እና ቅንጅት",
+    "summary": "Master Slack, Notion, and Loom to provide exceptional executive support without requiring real-time, camera-on video calls.",
+    "summary_am": "ካሜራ የበራበት የቀጥታ ቪዲዮ ሳይጠይቅ ከፍተኛ የአመራር ድጋፍ ለመስጠት ስላክ፣ ኖሽን እና ሉም መሣሪያዎችን ይጠቀሙ።",
+    "duration": "45 mins",
+    "difficulty": "Intermediate",
+    "tags": ["Asynchronous", "Slack", "Notion", "Remote Work"],
+    "tags_am": ["የርቀት ሥራ", "ተከታታይ ግንኙነት", "ስላክ"],
+    "accessibility_features": ["Visual and screen reader friendly", "Clear templates", "Inclusive cadence"],
+    "key_takeaways": [
+      "The '3-Part Async Update': What was completed, what is in progress, and exact blocker questions.",
+      "Set clear response expectations (e.g. 'FYI only - no reply needed' vs 'Action required by 15:00 UTC').",
+      "Replace 30-minute status meetings with structured, accessible Notion dashboards."
+    ],
+    "action_steps": [
+      "Draft a daily end-of-day (EOD) async recap template for your imaginary executive client.",
+      "Learn Slack's accessibility keyboard shortcuts (`Alt+Up/Down` to switch channels, `Ctrl+K` to jump).",
+      "Practice writing thread summaries so team members can catch up in under 60 seconds."
+    ],
+    "guide_content": "# Asynchronous Remote Coordination\n\nAsynchronous work is the most accessible way to collaborate across time zones and disability accommodations:\n\n1. **Context Over Real-Time Ping:** Never send a bare 'Hi'. Always include the question, link, and deadline in your first message.\n2. **Explicit Decision Logs:** Document outcomes in shared Notion or Google Docs so nothing is lost in chat scrollback.\n3. **Cognitive Ease:** High-clarity writing reduces anxiety for both you and your busy client."
+  },
+  {
+    "id": "res-va-02",
+    "category": "va_skills",
+    "category_label": "Virtual Assistant Core Competencies",
+    "category_label_am": "የቨርቹዋል ረዳት ዋና ክህሎቶች",
+    "title": "Accessible Calendar Management & Global Timezone Scheduling",
+    "title_am": "ተደራሽ የቀን መቁጠሪያ አስተዳደር እና የሰዓት ዞን ቅንጅት",
+    "summary": "Prevent double-booking, manage buffer times, and coordinate cross-continental appointments with screen reader friendly scheduling workflows.",
+    "summary_am": "የቀጠሮ መደራረብን መከላከል፣ የእረፍት ጊዜዎችን ማመቻቸት እና ዓለም አቀፍ ስብሰባዎችን ማስተባበር።",
+    "duration": "35 mins",
+    "difficulty": "Beginner to Intermediate",
+    "tags": ["Google Calendar", "Calendly", "Timezones", "Executive Support"],
+    "tags_am": ["የቀን መቁጠሪያ", "የሰዓት ዞን"],
+    "accessibility_features": ["Clear formulas", "Accessible table formats", "Neurodivergent friendly"],
+    "key_takeaways": [
+      "Always state timezone abbreviations alongside UTC offsets (e.g. '14:00 EAT / 11:00 UTC').",
+      "Build in 10-minute accessibility buffers between meetings to prevent cognitive fatigue.",
+      "Include dial-in links, passcodes, and agenda items directly in the calendar invite body."
+    ],
+    "action_steps": [
+      "Set secondary timezone display in Google Calendar settings for your target client region.",
+      "Create a reusable scheduling email template with 3 distinct meeting slot options.",
+      "Verify that video meeting invites automatically include automated closed captioning enabled by default."
+    ],
+    "guide_content": "# Executive Calendar Management\n\nVirtual Assistants protect their executive's most scarce asset: attention.\n\n- **The Rule of Three:** When proposing meeting times, always offer 3 non-consecutive options across 2 different days.\n- **Focus Blocks:** Protect 2-3 uninterrupted blocks per week for deep work.\n- **Buffer Times:** Never schedule back-to-back video calls without at least a 10-minute break."
+  },
+  {
+    "id": "res-sa-01",
+    "category": "self_advocacy",
+    "category_label": "Self-Advocacy & Workplace Rights",
+    "category_label_am": "ራስን መግለጽ እና የሥራ ቦታ መብቶች",
+    "title": "How to Request Interview Accommodations with Confidence",
+    "title_am": "የሥራ ቃለ-መጠይቅ ማመቻቸቶችን በራስ መተማመን እንዴት መጠየቅ እንደሚቻል",
+    "summary": "Learn when and how to disclose accommodation needs professionally, focusing on your productivity and work quality.",
+    "summary_am": "የማመቻቸት ፍላጎቶችዎን በሙያዊ መንገድ መቼ እና እንዴት እንደሚገልጹ ይማሩ፤ ትኩረትን በሥራ ጥራት ላይ ያድርጉ።",
+    "duration": "25 mins",
+    "difficulty": "All Levels",
+    "tags": ["Self-Advocacy", "Interview Prep", "Disclosure", "Accommodations"],
+    "tags_am": ["ራስን መግለጽ", "የቃለ-መጠይቅ ዝግጅት", "ማመቻቸት"],
+    "accessibility_features": ["Includes ready-to-use email templates", "Legal context", "Practical tips"],
+    "key_takeaways": [
+      "Frame accommodations as tools for peak performance: 'This setup enables me to deliver high-quality work accurately.'",
+      "Request specific adaptations 48 to 72 hours before the interview (written questions, captions, extended time).",
+      "You are never legally required to disclose medical diagnoses; focus purely on the functional workplace adjustment."
+    ],
+    "action_steps": [
+      "Use Voice4All's Accommodation Drafter tool to generate your customized interview self-advocacy letter.",
+      "Rehearse your 30-second explanation: 'I use NVDA screen reader software, which allows me to process documents quickly.'",
+      "Review the company's accessibility statement or DEI page before the interview."
+    ],
+    "guide_content": "# The Self-Advocacy Playbook\n\nRequesting accommodations is not asking for special favors — it is establishing the professional conditions required for mutual success.\n\n1. **Timing:** The ideal moment is right after an interview invitation is received and before the date is finalized.\n2. **The 3-Sentence Structure:**\n   - Express enthusiasm for the role.\n   - State the specific functional adaptation (e.g. 'I request that questions be provided via chat or in advance').\n   - State the mutual benefit (e.g. 'This ensures I can provide thorough, structured responses').\n3. **Follow-Up:** Always test the platform 15 minutes before the scheduled conversation."
+  },
+  {
+    "id": "res-sa-02",
+    "category": "self_advocacy",
+    "category_label": "Self-Advocacy & Workplace Rights",
+    "category_label_am": "ራስን መግለጽ እና የሥራ ቦታ መብቶች",
+    "title": "Ergonomics, Pacing & Boundary Setting for Remote VAs",
+    "title_am": "የርቀት ቨርቹዋል ረዳቶች የስራ ጤና፣ የጊዜ አጠቃቀም እና ወሰን ማስመር",
+    "summary": "Prevent burnout, establish healthy work boundaries across different time zones, and optimize your home workspace setup.",
+    "summary_am": "የስራ ድካምን መከላከል፣ በተለያዩ የሰዓት ዞኖች ጤናማ የስራ ወሰኖችን ማስመር እና ምቹ የስራ ቦታን ማዘጋጀት።",
+    "duration": "30 mins",
+    "difficulty": "All Levels",
+    "tags": ["Ergonomics", "Burnout Prevention", "Remote Work", "Health"],
+    "tags_am": ["የሥራ ጤና", "የድካም መከላከል", "የርቀት ሥራ"],
+    "accessibility_features": ["Plain Language", "Checklists", "Visual posture guide descriptions"],
+    "key_takeaways": [
+      "The 20-20-20 rule: Every 20 minutes, look at something 20 feet away for at least 20 seconds to prevent eye strain.",
+      "Set definitive 'Do Not Disturb' hours on team chat to prevent work bleeding into personal rest.",
+      "Position your screen at eye level and maintain elbows at 90 degrees to protect spine health."
+    ],
+    "action_steps": [
+      "Configure your phone and Slack to silence notifications after your agreed shift ends.",
+      "Conduct a 5-minute desk audit: chair height, monitor distance, wrist support.",
+      "Schedule daily non-negotiable 15-minute screen-free breaks."
+    ],
+    "guide_content": "# Ergonomics & Sustainable Remote Work\n\nRemote administrative work can lead to sedentary fatigue if not actively managed.\n\n- **Micro-Breaks:** Stand up, stretch, or practice gentle wrist rotations every 45 minutes.\n- **Audio-First Pacing:** Whenever possible, switch to audio for non-critical meetings and stand or pace.\n- **Clear Working Agreements:** Agree on core collaboration hours in your client contract."
+  },
+  {
+    "id": "res-cert-01",
+    "category": "certifications",
+    "category_label": "Certifications & Career Pathways",
+    "category_label_am": "የምስክር ወረቀቶች እና የሙያ መንገዶች",
+    "title": "ALX Virtual Assistant Pathway & Industry Credentials",
+    "title_am": "የALX ቨርቹዋል ረዳት የሙያ መስመር እና የኢንዱስትሪ ምስክር ወረቀቶች",
+    "summary": "Understand the professional milestones from Savanna foundational coursework to global freelance and remote placements.",
+    "summary_am": "ከሳቫና መሠረታዊ ኮርሶች እስከ ዓለም አቀፍ የርቀት ሥራዎች ድረስ ያለውን የሙያ ደረጃ ይረዱ።",
+    "duration": "40 mins",
+    "difficulty": "All Levels",
+    "tags": ["ALX Credentials", "Portfolio", "Freelancing", "Career Growth"],
+    "tags_am": ["የሙያ እድገት", "ፖርትፎሊዮ", "ፍሪላንስ"],
+    "accessibility_features": ["Structured roadmap", "Clear milestone criteria", "Bilingual support"],
+    "key_takeaways": [
+      "Combine your Savanna VA Foundations certification with practical digital accessibility projects.",
+      "Build a 3-piece portfolio: an Executive Briefing Sample, an Asynchronous Project Tracker, and a Calendar Buffer Plan.",
+      "Leverage ALX The ROOM community and inclusive remote hiring partners."
+    ],
+    "action_steps": [
+      "Review your Savanna module progress and ensure all milestone assessments are completed.",
+      "Compile your portfolio artifacts into an accessible PDF or web portfolio.",
+      "Connect your profile to the Voice4All Career Gateway for proactive job alert notifications."
+    ],
+    "guide_content": "# The Professional VA Growth Roadmap\n\n1. **Foundation (Weeks 1-8):** Professional identity, executive presence, digital tools mastery.\n2. **Specialization (Weeks 9-16):** Asynchronous workflow management, accessibility QA, multi-channel customer triage.\n3. **Market Placement:** Portfolio submission, interview accommodation readiness, global remote contracting."
+  },
+  {
+    "id": "res-cert-02",
+    "category": "certifications",
+    "category_label": "Certifications & Career Pathways",
+    "category_label_am": "የምስክር ወረቀቶች እና የሙያ መንገዶች",
+    "title": "Digital Accessibility Specialist & WCAG Compliance Foundations",
+    "title_am": "የዲጂታል ተደራሽነት ባለሙያ እና የWCAG ተገዢነት መሠረታዊ ዕውቀት",
+    "summary": "Expand your VA value proposition by becoming the accessibility champion who tests documents, slides, and websites for disability inclusion.",
+    "summary_am": "ሰነዶችን፣ ስላይዶችን እና ድር ጣቢያዎችን ለተደራሽነት የሚፈትሽ ባለሙያ በመሆን የሥራ ተፈላጊነትዎን ያሳድጉ።",
+    "duration": "50 mins",
+    "difficulty": "Intermediate to Advanced",
+    "tags": ["WCAG 2.2", "Accessibility QA", "Alt Text", "Career Upgrade"],
+    "tags_am": ["ተደራሽነት", "ጥራት ቁጥጥር", "የሙያ ማሻሻያ"],
+    "accessibility_features": ["WCAG compliance reference", "Hands-on audit checklists", "Screen reader test guides"],
+    "key_takeaways": [
+      "Clients pay a premium for Virtual Assistants who ensure their presentations and PDFs are accessible.",
+      "Understand WCAG Four Principles: Perceivable, Operable, Understandable, Robust (POUR).",
+      "Learn to write context-rich alternative text (Alt Text) for complex financial charts and diagrams."
+    ],
+    "action_steps": [
+      "Audit a sample PowerPoint presentation using Microsoft Office's built-in Accessibility Checker.",
+      "Practice testing color contrast ratios using WebAIM Contrast Checker (minimum 4.5:1 ratio).",
+      "Add 'Accessibility QA & Document Remediation' as a core service in your freelance VA profile."
+    ],
+    "guide_content": "# Becoming an Accessibility-Focused VA\n\nEvery enterprise today is working toward digital accessibility compliance. By offering accessibility testing alongside executive support, your hourly value significantly increases.\n\n- **Document Remediation:** Add semantic headings, table headers, and descriptive link text (avoid 'click here').\n- **Slide Decks:** Ensure reading order in PowerPoint/Google Slides is verified for screen readers.\n- **Audio/Video:** Verify that closed captions and transcripts are attached to all public media."
+  }
+]
