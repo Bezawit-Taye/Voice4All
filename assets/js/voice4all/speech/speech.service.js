@@ -1,7 +1,7 @@
 /**
  * Voice4All Speech Service
  * Provides Speech-to-Text (STT) and Text-to-Speech (TTS) with English and Amharic support.
- * Designed for accessibility and browser independence with robust fallbacks.
+ * Checks actual browser speech engine support for Amharic and provides seamless text fallbacks.
  */
 
 (function (root, factory) {
@@ -29,6 +29,16 @@
       this.isListening = false;
       this.currentUtterance = null;
       this.selectedLanguage = 'en'; // 'en' | 'am'
+      this.cachedVoices = [];
+
+      if (typeof window !== 'undefined' && speechSynthesis) {
+        this.cachedVoices = speechSynthesis.getVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => {
+            this.cachedVoices = speechSynthesis.getVoices();
+          };
+        }
+      }
     }
 
     /**
@@ -45,6 +55,39 @@
      */
     isTTSSupported() {
       return Boolean(speechSynthesis && typeof window.SpeechSynthesisUtterance !== 'undefined');
+    }
+
+    /**
+     * Inspect browser and system voices to check actual support for Amharic
+     * @returns {{ sttSupported: boolean, ttsSupported: boolean, amharicSTTSupported: boolean, amharicTTSSupported: boolean, fallbackReason: string|null }}
+     */
+    checkAmharicSupport() {
+      const stt = this.isSTTSupported();
+      const tts = this.isTTSSupported();
+
+      // Check if any installed voice matches 'am' or 'am-ET'
+      const voices = this.cachedVoices.length > 0 ? this.cachedVoices : (speechSynthesis ? speechSynthesis.getVoices() : []);
+      const amharicVoice = voices.find((v) => v.lang === 'am-ET' || v.lang === 'am' || v.lang.startsWith('am-'));
+
+      // In Chromium browsers, SpeechRecognition generally delegates to Google speech services which support am-ET if online
+      const amharicSTT = stt;
+      const amharicTTS = Boolean(amharicVoice);
+
+      let fallbackReason = null;
+      if (!amharicTTS && !amharicSTT) {
+        fallbackReason = 'የአማርኛ ድምፅ እና ንግግር በዚህ አሳሽ ውስጥ አልተደገፈም። እባክዎ የጽሑፍ ግቤትን ይጠቀሙ።';
+      } else if (!amharicTTS) {
+        fallbackReason = 'የአማርኛ ድምፅ ንባብ (TTS) በአሳሽዎ የድምፅ ዝርዝር ውስጥ አልተገኘም። መልሶችን በጽሑፍ ያንብቡ።';
+      }
+
+      return {
+        sttSupported: stt,
+        ttsSupported: tts,
+        amharicSTTSupported: amharicSTT,
+        amharicTTSSupported: amharicTTS,
+        hasAmharicVoice: Boolean(amharicVoice),
+        fallbackReason
+      };
     }
 
     /**
@@ -74,12 +117,14 @@
      * @param {function} [options.onStart]
      * @param {function} [options.onEnd]
      * @param {function} [options.onError] callback(errorMsg, errorCode)
+     * @param {function} [options.onFallbackToText] callback(reason)
      * @returns {boolean} whether recognition started
      */
     startListening(options = {}) {
       if (!this.isSTTSupported()) {
-        const msg = 'Speech recognition is not supported in this browser. Please use keyboard text input.';
+        const msg = 'Speech recognition is not supported in this browser. Please use text input.';
         console.warn('[Voice4All Speech]', msg);
+        if (options.onFallbackToText) options.onFallbackToText(msg);
         if (options.onError) options.onError(msg, 'unsupported');
         return false;
       }
@@ -88,7 +133,8 @@
 
       try {
         const recognition = new SpeechRecognition();
-        const locale = this.getLocale(options.language);
+        const lang = options.language || this.selectedLanguage;
+        const locale = this.getLocale(lang);
 
         recognition.lang = locale;
         recognition.continuous = Boolean(options.continuous);
@@ -126,21 +172,30 @@
           console.warn('[Voice4All Speech] Recognition error:', event.error);
           this.isListening = false;
           let userFriendlyMessage = 'Speech recognition error occurred.';
+          let triggerFallback = false;
 
           switch (event.error) {
+            case 'language-not-supported':
+              triggerFallback = true;
+              userFriendlyMessage = lang === 'am'
+                ? 'የአማርኛ ድምፅ ግቤት (Speech Input) በዚህ አሳሽ ወይም መሣሪያ ውስጥ አልተደገፈም። እባክዎ የጽሑፍ ግቤትን ይጠቀሙ።'
+                : `Speech input in ${locale} is not supported. Please use text input.`;
+              break;
             case 'not-allowed':
             case 'service-not-allowed':
-              userFriendlyMessage = 'Microphone access was denied. Please allow microphone permissions in your browser settings.';
+              triggerFallback = true;
+              userFriendlyMessage = 'Microphone permission was denied. Please allow microphone access or use text input.';
               break;
             case 'no-speech':
-              userFriendlyMessage = 'No speech detected. Please speak closer to your microphone.';
+              userFriendlyMessage = 'No speech detected. Please speak closer to your microphone or type your question.';
               break;
             case 'network':
               userFriendlyMessage = 'Speech network connectivity issue. Please check your internet connection.';
               break;
-            case 'language-not-supported':
-              userFriendlyMessage = `Speech input in ${locale} is not supported on this device. Switching to English or keyboard input.`;
-              break;
+          }
+
+          if (triggerFallback && options.onFallbackToText) {
+            options.onFallbackToText(userFriendlyMessage);
           }
 
           if (options.onError) options.onError(userFriendlyMessage, event.error);
@@ -157,6 +212,7 @@
       } catch (err) {
         console.error('[Voice4All Speech] Failed to start recognition:', err);
         this.isListening = false;
+        if (options.onFallbackToText) options.onFallbackToText(err.message);
         if (options.onError) options.onError(err.message, 'start_failed');
         return false;
       }
@@ -170,7 +226,7 @@
         try {
           this.recognition.stop();
         } catch (e) {
-          // ignore already stopped
+          // ignore
         }
       }
       this.isListening = false;
@@ -201,30 +257,43 @@
      * @param {function} [options.onStart]
      * @param {function} [options.onEnd]
      * @param {function} [options.onError]
+     * @param {function} [options.onFallbackToText]
      * @returns {boolean}
      */
     speak(text, options = {}) {
       if (!this.isTTSSupported()) {
-        const msg = 'Text-to-speech is not supported in this browser.';
-        console.warn('[Voice4All Speech]', msg);
+        const msg = 'Text-to-speech is not supported in this browser. Please read the response on screen.';
+        if (options.onFallbackToText) options.onFallbackToText(msg);
         if (options.onError) options.onError(msg);
         return false;
       }
 
       this.stopSpeaking();
 
+      const lang = options.language || this.selectedLanguage;
+      const locale = this.getLocale(lang);
+
+      // Verify if Amharic voice exists before attempting to speak Amharic
+      if (lang === 'am') {
+        const check = this.checkAmharicSupport();
+        if (!check.amharicTTSSupported) {
+          const warning = 'የአማርኛ ድምፅ ንባብ (TTS) በአሳሽዎ ውስጥ አልተደገፈም። እባክዎ ማብራሪያውን ከማያ ገጹ ላይ ያንብቡ።';
+          console.warn('[Voice4All Speech]', warning);
+          if (options.onFallbackToText) options.onFallbackToText(warning);
+          return false;
+        }
+      }
+
       const cleanedText = this.cleanTextForSpeech(text);
       if (!cleanedText) return false;
 
       try {
         const utterance = new window.SpeechSynthesisUtterance(cleanedText);
-        const locale = this.getLocale(options.language);
         utterance.lang = locale;
         utterance.rate = options.rate || 0.95;
         utterance.pitch = options.pitch || 1.0;
 
-        // Try to locate a matching voice in browser voice list
-        const voices = speechSynthesis.getVoices();
+        const voices = this.cachedVoices.length > 0 ? this.cachedVoices : speechSynthesis.getVoices();
         if (voices && voices.length > 0) {
           const matchedVoice = voices.find((v) => v.lang === locale || v.lang.startsWith(locale.split('-')[0]));
           if (matchedVoice) {

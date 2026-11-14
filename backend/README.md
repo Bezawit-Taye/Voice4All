@@ -240,7 +240,16 @@ curl -X POST http://localhost:5000/api/tutor/ask \
 
 ---
 
-### 3. Support & Career Routes (Member 3 Mounts)
+### 3. Anonymous Teacher Analytics (Zero-PII)
+- **Endpoints:**
+  - `GET /api/analytics/summary` — Aggregate metrics: total inquiries, grounded %, simple-language %, language split, topic frequency, and curriculum gaps.
+  - `GET /api/analytics/faqs` — Clustered frequent question patterns.
+  - `POST /api/analytics/reset` — Reset analytics data for testing.
+- **Privacy Standard:** Strictly Zero-PII. All learner names, emails, phone numbers, handles, and IP addresses are scrubbed and redacted before storage.
+
+---
+
+### 4. Support & Career Routes (Member 3 Mounts)
 - **Support Route:** `ALL /api/support`
 - **Career Route:** `ALL /api/career`
 - **Behavior:** The backend automatically checks if Member 3's route handlers exist at:

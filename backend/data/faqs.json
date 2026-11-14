@@ -1,0 +1,99 @@
+[
+  {
+    "id": "faq-01",
+    "category": "Virtual Assistance & Future Trends",
+    "courseTitle": "VA-1: VA Foundations & Professional Identity",
+    "moduleTitle": "Module 2: The Modern Virtual Assistant",
+    "lessonTitle": "The Future of the VA Industry",
+    "question_en": "Is the virtual assistant profession shrinking or growing?",
+    "question_am": "የቨርቹዋል ረዳት ሙያ እየቀነሰ ነው ወይስ እያደገ?",
+    "answer_en": "The Virtual Assistant profession is not shrinking; it is evolving. Businesses are becoming more digital and distributed, which significantly increases demand for skilled, remote support professionals.",
+    "answer_am": "የቨርቹዋል ረዳት ሙያ እየቀነሰ አይደለም፤ ይልቁንም እያደገ እና እየዘመነ ነው። የንግድ ድርጅቶች ይበልጥ ዲጂታል ሲሆኑ የሰለጠኑ የርቀት ረዳቶች ፍላጎት በከፍተኛ ሁኔታ እየጨመረ ነው።",
+    "keywords": ["future", "shrinking", "growing", "va profession", "remote work", "እያደገ", "እየቀነሰ", "የወደፊት"]
+  },
+  {
+    "id": "faq-02",
+    "category": "Artificial Intelligence in the Workplace",
+    "courseTitle": "VA-1: VA Foundations & Professional Identity",
+    "moduleTitle": "Module 2: The Modern Virtual Assistant",
+    "lessonTitle": "An Important Distinction: AI vs Human VAs",
+    "question_en": "What is the difference between an AI assistant and a human virtual assistant?",
+    "question_am": "በ AI ረዳት እና በሰው ቨርቹዋል ረዳት መካከል ያለው ልዩነት ምንድን ነው?",
+    "answer_en": "An AI assistant is automated software (such as chatbots and digital bots) handling routine computations. A human virtual assistant is a remote professional who uses strategic judgment, empathy, emotional intelligence, and discretion to solve business challenges.",
+    "answer_am": "የ AI ረዳት ማለት እንደ ቻትቦት ያለ አውቶሜትድ ሶፍትዌር ሲሆን፣ የሰው ቨርቹዋል ረዳት ግን ስትራቴጂካዊ ውሳኔዎችን፣ ስሜታዊ ብልህነትን እና ርህራሄን ተጠቅሞ የንግድ ችግሮችን የሚፈታ እውነተኛ የሰው ባለሙያ ነው።",
+    "keywords": ["ai assistant", "human va", "distinction", "difference", "chatbots", "ልዩነት", "የሰው ረዳት", "ቻትቦት"]
+  },
+  {
+    "id": "faq-03",
+    "category": "AI Tools & Human Value",
+    "courseTitle": "VA-1: VA Foundations & Professional Identity",
+    "moduleTitle": "Module 2: The Modern Virtual Assistant",
+    "lessonTitle": "Artificial Intelligence in VA Work and Human Superpowers",
+    "question_en": "How can AI tools support virtual assistants in their daily tasks?",
+    "question_am": "የ AI መሣሪያዎች ቨርቹዋል ረዳቶችን በእለት ተእለት ስራቸው እንዴት ሊረዷቸው ይችላሉ?",
+    "answer_en": "AI tools accelerate repetitive work such as drafting first-pass emails, summarizing meeting transcripts, organizing workflows, conducting initial research, and calendar scheduling.",
+    "answer_am": "የ AI መሣሪያዎች የመጀመሪያ ረቂቅ ኢሜይሎችን በማዘጋጀት፣ የስብሰባ ማስታወሻዎችን በማጠቃለል፣ የስራ ፍሰቶችን በማደራጀት እና ፈጣን ጥናት በማድረግ ይረዳሉ።",
+    "keywords": ["ai tools", "support", "daily tasks", "drafting", "summarizing", "ምርታማነት", "ኢሜይል", "ማጠቃለል"]
+  },
+  {
+    "id": "faq-04",
+    "category": "AI Tools & Human Value",
+    "courseTitle": "VA-1: VA Foundations & Professional Identity",
+    "moduleTitle": "Module 2: The Modern Virtual Assistant",
+    "lessonTitle": "Artificial Intelligence in VA Work and Human Superpowers",
+    "question_en": "Where do human virtual assistants still add the most value over AI?",
+    "question_am": "የሰው ቨርቹዋል ረዳቶች ከ AI በላይ ከፍተኛ ዋጋ የሚሰጡት በየትኞቹ ዘርፎች ነው?",
+    "answer_en": "Human VAs excel in relationship management, emotional intelligence, navigating ambiguity, ethical confidentiality, team coordination, and proactive system improvement.",
+    "answer_am": "የሰው ረዳቶች የደንበኛ ግንኙነትን በመንከባከብ፣ በስሜታዊ ብልህነት፣ ያልተጠበቁ ሁኔታዎችን በማስተናገድ፣ ሚስጥር በመጠበቅ እና ስርዓቶችን በማሻሻል የማይተካ ሚና አላቸው።",
+    "keywords": ["human value", "superpowers", "irreplaceable", "empathy", "relationships", "የሰው ብልህነት", "ርህራሄ", "ሚስጥራዊነት"]
+  },
+  {
+    "id": "faq-05",
+    "category": "Foundations of Communication",
+    "courseTitle": "WR 100: Fundamentals of Effective Communication",
+    "moduleTitle": "Module 1: Foundations of Communication",
+    "lessonTitle": "Active Listening and Empathetic Feedback",
+    "question_en": "What is active listening?",
+    "question_am": "ንቁ ማዳመጥ ማለት ምን ማለት ነው?",
+    "answer_en": "Active listening is fully concentrating on, understanding, paraphrasing, and responding thoughtfully to a speaker rather than passively hearing them.",
+    "answer_am": "ንቁ ማዳመጥ (Active listening) ተናጋሪው የሚናገረውን በዝምታ ከመስማት ይልቅ ሙሉ ትኩረትን መስጠት፣ መረዳት፣ በራስ ቃል መግለጽ እና ተገቢ ምላሽ መስጠት ነው።",
+    "keywords": ["active listening", "concentrating", "paraphrasing", "empathy", "ንቁ ማዳመጥ", "መረዳት", "ማዳመጥ"]
+  },
+  {
+    "id": "faq-06",
+    "category": "Professional Written Communication",
+    "courseTitle": "WR 100: Fundamentals of Effective Communication",
+    "moduleTitle": "Module 2: Professional Written Communication",
+    "lessonTitle": "Structuring Clear Workplace Messages & The BLUF Model",
+    "question_en": "What is the BLUF model in communication?",
+    "question_am": "በግንኙነት ውስጥ የ BLUF ሞዴል ምንድን ነው?",
+    "answer_en": "BLUF stands for Bottom Line Up Front. It is a communication technique where you state the main purpose, request, or recommendation in the first two sentences.",
+    "answer_am": "BLUF ማለት 'Bottom Line Up Front' ወይም ዋናውን መልእክት ወይም ጥያቄ ወዲያውኑ በመጀመሪያዎቹ ሁለት አረፍተ ነገሮች ውስጥ ማስቀደም የሚያስችል የአጻጻፍ ዘዴ ነው።",
+    "keywords": ["bluf", "bottom line up front", "written communication", "emails", "structure", "የጽሁፍ ግንኙነት", "ኢሜይል", "አጭር መግለጫ"]
+  },
+  {
+    "id": "faq-07",
+    "category": "Academic Pacing & Grading",
+    "courseTitle": "VA-1: VA Foundations & Professional Identity",
+    "moduleTitle": "Module 1: Orientation and Programme Overview",
+    "lessonTitle": "Course Progression, Milestone Grading & Graduation Threshold",
+    "question_en": "What is the passing score or graduation threshold?",
+    "question_am": "የምረቃ ማለፊያ ውጤት ስንት ነው?",
+    "answer_en": "To successfully graduate from the programme, learners must achieve an overall course score of at least 70% across all milestone evaluations, quizzes, and deliverables.",
+    "answer_am": "ትምህርቱን አጠናቀው ለመመረቅ ተማሪዎች በሁሉም ምዕራፎች፣ ፈተናዎች እና ምዘናዎች ቢያንስ 70% አጠቃላይ ውጤት ማምጣት አለባቸው።",
+    "keywords": ["passing score", "graduation threshold", "70 percent", "grading", "milestones", "ማለፊያ ውጤት", "ምረቃ", "70 በመቶ"]
+  },
+  {
+    "id": "faq-08",
+    "category": "Ethics & Confidentiality",
+    "courseTitle": "VA-1: VA Foundations & Professional Identity",
+    "moduleTitle": "Module 1: The Modern Virtual Assistant",
+    "lessonTitle": "Client Confidentiality and Ethics",
+    "question_en": "Why is client confidentiality so critical for a virtual assistant?",
+    "question_am": "ለቨርቹዋል ረዳት የደንበኛ ሚስጥር መጠበቅ ለምን አስፈላጊ ሆነ?",
+    "answer_en": "Confidentiality protects proprietary corporate data, passwords, and client privacy. It forms the essential foundation of professional trust in remote partnerships.",
+    "answer_am": "የደንበኛ ሚስጥራዊነት የንግድ ድርጅቱን መረጃ እና የግል ደህንነት የሚጠብቅ ሲሆን የሙያዊ እምነት እና ዘላቂ አጋርነት መሰረት ነው።",
+    "keywords": ["confidentiality", "nda", "ethics", "data security", "trust", "ሚስጥራዊነት", "ስነ-ምግባር", "እምነት"]
+  }
+]
+
