@@ -142,27 +142,98 @@
     }
   ];
 
-  function getDemoTutorResponse(message, lang) {
+  function getDemoTutorResponse(message, lang, simpleMode = false) {
     const isAm = (lang === 'am');
     const lower = (message || '').toLowerCase();
 
+    const defaultCitations = isAm ? [
+      {
+        title: 'ሞጁል 2፡ ቨርቹዋል ረዳት ምንድን ነው',
+        section: 'የቪኤ ሚና ትርጓሜ እና የስራ ዘርፎች',
+        source: 'የሳቫና ስርዓተ-ትምህርት',
+        url: '#module-2-overview'
+      },
+      {
+        title: 'ጽንሰ-ሀሳብ፡ የቨርቹዋል ረዳት ኢንዱስትሪ የወደፊት ጉዞ',
+        section: 'የቴክኖሎጂ እና የአርቴፊሻል ኢንተለጀንስ ሚና',
+        source: 'ቪኤ-1 የትምህርት ክፍለ-ጊዜ',
+        url: '#evolution-of-va-role'
+      }
+    ] : [
+      {
+        title: 'Module 2: What is a VA',
+        section: 'Defining the VA Role: Tasks and Specialisations',
+        source: 'Savanna Concept Materials',
+        url: '#module-2-overview'
+      },
+      {
+        title: 'The Future of the VA Industry',
+        section: 'Evolution of the VA Role & AI Tools',
+        source: 'VA-1 Curriculum',
+        url: '#evolution-of-va-role'
+      }
+    ];
+
     if (isAm) {
+      if (simpleMode) {
+        if (lower.includes('ምን') || lower.includes('ረዳት') || lower.includes('va')) {
+          return {
+            reply: 'በቀላል አነጋገር፡ ቨርቹዋል ረዳት (VA) ማለት በቤት ወይም በየትኛውም ቦታ ሆኖ በኮምፒውተርና በስልክ ለሌሎች ሰዎች ወይም ድርጅቶች ስራ የሚያግዝ ባለሙያ ነው።\n\nዋና ዋና ስራዎቹ፡\n• ኢሜይል መጻፍ እና መመለስ\n• የቀን መቁጠሪያ እና ስብሰባዎችን ማስተካከል\n• የጽሑፍ እና የሰነድ ዝግጅት\n• የAI መሣሪያዎችን ተጠቅሞ ስራዎችን ማፍጠን።',
+            citations: defaultCitations,
+            suggestions: ['አስፈላጊ ክህሎቶች ምንድን ናቸው?', 'የልምምድ ጥያቄ ስጠኝ', 'የዚህን ትምህርት ዋና ነጥቦች አጠቃልል']
+          };
+        }
+        return {
+          reply: `ቀላል ማብራሪያ ስለ "${message}"፡ በዛሬው ትምህርት ውስጥ ዋናው መልዕክት ቪኤዎች የኮምፒውተር እና የኢንተርኔት መሣሪያዎችን በብልሃት በመጠቀም ስራቸውን ማቅለል እንደሚችሉ ነው። ደረጃ በደረጃ በመለማመድ ስኬታማ መሆን ይችላሉ።`,
+          citations: defaultCitations,
+          suggestions: ['የዚህን ትምህርት ዋና ነጥቦች አጠቃልል', 'አስፈላጊ ክህሎቶች ምንድን ናቸው?', 'የልምምድ ጥያቄ ስጠኝ']
+        };
+      }
+
       if (lower.includes('ምን') || lower.includes('ረዳት') || lower.includes('va')) {
         return {
           reply: 'ቨርቹዋል ረዳት (VA) ለደንበኞች ወይም ለድርጅቶች ከርቀት ሆነው የአስተዳደር፣ የቴክኒክ ወይም የፈጠራ ድጋፍ የሚሰጡ ባለሙያ ናቸው። በዛሬው ትምህርት ውስጥ እንደተገለጸው፣ የቪኤ ሚና በቴክኖሎጂ እድገት እና በአርቴፊሻል ኢንተለጀንስ (AI) መሣሪያዎች አጠቃቀም ምክንያት እጅግ እየሰፋ ይገኛል።',
+          citations: defaultCitations,
           suggestions: ['አስፈላጊ ክህሎቶች ምንድን ናቸው?', 'የልምምድ ጥያቄ ስጠኝ', 'የዚህን ትምህርት ዋና ነጥቦች አጠቃልል']
         };
       }
       return {
         reply: `ስለ "${message}" ላነሱት ጥያቄ አመሰግናለሁ። በ"The Future of the VA Industry" ትምህርት መሠረት፣ ዘመናዊ ቨርቹዋል ረዳቶች የጊዜ አጠቃቀምን፣ ቀልጣፋ የዲጂታል ግንኙነትን እና የAI መሣሪያዎችን በጥልቀት በመረዳት የላቀ ውጤት ያመጣሉ። ተጨማሪ ማብራሪያ ይፈልጋሉ?`,
+        citations: defaultCitations,
         suggestions: ['የዚህን ትምህርት ዋና ነጥቦች አጠቃልል', 'አስፈላጊ ክህሎቶች ምንድን ናቸው?', 'የልምምድ ጥያቄ ስጠኝ']
       };
     }
 
     // English responses
+    if (simpleMode) {
+      if (lower.includes('what is a va') || lower.includes('virtual assistant') || lower.includes('definition')) {
+        return {
+          reply: 'In simple words: A Virtual Assistant (VA) is a remote helper who works online from home or anywhere to help business owners get things done!\n\nKey duties explained simply:\n• Managing emails and calendars\n• Setting up meetings\n• Organizing files and data\n• Using smart AI tools to save time.',
+          citations: defaultCitations,
+          suggestions: ['What skills do I need as a beginner?', 'Summarize this lesson simply', 'Give me an easy practice quiz']
+        };
+      }
+
+      if (lower.includes('skill') || lower.includes('mindset') || lower.includes('tool')) {
+        return {
+          reply: 'Top 3 simple skills you need:\n1. Clear communication (replying politely and promptly)\n2. Reliability (doing what you promised on time)\n3. Basic digital tools (Google Docs, Calendar, and simple AI assistants).',
+          citations: defaultCitations,
+          suggestions: ['How do I practice these skills?', 'Give me an easy practice quiz', 'Show me entry-level jobs']
+        };
+      }
+
+      return {
+        reply: `Simple explanation for "${message}": Think of a VA as a digital partner. Instead of commuting to an office, you use the internet, video calls, and simple apps to support teams worldwide. Starting with step-by-step tasks builds your confidence quickly!`,
+        citations: defaultCitations,
+        suggestions: ['What is a Virtual Assistant?', 'What skills does a modern VA need?', 'Summarize this lesson simply']
+      };
+    }
+
+    // Standard English responses
     if (lower.includes('what is a va') || lower.includes('virtual assistant') || lower.includes('definition')) {
       return {
         reply: 'A Virtual Assistant (VA) is a remote professional who provides administrative, technical, operational, or creative support to clients across the globe. In this lesson, we explored how the VA role has evolved from basic data entry to strategic business partnership and digital project coordination.',
+        citations: defaultCitations,
         suggestions: ['What skills does a modern VA need?', 'Summarize this lesson', 'Give me a quick practice quiz']
       };
     }
@@ -170,6 +241,7 @@
     if (lower.includes('skill') || lower.includes('mindset') || lower.includes('tool')) {
       return {
         reply: 'Core VA skills highlighted in Module 2 include: 1) Proactive communication and calendar coordination, 2) Digital tool proficiency (Google Workspace, Slack, Notion, AI assistants), 3) Problem solving and self-management, and 4) Continuous learning and adaptability.',
+        citations: defaultCitations,
         suggestions: ['How do I practice these skills?', 'Give me a quick practice quiz', 'Tell me about remote work options']
       };
     }
@@ -177,6 +249,7 @@
     if (lower.includes('quiz') || lower.includes('test') || lower.includes('practice')) {
       return {
         reply: 'Quick Knowledge Check: True or False — "A Virtual Assistant only performs repetitive administrative tasks and cannot specialize in technical or project management areas." (Hint: Think about the evolution of the role in our reading!)',
+        citations: defaultCitations,
         suggestions: ['False! VAs can specialize in tech, project management, and ops.', 'True', 'Explain the correct answer']
       };
     }
@@ -184,12 +257,14 @@
     if (lower.includes('summar') || lower.includes('overview') || lower.includes('key')) {
       return {
         reply: 'Key Takeaways from "The Future of the VA Industry":\n• The global demand for specialized, tech-enabled VAs is expanding rapidly.\n• Automation and AI handle routine clerical tasks, allowing VAs to focus on high-value client operations.\n• Adaptability, ethical digital practices, and cross-cultural communication are essential.',
+        citations: defaultCitations,
         suggestions: ['What skills should I focus on next?', 'Give me a quick practice quiz', 'Show me career opportunities']
       };
     }
 
     return {
       reply: `Regarding "${message}": In this concept ("The Future of the VA Industry"), success comes from combining foundational digital literacy with modern automation tools. By taking initiative and structuring your workflows, you set yourself apart as a high-performing professional.`,
+      citations: defaultCitations,
       suggestions: ['What is a Virtual Assistant?', 'What skills does a modern VA need?', 'Summarize this lesson']
     };
   }
@@ -237,10 +312,12 @@
     /**
      * POST /api/tutor/ask
      */
-    async askTutor({ message, language = 'en', context = {} }) {
+    async askTutor({ message, language = 'en', simple_mode = false, conversation_history = [], context = {} }) {
       const payload = {
         message: message.trim(),
         language,
+        simple_mode: Boolean(simple_mode),
+        conversation_history: Array.isArray(conversation_history) ? conversation_history : [],
         context: {
           page: 'The Future of the VA Industry',
           course: 'VA-1: VA Foundations & Professional Identity',
@@ -263,10 +340,19 @@
         backendAvailable = true;
         notifyStatusChange();
 
+        // Extract citations flexibly (citations or sources)
+        let citations = [];
+        if (Array.isArray(data.citations)) {
+          citations = data.citations;
+        } else if (Array.isArray(data.sources)) {
+          citations = data.sources;
+        }
+
         return {
           success: true,
           isDemo: false,
           reply: data.reply || data.answer || data.message || data.response || '',
+          citations: citations,
           suggestions: Array.isArray(data.suggestions) ? data.suggestions : [],
           audio_url: data.audio_url || null,
           timestamp: data.timestamp || new Date().toISOString()
@@ -276,13 +362,14 @@
         backendAvailable = false;
         notifyStatusChange();
 
-        const demo = getDemoTutorResponse(payload.message, language);
+        const demo = getDemoTutorResponse(payload.message, language, payload.simple_mode);
         return {
           success: true,
           isDemo: true,
           demoNotice: language === 'am' ? 'የሙከራ ሁነታ (የጀርባ ሰርቨር አልተገኘም)' : 'Demo UI Data (Backend Offline)',
           reply: demo.reply,
-          suggestions: demo.suggestions,
+          citations: demo.citations || [],
+          suggestions: demo.suggestions || [],
           audio_url: null,
           timestamp: new Date().toISOString()
         };
