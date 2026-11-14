@@ -85,14 +85,68 @@ Executes automated endpoint verification tests covering health checks, bilingual
 
 ### 2. Tutor Q&A
 - **Endpoint:** `POST /api/tutor/ask`
-- **Description:** Ask a question in English or Amharic with optional active lesson context. Returns answers strictly cited from course materials.
+- **Description:** Ask a question in English or Amharic with optional active lesson context and optional simple-language mode. Answers are strictly grounded in course materials; unsupported questions are politely refused without hallucinating citations.
 
 #### Request Parameters:
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `question` | string | **Yes** | Question from learner |
 | `language` | string | No | `'en'` (English) or `'am'` (Amharic). Auto-detected if omitted. |
+| `simplify` | boolean | No | When `true`, returns an accessible plain-language explanation ("Explain Simply" mode). |
 | `context` | object | No | Active lesson metadata (`courseTitle`, `moduleTitle`, `lessonTitle`, `lessonText`) |
+
+#### Sample Request (Simple-Language Mode):
+```bash
+curl -X POST http://localhost:5000/api/tutor/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What is the BLUF model in communication?",
+    "language": "en",
+    "simplify": true
+  }'
+```
+
+#### Sample Response (Simple-Language Mode):
+```json
+{
+  "answer": "Simple Explanation (Plain Language):\n\nThe BLUF rule means putting your most important question or conclusion right at the start of your message, so busy people understand what you need in five seconds.\n\nReference: WR 100: Fundamentals of Effective Communication > Structuring Clear Workplace Messages & The BLUF Model\nTip: This breakdown is designed to explain core concepts without complex technical jargon.",
+  "language": "en",
+  "sources": [
+    {
+      "courseTitle": "WR 100: Fundamentals of Effective Communication",
+      "moduleTitle": "Module 2: Professional Written Communication",
+      "lessonTitle": "Structuring Clear Workplace Messages & The BLUF Model",
+      "snippet": "Effective written communication in professional environments relies on the 'Bottom Line Up Front' (BLUF) model.",
+      "score": 14.5
+    }
+  ],
+  "mode": "mock_demo",
+  "isGrounded": true,
+  "simplified": true
+}
+```
+
+#### Sample Request (Unsupported Question - Prevention of Fabricated Citations):
+```bash
+curl -X POST http://localhost:5000/api/tutor/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "How do I bake a chocolate cake?",
+    "language": "en"
+  }'
+```
+
+#### Sample Response:
+```json
+{
+  "answer": "I apologize, but your question (\"How do I bake a chocolate cake?\") is not covered in your active course materials (VA-1: VA Foundations and WR 100: Fundamentals of Effective Communication). As an AI tutor dedicated to academic honesty, I cannot invent answers outside the curriculum. You can ask me about topics such as the future of virtual assistance, AI tools in the workplace, active listening, or the BLUF communication model!",
+  "language": "en",
+  "sources": [],
+  "mode": "unsupported_refusal",
+  "isGrounded": false,
+  "simplified": false
+}
+```
 
 #### Sample Request (English without context):
 ```bash
