@@ -1,262 +1,34 @@
 /**
- * Voice4All — Support Routes (Phase 2)
+ * Voice4All — Support Routes (Phase 4)
+ * Connected with Controllers & Middleware
  * 
  * Endpoints:
- * - POST /api/support/requests                     (Learner creates support ticket)
- * - GET  /api/support/requests/:id                 (Track ticket status and queue position)
- * - GET  /api/support/queue                        (Support-person queue overview)
- * - GET  /api/support/requests                     (List all requests)
- * - POST /api/support/requests/:id/assign          (Support person connects to ticket)
- * - POST /api/support/requests/:id/resolve         (Mark ticket resolved)
- * - POST /api/support/requests/:id/cancel          (Learner cancels request)
- * - POST /api/support/requests/:id/messages        (Send message in ticket thread)
- * - POST /api/support/requests/:id/screen-share/consent (Learner grants screen share consent)
- * - POST /api/support/requests/:id/screen-share/stop    (Clear STOP-SHARING control)
- * - POST /api/support/screen-share/stop                 (Global stop sharing endpoint)
- * - GET  /api/support/faqs                         (FAQs)
- * - GET  /api/support/dashboard                    (Interactive Support-Person Portal)
+ * - POST   /api/support/requests                     (Learner creates support ticket)
+ * - GET    /api/support/requests                     (Retrieve support requests list with privacy filtering)
+ * - GET    /api/support/requests/:id                 (Retrieve individual ticket by ID)
+ * - PATCH  /api/support/requests/:id/status          (Update ticket status where authorized)
+ * - POST   /api/support/requests/:id/assign          (Support person connects to ticket)
+ * - POST   /api/support/requests/:id/resolve         (Mark ticket resolved)
+ * - POST   /api/support/requests/:id/cancel          (Learner cancels request)
+ * - POST   /api/support/requests/:id/messages        (Send message in ticket thread)
+ * - POST   /api/support/requests/:id/screen-share/consent (Learner grants screen share consent)
+ * - POST   /api/support/requests/:id/screen-share/stop    (Clear STOP-SHARING control)
+ * - POST   /api/support/screen-share/stop                 (Global stop sharing endpoint)
+ * - GET    /api/support/queue                        (Support-person queue overview)
+ * - GET    /api/support/faqs                         (Support FAQs)
+ * - GET    /api/support/dashboard                    (Interactive Support-Person Portal)
  */
 
 const express = require('express');
-const supportService = require('../services/support.service');
+const supportController = require('../controllers/support.controller');
+const {
+  validateCreateRequest,
+  validateStatusUpdate,
+  validateMessagePayload,
+  authorize
+} = require('../middleware/support.middleware');
 
 const router = express.Router();
-
-/**
- * POST /requests (also mounted as /support/requests)
- * Learner initiates a support request.
- */
-function handleCreateSupportRequest(req, res) {
-  try {
-    const payload = req.body || {};
-    const ticket = supportService.createSupportRequest(payload);
-
-    res.status(201).json({
-      success: true,
-      requestId: ticket.requestId,
-      request_id: ticket.requestId, // Member 1 compatibility
-      status: ticket.status,
-      // Honest reporting:
-      humanConnected: ticket.humanConnected,
-      screen_share_active: ticket.screen_share_active,
-      connectionNotice: ticket.connectionNotice,
-      isSimulated: ticket.isSimulated,
-      simulationNotice: ticket.simulationNotice,
-      estimated_wait_minutes: ticket.estimatedWaitMinutes,
-      estimatedWaitMinutes: ticket.estimatedWaitMinutes,
-      message: ticket.message,
-      created_at: ticket.createdAt,
-      ticket
-    });
-  } catch (err) {
-    const status = err.statusCode || 400;
-    res.status(status).json({
-      success: false,
-      error: err.message,
-      field: err.field || null,
-      isSimulated: true,
-      simulationNotice: 'A local screen-capture preview is not a real human support connection.'
-    });
-  }
-}
-
-/**
- * GET /requests/:id (and /support/requests/:id)
- * Fetches status of an existing ticket.
- */
-function handleGetSupportRequest(req, res) {
-  const requestId = req.params?.id || req.params?.requestId || (req.url && req.url.split('/').pop());
-  const ticket = supportService.getSupportRequest(requestId);
-
-  if (!ticket) {
-    return res.status(404).json({
-      success: false,
-      error: `Support request not found for ID: ${requestId}`
-    });
-  }
-
-  res.status(200).json({
-    success: true,
-    requestId: ticket.requestId,
-    request_id: ticket.requestId,
-    status: ticket.status,
-    humanConnected: ticket.humanConnected,
-    screen_share_active: ticket.screen_share_active,
-    agentName: ticket.agentName,
-    connectionNotice: ticket.connectionNotice,
-    queuePosition: ticket.queuePosition,
-    estimatedWaitMinutes: ticket.estimatedWaitMinutes,
-    isSimulated: ticket.isSimulated,
-    ticket
-  });
-}
-
-/**
- * GET /queue (and /requests)
- * Support-person interface endpoint for viewing the full queue
- */
-function handleGetQueue(req, res) {
-  const filters = req.query || {};
-  const queueData = supportService.getQueue(filters);
-  res.status(200).json({
-    success: true,
-    ...queueData
-  });
-}
-
-/**
- * POST /requests/:id/assign
- * Support agent connects to a ticket. Sets humanConnected = true.
- */
-function handleAssignAgent(req, res) {
-  try {
-    const requestId = req.params?.id;
-    const { agentName, agentId } = req.body || {};
-    const updated = supportService.assignAgent(requestId, agentName, agentId);
-
-    res.status(200).json({
-      success: true,
-      message: `Support agent ${updated.agentName} successfully connected to ticket.`,
-      humanConnected: updated.humanConnected,
-      screen_share_active: updated.screen_share_active,
-      ticket: updated
-    });
-  } catch (err) {
-    const status = err.statusCode || 400;
-    res.status(status).json({
-      success: false,
-      error: err.message
-    });
-  }
-}
-
-/**
- * POST /requests/:id/screen-share/consent
- * Learner grants explicit screen-sharing consent.
- */
-function handleScreenShareConsent(req, res) {
-  try {
-    const requestId = req.params?.id;
-    const updated = supportService.handleScreenShareConsent(requestId, req.body);
-    res.status(200).json({
-      success: true,
-      message: 'Screen sharing consent recorded.',
-      screenShareStatus: updated.screenShareStatus,
-      screen_share_active: updated.screen_share_active,
-      ticket: updated
-    });
-  } catch (err) {
-    const status = err.statusCode || 400;
-    res.status(status).json({
-      success: false,
-      error: err.message
-    });
-  }
-}
-
-/**
- * POST /requests/:id/screen-share/stop & POST /screen-share/stop
- * CLEAR STOP-SHARING CONTROL
- */
-function handleStopScreenShare(req, res) {
-  try {
-    const requestId = req.params?.id || req.body?.requestId || req.body?.request_id;
-    const stoppedBy = req.body?.stoppedBy || 'learner';
-    
-    if (!requestId) {
-      return res.status(400).json({
-        success: false,
-        error: 'A requestId is required to stop screen sharing.'
-      });
-    }
-
-    const result = supportService.stopScreenShare(requestId, stoppedBy);
-    res.status(200).json(result);
-  } catch (err) {
-    const status = err.statusCode || 400;
-    res.status(status).json({
-      success: false,
-      error: err.message
-    });
-  }
-}
-
-/**
- * POST /requests/:id/messages
- * Sends message between learner and support person
- */
-function handleAddMessage(req, res) {
-  try {
-    const requestId = req.params?.id;
-    const result = supportService.addMessage(requestId, req.body);
-    res.status(201).json(result);
-  } catch (err) {
-    const status = err.statusCode || 400;
-    res.status(status).json({
-      success: false,
-      error: err.message
-    });
-  }
-}
-
-/**
- * POST /requests/:id/resolve
- * Marks ticket resolved
- */
-function handleResolveTicket(req, res) {
-  try {
-    const requestId = req.params?.id;
-    const { resolutionNotes } = req.body || {};
-    const updated = supportService.resolveTicket(requestId, resolutionNotes);
-    res.status(200).json({
-      success: true,
-      message: 'Ticket has been marked as resolved.',
-      ticket: updated
-    });
-  } catch (err) {
-    const status = err.statusCode || 400;
-    res.status(status).json({
-      success: false,
-      error: err.message
-    });
-  }
-}
-
-/**
- * POST /requests/:id/cancel
- * Learner cancels request
- */
-function handleCancelTicket(req, res) {
-  try {
-    const requestId = req.params?.id;
-    const { reason } = req.body || {};
-    const updated = supportService.cancelTicket(requestId, reason);
-    res.status(200).json({
-      success: true,
-      message: 'Ticket cancelled successfully.',
-      ticket: updated
-    });
-  } catch (err) {
-    const status = err.statusCode || 400;
-    res.status(status).json({
-      success: false,
-      error: err.message
-    });
-  }
-}
-
-/**
- * GET /faqs
- */
-function handleGetFaqs(req, res) {
-  const query = req.query || {};
-  const faqs = supportService.getFaqs(query);
-  res.status(200).json({
-    success: true,
-    total: faqs.length,
-    faqs
-  });
-}
 
 /**
  * GET /dashboard
@@ -412,53 +184,81 @@ function handleGetDashboard(req, res) {
   res.status(200).send(dashboardHtml);
 }
 
-// Router bindings (supports both direct and prefixed mounting)
-router.get(['/', ''], (req, res) => {
-  res.status(501).json({
-    status: 'pending_member_3',
-    message: 'Support route is mounted at /api/support. Implementation attached by Member 3. Use /requests, /queue, or /dashboard.',
-    service: 'voice4all-support',
-    endpoints: ['/requests', '/queue', '/dashboard', '/faqs']
-  });
-});
+// 1. Submit Support Request
+router.post('/requests', validateCreateRequest, supportController.createRequest);
+router.post('/support/requests', validateCreateRequest, supportController.createRequest);
 
-router.post('/requests', handleCreateSupportRequest);
-router.post('/support/requests', handleCreateSupportRequest);
+// 2. Retrieve Support Requests (List)
+router.get('/requests', authorize('any'), supportController.getRequests);
+router.get('/support/requests', authorize('any'), supportController.getRequests);
 
-router.get('/requests', handleGetQueue);
-router.get('/support/requests', handleGetQueue);
+// 3. Support Queue Overview
+router.get('/queue', authorize('any'), supportController.getQueue);
+router.get('/support/queue', authorize('any'), supportController.getQueue);
 
-router.get('/queue', handleGetQueue);
-router.get('/support/queue', handleGetQueue);
+// 4. Retrieve Individual Support Request by ID
+router.get('/requests/:id', supportController.getRequestById);
+router.get('/support/requests/:id', supportController.getRequestById);
 
-router.get('/requests/:id', handleGetSupportRequest);
-router.get('/support/requests/:id', handleGetSupportRequest);
+// 5. Update Request Status (Requires agent/admin authorization)
+router.patch('/requests/:id/status', authorize(['agent', 'admin']), validateStatusUpdate, supportController.updateStatus);
+router.patch('/support/requests/:id/status', authorize(['agent', 'admin']), validateStatusUpdate, supportController.updateStatus);
+router.put('/requests/:id/status', authorize(['agent', 'admin']), validateStatusUpdate, supportController.updateStatus);
+router.put('/support/requests/:id/status', authorize(['agent', 'admin']), validateStatusUpdate, supportController.updateStatus);
 
-router.post('/requests/:id/assign', handleAssignAgent);
-router.post('/support/requests/:id/assign', handleAssignAgent);
+// 6. Connect / Assign Agent (Requires agent/admin authorization)
+router.post('/requests/:id/assign', authorize(['agent', 'admin']), supportController.assignAgent);
+router.post('/support/requests/:id/assign', authorize(['agent', 'admin']), supportController.assignAgent);
 
-router.post('/requests/:id/screen-share/consent', handleScreenShareConsent);
-router.post('/support/requests/:id/screen-share/consent', handleScreenShareConsent);
+// 7. Screen Sharing Consent & Clear Stop-Sharing Control
+router.post('/requests/:id/screen-share/consent', supportController.handleScreenShareConsent);
+router.post('/support/requests/:id/screen-share/consent', supportController.handleScreenShareConsent);
 
-router.post('/requests/:id/screen-share/stop', handleStopScreenShare);
-router.post('/support/requests/:id/screen-share/stop', handleStopScreenShare);
-router.post('/screen-share/stop', handleStopScreenShare);
-router.post('/support/screen-share/stop', handleStopScreenShare);
+router.post('/requests/:id/screen-share/stop', supportController.stopScreenShare);
+router.post('/support/requests/:id/screen-share/stop', supportController.stopScreenShare);
+router.post('/screen-share/stop', supportController.stopScreenShare);
+router.post('/support/screen-share/stop', supportController.stopScreenShare);
 
-router.post('/requests/:id/messages', handleAddMessage);
-router.post('/support/requests/:id/messages', handleAddMessage);
+// 8. Thread Messages
+router.post('/requests/:id/messages', validateMessagePayload, supportController.addMessage);
+router.post('/support/requests/:id/messages', validateMessagePayload, supportController.addMessage);
 
-router.post('/requests/:id/resolve', handleResolveTicket);
-router.post('/support/requests/:id/resolve', handleResolveTicket);
+// 9. Resolve Request
+router.post('/requests/:id/resolve', authorize(['agent', 'admin']), supportController.resolveRequest);
+router.post('/support/requests/:id/resolve', authorize(['agent', 'admin']), supportController.resolveRequest);
 
-router.post('/requests/:id/cancel', handleCancelTicket);
-router.post('/support/requests/:id/cancel', handleCancelTicket);
+// 10. Cancel Request (Learner or Agent)
+router.post('/requests/:id/cancel', supportController.cancelRequest);
+router.post('/support/requests/:id/cancel', supportController.cancelRequest);
 
-router.get('/faqs', handleGetFaqs);
-router.get('/support/faqs', handleGetFaqs);
+// 11. Support FAQs
+router.get('/faqs', supportController.getFaqs);
+router.get('/support/faqs', supportController.getFaqs);
 
+// 12. Support Person Portal Dashboard
 router.get('/dashboard', handleGetDashboard);
 router.get('/support/dashboard', handleGetDashboard);
+
+// Base route fallback
+router.get(['/', ''], (req, res) => {
+  res.status(200).json({
+    service: 'voice4all-support',
+    version: '4.0.0',
+    description: 'Human Support Module with Honest Human Connectivity and Persisted Tickets',
+    endpoints: [
+      { method: 'POST', path: '/api/support/requests', description: 'Submit a support request' },
+      { method: 'GET', path: '/api/support/requests', description: 'Retrieve support requests' },
+      { method: 'GET', path: '/api/support/requests/:id', description: 'Retrieve an individual support request' },
+      { method: 'PATCH', path: '/api/support/requests/:id/status', description: 'Update request status (authorized)' },
+      { method: 'POST', path: '/api/support/requests/:id/assign', description: 'Assign support agent' },
+      { method: 'POST', path: '/api/support/requests/:id/resolve', description: 'Resolve request' },
+      { method: 'POST', path: '/api/support/requests/:id/cancel', description: 'Cancel request' },
+      { method: 'POST', path: '/api/support/requests/:id/screen-share/stop', description: 'Stop screen sharing' },
+      { method: 'GET', path: '/api/support/queue', description: 'Queue metrics and active items' },
+      { method: 'GET', path: '/api/support/dashboard', description: 'Support Person Web Portal' }
+    ]
+  });
+});
 
 module.exports = router;
 module.exports.default = router;

@@ -1,0 +1,486 @@
+[
+  {
+    "requestId": "REQ-2026-1001",
+    "request_id": "REQ-2026-1001",
+    "topic": "Screen Reader Navigation Help",
+    "message": "Screen reader loses focus when expanding the curriculum accordion in module 2.",
+    "preferred_mode": "chat",
+    "urgency": "medium",
+    "language": "en",
+    "context": {
+      "courseTitle": "VA-1: VA Foundations & Professional Identity",
+      "moduleTitle": "Module 2: What is a VA",
+      "lessonTitle": "The Future of the VA Industry",
+      "lessonText": ""
+    },
+    "learnerId": "Learner-Amara",
+    "consent": {
+      "screenShareRequested": false,
+      "screenShareConsent": false,
+      "contextSharingConsent": true,
+      "diagnosticsConsent": false,
+      "consentedAt": null
+    },
+    "status": "queued",
+    "humanConnected": false,
+    "agentName": null,
+    "agentId": null,
+    "connectionState": "waiting_in_queue",
+    "connectionNotice": "You are currently in the queue. No human agent is currently connected.",
+    "screenShareStatus": "not_requested",
+    "screen_share_active": false,
+    "screenShareStartedAt": null,
+    "screenShareStoppedAt": null,
+    "isSimulated": true,
+    "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue.",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "learner",
+        "senderName": "Learner-Amara",
+        "text": "Screen reader loses focus when expanding the curriculum accordion in module 2.",
+        "timestamp": "2026-11-14T10:00:00.000Z"
+      }
+    ],
+    "history": [
+      {
+        "status": "queued",
+        "timestamp": "2026-11-14T10:00:00.000Z",
+        "note": "Ticket created by learner. Urgency: medium, Preferred Mode: chat"
+      }
+    ],
+    "estimatedWaitMinutes": 3,
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "created_at": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "requestId": "REQ-2026-8877",
+    "request_id": "REQ-2026-8877",
+    "topic": "Concept Clarification",
+    "message": "Could a mentor explain the difference between BLUF and standard executive memos?",
+    "preferred_mode": "chat",
+    "urgency": "medium",
+    "language": "en",
+    "context": {
+      "courseTitle": "WR 100: Fundamentals of Effective Communication",
+      "moduleTitle": "Module 2: Professional Written Communication",
+      "lessonTitle": "Structuring Clear Workplace Messages & The BLUF Model",
+      "lessonText": ""
+    },
+    "learnerId": "Learner-Amara",
+    "consent": {
+      "screenShareRequested": false,
+      "screenShareConsent": false,
+      "contextSharingConsent": true,
+      "diagnosticsConsent": false,
+      "consentedAt": null
+    },
+    "status": "agent_connected",
+    "humanConnected": true,
+    "agentName": "Mentor Sarah (Communication Coach)",
+    "agentId": "agent-mentor-sarah",
+    "connectionState": "human_connected",
+    "connectionNotice": "Connected to human support specialist: Mentor Sarah (Communication Coach)",
+    "screenShareStatus": "stopped",
+    "screen_share_active": false,
+    "screenShareStartedAt": null,
+    "screenShareStoppedAt": "2026-11-14T14:02:19.158Z",
+    "isSimulated": true,
+    "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "learner",
+        "senderName": "Learner-Amara",
+        "text": "Could a mentor explain the difference between BLUF and standard executive memos?",
+        "timestamp": "2026-11-14T14:02:19.109Z"
+      },
+      {
+        "id": "msg-2",
+        "sender": "system",
+        "senderName": "System Notice",
+        "text": "Screen sharing has been stopped by the learner. No screen content is being shared.",
+        "timestamp": "2026-11-14T14:02:19.158Z"
+      }
+    ],
+    "history": [
+      {
+        "status": "queued",
+        "timestamp": "2026-11-14T14:02:19.109Z",
+        "note": "Ticket created by learner. Urgency: medium, Preferred Mode: chat"
+      },
+      {
+        "status": "agent_connected",
+        "timestamp": "2026-11-14T14:02:19.142Z",
+        "note": "Status transitioned from 'queued' to 'agent_connected'."
+      },
+      {
+        "status": "screen_share_stopped",
+        "timestamp": "2026-11-14T14:02:19.158Z",
+        "note": "Screen sharing explicitly stopped by learner. Previous status: not_requested"
+      }
+    ],
+    "estimatedWaitMinutes": 4,
+    "createdAt": "2026-11-14T14:02:19.109Z",
+    "created_at": "2026-11-14T14:02:19.109Z",
+    "updatedAt": "2026-11-14T14:02:19.158Z"
+  },
+  {
+    "requestId": "REQ-2026-1071",
+    "request_id": "REQ-2026-1071",
+    "topic": "Lesson Clarification",
+    "message": "Could you explain the difference between human VAs and AI assistants in Module 2?",
+    "preferred_mode": "chat",
+    "urgency": "medium",
+    "language": "en",
+    "context": {
+      "courseTitle": "VA-1: VA Foundations & Professional Identity",
+      "moduleTitle": "Module 2: What is a VA",
+      "lessonTitle": "The Future of the VA Industry",
+      "lessonText": ""
+    },
+    "learnerId": "Learner-Amara",
+    "consent": {
+      "screenShareRequested": false,
+      "screenShareConsent": false,
+      "contextSharingConsent": true,
+      "diagnosticsConsent": false,
+      "consentedAt": null
+    },
+    "status": "queued",
+    "humanConnected": false,
+    "agentName": null,
+    "agentId": null,
+    "connectionState": "waiting_in_queue",
+    "connectionNotice": "You are currently in the queue. No human agent is currently connected.",
+    "screenShareStatus": "stopped",
+    "screen_share_active": false,
+    "screenShareStartedAt": null,
+    "screenShareStoppedAt": "2026-11-14T14:02:24.865Z",
+    "isSimulated": true,
+    "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "learner",
+        "senderName": "Learner-Amara",
+        "text": "Could you explain the difference between human VAs and AI assistants in Module 2?",
+        "timestamp": "2026-11-14T14:02:24.825Z"
+      },
+      {
+        "id": "msg-2",
+        "sender": "system",
+        "senderName": "System Notice",
+        "text": "Screen sharing has been stopped by the learner. No screen content is being shared.",
+        "timestamp": "2026-11-14T14:02:24.865Z"
+      }
+    ],
+    "history": [
+      {
+        "status": "queued",
+        "timestamp": "2026-11-14T14:02:24.825Z",
+        "note": "Ticket created by learner. Urgency: medium, Preferred Mode: chat"
+      },
+      {
+        "status": "screen_share_stopped",
+        "timestamp": "2026-11-14T14:02:24.865Z",
+        "note": "Screen sharing explicitly stopped by learner. Previous status: not_requested"
+      }
+    ],
+    "estimatedWaitMinutes": 4,
+    "createdAt": "2026-11-14T14:02:24.825Z",
+    "created_at": "2026-11-14T14:02:24.825Z",
+    "updatedAt": "2026-11-14T14:02:24.865Z"
+  },
+  {
+    "requestId": "REQ-2026-1624",
+    "request_id": "REQ-2026-1624",
+    "topic": "Screen Navigation Help",
+    "message": "I cannot locate the recap quiz button on my screen.",
+    "preferred_mode": "screen_share",
+    "urgency": "high",
+    "language": "en",
+    "context": {
+      "courseTitle": "VA-1: VA Foundations & Professional Identity",
+      "moduleTitle": "Module 2: What is a VA",
+      "lessonTitle": "The Future of the VA Industry",
+      "lessonText": ""
+    },
+    "learnerId": "Learner-Amara",
+    "consent": {
+      "screenShareRequested": true,
+      "screenShareConsent": true,
+      "contextSharingConsent": true,
+      "diagnosticsConsent": false,
+      "consentedAt": "2026-11-14T14:02:24.838Z"
+    },
+    "status": "agent_connected",
+    "humanConnected": true,
+    "agentName": "Mentor Grace (Support Specialist)",
+    "agentId": "agent-grace",
+    "connectionState": "human_connected",
+    "connectionNotice": "Connected to human support specialist: Mentor Grace (Support Specialist)",
+    "screenShareStatus": "stopped",
+    "screen_share_active": false,
+    "screenShareStartedAt": "2026-11-14T14:02:24.848Z",
+    "screenShareStoppedAt": "2026-11-14T14:02:24.854Z",
+    "isSimulated": true,
+    "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "learner",
+        "senderName": "Learner-Amara",
+        "text": "I cannot locate the recap quiz button on my screen.",
+        "timestamp": "2026-11-14T14:02:24.838Z"
+      },
+      {
+        "id": "msg-2",
+        "sender": "system",
+        "senderName": "System Notice",
+        "text": "Screen sharing has been stopped by the learner. No screen content is being shared.",
+        "timestamp": "2026-11-14T14:02:24.854Z"
+      }
+    ],
+    "history": [
+      {
+        "status": "queued",
+        "timestamp": "2026-11-14T14:02:24.838Z",
+        "note": "Ticket created by learner. Urgency: high, Preferred Mode: screen_share"
+      },
+      {
+        "status": "agent_connected",
+        "timestamp": "2026-11-14T14:02:24.848Z",
+        "note": "Support specialist Mentor Grace (Support Specialist) claimed and joined the session."
+      },
+      {
+        "status": "screen_share_stopped",
+        "timestamp": "2026-11-14T14:02:24.854Z",
+        "note": "Screen sharing explicitly stopped by learner. Previous status: session_active"
+      }
+    ],
+    "estimatedWaitMinutes": 4,
+    "createdAt": "2026-11-14T14:02:24.838Z",
+    "created_at": "2026-11-14T14:02:24.838Z",
+    "updatedAt": "2026-11-14T14:02:24.854Z"
+  },
+  {
+    "requestId": "REQ-2026-6407",
+    "request_id": "REQ-2026-6407",
+    "topic": "Lesson Clarification",
+    "message": "Could you explain the difference between human VAs and AI assistants in Module 2?",
+    "preferred_mode": "chat",
+    "urgency": "medium",
+    "language": "en",
+    "context": {
+      "courseTitle": "VA-1: VA Foundations & Professional Identity",
+      "moduleTitle": "Module 2: What is a VA",
+      "lessonTitle": "The Future of the VA Industry",
+      "lessonText": ""
+    },
+    "learnerId": "Learner-Amara",
+    "consent": {
+      "screenShareRequested": false,
+      "screenShareConsent": false,
+      "contextSharingConsent": true,
+      "diagnosticsConsent": false,
+      "consentedAt": null
+    },
+    "status": "queued",
+    "humanConnected": false,
+    "agentName": null,
+    "agentId": null,
+    "connectionState": "waiting_in_queue",
+    "connectionNotice": "You are currently in the queue. No human agent is currently connected.",
+    "screenShareStatus": "stopped",
+    "screen_share_active": false,
+    "screenShareStartedAt": null,
+    "screenShareStoppedAt": "2026-11-14T14:02:52.340Z",
+    "isSimulated": true,
+    "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "learner",
+        "senderName": "Learner-Amara",
+        "text": "Could you explain the difference between human VAs and AI assistants in Module 2?",
+        "timestamp": "2026-11-14T14:02:52.296Z"
+      },
+      {
+        "id": "msg-2",
+        "sender": "system",
+        "senderName": "System Notice",
+        "text": "Screen sharing has been stopped by the learner. No screen content is being shared.",
+        "timestamp": "2026-11-14T14:02:52.340Z"
+      }
+    ],
+    "history": [
+      {
+        "status": "queued",
+        "timestamp": "2026-11-14T14:02:52.296Z",
+        "note": "Ticket created by learner. Urgency: medium, Preferred Mode: chat"
+      },
+      {
+        "status": "screen_share_stopped",
+        "timestamp": "2026-11-14T14:02:52.340Z",
+        "note": "Screen sharing explicitly stopped by learner. Previous status: not_requested"
+      }
+    ],
+    "estimatedWaitMinutes": 6,
+    "createdAt": "2026-11-14T14:02:52.296Z",
+    "created_at": "2026-11-14T14:02:52.296Z",
+    "updatedAt": "2026-11-14T14:02:52.340Z"
+  },
+  {
+    "requestId": "REQ-2026-4423",
+    "request_id": "REQ-2026-4423",
+    "topic": "Screen Navigation Help",
+    "message": "I cannot locate the recap quiz button on my screen.",
+    "preferred_mode": "screen_share",
+    "urgency": "high",
+    "language": "en",
+    "context": {
+      "courseTitle": "VA-1: VA Foundations & Professional Identity",
+      "moduleTitle": "Module 2: What is a VA",
+      "lessonTitle": "The Future of the VA Industry",
+      "lessonText": ""
+    },
+    "learnerId": "Learner-Amara",
+    "consent": {
+      "screenShareRequested": true,
+      "screenShareConsent": true,
+      "contextSharingConsent": true,
+      "diagnosticsConsent": false,
+      "consentedAt": "2026-11-14T14:02:52.310Z"
+    },
+    "status": "resolved",
+    "humanConnected": false,
+    "agentName": "Mentor Grace (Support Specialist)",
+    "agentId": "agent-grace",
+    "connectionState": "human_connected",
+    "connectionNotice": "Connected to human support specialist: Mentor Grace (Support Specialist)",
+    "screenShareStatus": "stopped",
+    "screen_share_active": false,
+    "screenShareStartedAt": "2026-11-14T14:02:52.323Z",
+    "screenShareStoppedAt": "2026-11-14T14:02:52.352Z",
+    "isSimulated": true,
+    "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "learner",
+        "senderName": "Learner-Amara",
+        "text": "I cannot locate the recap quiz button on my screen.",
+        "timestamp": "2026-11-14T14:02:52.310Z"
+      },
+      {
+        "id": "msg-2",
+        "sender": "system",
+        "senderName": "System Notice",
+        "text": "Screen sharing has been stopped by the learner. No screen content is being shared.",
+        "timestamp": "2026-11-14T14:02:52.330Z"
+      }
+    ],
+    "history": [
+      {
+        "status": "queued",
+        "timestamp": "2026-11-14T14:02:52.310Z",
+        "note": "Ticket created by learner. Urgency: high, Preferred Mode: screen_share"
+      },
+      {
+        "status": "agent_connected",
+        "timestamp": "2026-11-14T14:02:52.323Z",
+        "note": "Support specialist Mentor Grace (Support Specialist) claimed and joined the session."
+      },
+      {
+        "status": "screen_share_stopped",
+        "timestamp": "2026-11-14T14:02:52.330Z",
+        "note": "Screen sharing explicitly stopped by learner. Previous status: session_active"
+      },
+      {
+        "status": "resolved",
+        "timestamp": "2026-11-14T14:02:52.352Z",
+        "note": "Ticket resolved. Notes: Guided learner to recap quiz button; quiz successfully submitted."
+      }
+    ],
+    "estimatedWaitMinutes": 5,
+    "createdAt": "2026-11-14T14:02:52.310Z",
+    "created_at": "2026-11-14T14:02:52.310Z",
+    "updatedAt": "2026-11-14T14:02:52.352Z",
+    "resolvedAt": "2026-11-14T14:02:52.352Z",
+    "resolutionNotes": "Guided learner to recap quiz button; quiz successfully submitted."
+  },
+  {
+    "requestId": "REQ-2026-1199",
+    "request_id": "REQ-2026-1199",
+    "topic": "Concept Clarification",
+    "message": "Could a mentor explain the difference between BLUF and standard executive memos?",
+    "preferred_mode": "chat",
+    "urgency": "medium",
+    "language": "en",
+    "context": {
+      "courseTitle": "WR 100: Fundamentals of Effective Communication",
+      "moduleTitle": "Module 2: Professional Written Communication",
+      "lessonTitle": "Structuring Clear Workplace Messages & The BLUF Model",
+      "lessonText": ""
+    },
+    "learnerId": "Learner-Amara",
+    "consent": {
+      "screenShareRequested": false,
+      "screenShareConsent": false,
+      "contextSharingConsent": true,
+      "diagnosticsConsent": false,
+      "consentedAt": null
+    },
+    "status": "agent_connected",
+    "humanConnected": true,
+    "agentName": "Mentor Sarah (Communication Coach)",
+    "agentId": "agent-mentor-sarah",
+    "connectionState": "human_connected",
+    "connectionNotice": "Connected to human support specialist: Mentor Sarah (Communication Coach)",
+    "screenShareStatus": "stopped",
+    "screen_share_active": false,
+    "screenShareStartedAt": null,
+    "screenShareStoppedAt": "2026-11-14T14:02:57.095Z",
+    "isSimulated": true,
+    "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "learner",
+        "senderName": "Learner-Amara",
+        "text": "Could a mentor explain the difference between BLUF and standard executive memos?",
+        "timestamp": "2026-11-14T14:02:57.053Z"
+      },
+      {
+        "id": "msg-2",
+        "sender": "system",
+        "senderName": "System Notice",
+        "text": "Screen sharing has been stopped by the learner. No screen content is being shared.",
+        "timestamp": "2026-11-14T14:02:57.095Z"
+      }
+    ],
+    "history": [
+      {
+        "status": "queued",
+        "timestamp": "2026-11-14T14:02:57.053Z",
+        "note": "Ticket created by learner. Urgency: medium, Preferred Mode: chat"
+      },
+      {
+        "status": "agent_connected",
+        "timestamp": "2026-11-14T14:02:57.082Z",
+        "note": "Status transitioned from 'queued' to 'agent_connected'."
+      },
+      {
+        "status": "screen_share_stopped",
+        "timestamp": "2026-11-14T14:02:57.095Z",
+        "note": "Screen sharing explicitly stopped by learner. Previous status: not_requested"
+      }
+    ],
+    "estimatedWaitMinutes": 7,
+    "createdAt": "2026-11-14T14:02:57.053Z",
+    "created_at": "2026-11-14T14:02:57.053Z",
+    "updatedAt": "2026-11-14T14:02:57.095Z"
+  }
+]

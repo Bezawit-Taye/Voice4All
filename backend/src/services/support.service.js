@@ -1,19 +1,24 @@
 /**
- * Voice4All — Human Support Service (Phase 2)
+ * Voice4All — Human Support Service (Phase 4)
  * 
  * Implements:
+ *  - Persistent JSON Database storage (`backend/data/support-tickets.json`)
  *  - Active Support Request Queue with state transitions (queued -> in_review -> agent_connected -> resolved / cancelled)
  *  - Request ID generation (REQ-YYYY-XXXX) and status timeline tracking
  *  - Learner-consented screen sharing with session state management
  *  - Clear STOP-SHARING control
  *  - Honest Human Connectivity Policy: Never claims a human is connected unless an agent has actively claimed/joined
  *  - Support-person queue triage and message exchange
+ *  - Privacy protection for sensitive learner information
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// In-memory queue repository for support tickets
+// Primary database file for persisting support tickets
+const DB_PATH = path.resolve(__dirname, '../../data/support-tickets.json');
+
+// In-memory queue repository for support tickets (hydrated from disk)
 const supportQueue = new Map();
 
 // Helper to locate faqs.json safely across working directories
@@ -24,6 +29,43 @@ function getFaqsPath() {
   if (fs.existsSync(fallback)) return fallback;
   return path.resolve(process.cwd(), 'Savanna-static-pages/backend/data/faqs.json');
 }
+
+/**
+ * Hydrates in-memory map from persistent disk database
+ */
+function loadTicketsFromDisk() {
+  try {
+    if (fs.existsSync(DB_PATH)) {
+      const raw = fs.readFileSync(DB_PATH, 'utf-8');
+      const tickets = JSON.parse(raw);
+      if (Array.isArray(tickets)) {
+        supportQueue.clear();
+        for (const t of tickets) {
+          if (t && t.requestId) {
+            supportQueue.set(t.requestId, t);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[Support Service] Error loading support-tickets.json:', err.message);
+  }
+}
+
+/**
+ * Persists current tickets map to disk database
+ */
+function saveTicketsToDisk() {
+  try {
+    const list = Array.from(supportQueue.values());
+    fs.writeFileSync(DB_PATH, JSON.stringify(list, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[Support Service] Error persisting to support-tickets.json:', err.message);
+  }
+}
+
+// Initial hydration from disk
+loadTicketsFromDisk();
 
 /**
  * Generates an accessible, standardized Request ID (e.g. REQ-2026-4821)
@@ -37,10 +79,6 @@ function generateRequestId() {
 /**
  * Validates and normalizes consent information.
  * Enforces explicit affirmative consent for screen sharing.
- * 
- * @param {Object} consentInput
- * @param {boolean} screenShareRequested
- * @returns {{isValid: boolean, error?: string, consent: Object}}
  */
 function validateConsent(consentInput = {}, screenShareRequested = false) {
   const isRequested = Boolean(
@@ -71,10 +109,7 @@ function validateConsent(consentInput = {}, screenShareRequested = false) {
 
 /**
  * Creates a new support request and places it into the active queue.
- * Supports both Phase 1 and Member 1's UI payload conventions.
- * 
- * @param {Object} payload
- * @returns {Object} Newly created support request ticket
+ * Persists record to disk database.
  */
 function createSupportRequest(payload = {}) {
   const message = typeof payload.message === 'string' ? payload.message.trim() : '';
@@ -117,11 +152,6 @@ function createSupportRequest(payload = {}) {
   const language = payload.language || 'en';
   const learnerId = payload.learnerId || payload.learnerIdentifier || 'Learner-Amara';
 
-  // Screen sharing state machine:
-  // - not_requested: learner did not ask for screen share
-  // - consent_granted_pending_agent: learner consented, but NO agent is connected yet
-  // - session_active: agent joined AND screen sharing is actively running
-  // - stopped: screen sharing was terminated by learner or agent
   let screenShareStatus = 'not_requested';
   if (screenShareRequested) {
     screenShareStatus = consentValidation.consent.screenShareConsent
@@ -145,7 +175,6 @@ function createSupportRequest(payload = {}) {
     status: 'queued', // 'queued' | 'in_review' | 'agent_connected' | 'resolved' | 'cancelled'
     
     // HONEST HUMAN CONNECTIVITY POLICY:
-    // Strictly FALSE until an actual support person claims/joins this request
     humanConnected: false,
     agentName: null,
     agentId: null,
@@ -154,7 +183,7 @@ function createSupportRequest(payload = {}) {
     
     // Screen sharing state:
     screenShareStatus,
-    screen_share_active: false, // strictly false while no agent is connected
+    screen_share_active: false,
     screenShareStartedAt: null,
     screenShareStoppedAt: null,
     
@@ -162,7 +191,7 @@ function createSupportRequest(payload = {}) {
     isSimulated: true,
     simulationNotice: 'SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.',
     
-    // Messages thread between learner and support staff
+    // Messages thread
     messages: [
       {
         id: 'msg-1',
@@ -189,6 +218,7 @@ function createSupportRequest(payload = {}) {
   };
 
   supportQueue.set(requestId, ticket);
+  saveTicketsToDisk();
 
   return ticket;
 }
@@ -206,9 +236,7 @@ function calculateEstimatedWait(urgency = 'medium') {
 }
 
 /**
- * Retrieves a ticket by its Request ID (supports REQ-XXXX or supp_XXXX)
- * @param {string} requestId
- * @returns {Object|null}
+ * Retrieves a ticket by its Request ID
  */
 function getSupportRequest(requestId) {
   if (!requestId) return null;
@@ -233,20 +261,23 @@ function getSupportRequest(requestId) {
   return {
     ...ticket,
     queuePosition: position,
-    // Honest connectivity check: screen sharing is active ONLY if an agent is actually connected
     screen_share_active: Boolean(ticket.humanConnected && ticket.screenShareStatus === 'session_active')
   };
 }
 
 /**
- * Retrieves the full queue for the support-person dashboard
- * @param {Object} [filters={}]
- * @returns {Object} Queue items and summary statistics
+ * Retrieves support requests with filtering and privacy protection
  */
-function getQueue(filters = {}) {
+function getRequests(filters = {}, userRole = 'agent') {
   const allTickets = Array.from(supportQueue.values()).map(t => getSupportRequest(t.requestId));
 
   let filtered = allTickets;
+
+  // Filter by learnerId for privacy if requested by a learner
+  if (filters.learnerId) {
+    filtered = filtered.filter(t => t.learnerId === filters.learnerId);
+  }
+
   if (filters.status && filters.status !== 'all') {
     filtered = filtered.filter(t => t.status === filters.status);
   }
@@ -257,7 +288,16 @@ function getQueue(filters = {}) {
     filtered = filtered.filter(t => t.preferred_mode === filters.preferred_mode);
   }
 
-  // Calculate summary metrics
+  return filtered;
+}
+
+/**
+ * Retrieves full queue overview for support personnel
+ */
+function getQueue(filters = {}) {
+  const allTickets = Array.from(supportQueue.values()).map(t => getSupportRequest(t.requestId));
+  const filtered = getRequests(filters, 'agent');
+
   const stats = {
     totalTickets: allTickets.length,
     queued: allTickets.filter(t => t.status === 'queued').length,
@@ -278,16 +318,27 @@ function getQueue(filters = {}) {
 }
 
 /**
- * Support agent claims/connects to a ticket
- * Transitions ticket from 'queued' to 'agent_connected'
- * Enforces HONEST HUMAN CONNECTIVITY: only now is humanConnected set to true!
- * 
- * @param {string} requestId
- * @param {string} agentName
- * @param {string} [agentId]
- * @returns {Object} Updated ticket
+ * Validates allowed state transitions in ticket lifecycle
  */
-function assignAgent(requestId, agentName = 'Mentor Grace (Support Specialist)', agentId = 'agent-01') {
+function validateStateTransition(currentStatus, newStatus) {
+  if (currentStatus === newStatus) return true;
+
+  const validTransitions = {
+    queued: new Set(['in_review', 'agent_connected', 'cancelled']),
+    in_review: new Set(['agent_connected', 'queued', 'cancelled']),
+    agent_connected: new Set(['resolved', 'cancelled', 'in_review']),
+    resolved: new Set([]), // Terminal
+    cancelled: new Set([]) // Terminal
+  };
+
+  const allowed = validTransitions[currentStatus];
+  return Boolean(allowed && allowed.has(newStatus));
+}
+
+/**
+ * Update ticket status where authorized
+ */
+function updateTicketStatus(requestId, newStatus, metadata = {}) {
   const ticket = supportQueue.get(requestId);
   if (!ticket) {
     const error = new Error(`Support ticket not found for ID: ${requestId}`);
@@ -295,49 +346,72 @@ function assignAgent(requestId, agentName = 'Mentor Grace (Support Specialist)',
     throw error;
   }
 
-  const now = new Date().toISOString();
-  ticket.status = 'agent_connected';
-  ticket.humanConnected = true;
-  ticket.agentName = agentName;
-  ticket.agentId = agentId;
-  ticket.connectionState = 'human_connected';
-  ticket.connectionNotice = `Connected to human support specialist: ${agentName}`;
-  ticket.updatedAt = now;
-
-  ticket.history.push({
-    status: 'agent_connected',
-    timestamp: now,
-    note: `Support specialist ${agentName} claimed and joined the session.`
-  });
-
-  ticket.messages.push({
-    id: `msg-${ticket.messages.length + 1}`,
-    sender: 'agent',
-    senderName: agentName,
-    text: `Hello! I am ${agentName}. I have reviewed your course context for "${ticket.context.lessonTitle}". How can I help you?`,
-    timestamp: now
-  });
-
-  // If learner had already consented to screen sharing, agent joining activates the session!
-  if (ticket.screenShareStatus === 'consent_granted_pending_agent') {
-    ticket.screenShareStatus = 'session_active';
-    ticket.screen_share_active = true;
-    ticket.screenShareStartedAt = now;
-    ticket.history.push({
-      status: 'screen_share_active',
-      timestamp: now,
-      note: 'Screen sharing session activated with agent authorization and prior learner consent.'
-    });
+  if (!validateStateTransition(ticket.status, newStatus)) {
+    const error = new Error(`Invalid state transition from '${ticket.status}' to '${newStatus}'.`);
+    error.statusCode = 400;
+    throw error;
   }
 
+  const now = new Date().toISOString();
+  const previousStatus = ticket.status;
+  ticket.status = newStatus;
+  ticket.updatedAt = now;
+
+  // Handle side-effects of status change
+  if (newStatus === 'agent_connected') {
+    ticket.humanConnected = true;
+    ticket.agentName = metadata.agentName || ticket.agentName || 'Support Specialist';
+    ticket.agentId = metadata.agentId || ticket.agentId || 'agent-01';
+    ticket.connectionState = 'human_connected';
+    ticket.connectionNotice = `Connected to human support specialist: ${ticket.agentName}`;
+
+    if (ticket.screenShareStatus === 'consent_granted_pending_agent') {
+      ticket.screenShareStatus = 'session_active';
+      ticket.screen_share_active = true;
+      ticket.screenShareStartedAt = now;
+    }
+  } else if (newStatus === 'resolved') {
+    ticket.resolvedAt = now;
+    ticket.resolutionNotes = metadata.resolutionNotes || 'Resolved with learner confirmation.';
+    ticket.humanConnected = false;
+    ticket.screenShareStatus = 'stopped';
+    ticket.screen_share_active = false;
+    ticket.screenShareStoppedAt = now;
+  } else if (newStatus === 'cancelled') {
+    ticket.cancelledAt = now;
+    ticket.cancellationReason = metadata.reason || 'Cancelled by user.';
+    ticket.humanConnected = false;
+    ticket.screenShareStatus = 'stopped';
+    ticket.screen_share_active = false;
+  } else if (newStatus === 'in_review') {
+    ticket.humanConnected = false;
+    ticket.connectionState = 'in_review';
+    ticket.connectionNotice = 'Your ticket is currently under review by a support specialist.';
+  }
+
+  ticket.history.push({
+    status: newStatus,
+    timestamp: now,
+    note: metadata.note || `Status transitioned from '${previousStatus}' to '${newStatus}'.`
+  });
+
+  saveTicketsToDisk();
   return getSupportRequest(requestId);
 }
 
 /**
+ * Support agent claims/connects to a ticket
+ */
+function assignAgent(requestId, agentName = 'Mentor Grace (Support Specialist)', agentId = 'agent-01') {
+  return updateTicketStatus(requestId, 'agent_connected', {
+    agentName,
+    agentId,
+    note: `Support specialist ${agentName} claimed and joined the session.`
+  });
+}
+
+/**
  * Learner or agent explicitly starts/consents to screen sharing
- * @param {string} requestId
- * @param {Object} consentPayload
- * @returns {Object} Updated ticket
  */
 function handleScreenShareConsent(requestId, consentPayload = {}) {
   const ticket = supportQueue.get(requestId);
@@ -359,7 +433,6 @@ function handleScreenShareConsent(requestId, consentPayload = {}) {
   ticket.consent.screenShareConsent = true;
   ticket.consent.consentedAt = now;
 
-  // If an agent is ALREADY connected, start screen share immediately
   if (ticket.humanConnected) {
     ticket.screenShareStatus = 'session_active';
     ticket.screen_share_active = true;
@@ -370,7 +443,6 @@ function handleScreenShareConsent(requestId, consentPayload = {}) {
       note: 'Learner granted screen sharing consent. Session is now active with connected agent.'
     });
   } else {
-    // No agent connected yet: queue it honestly
     ticket.screenShareStatus = 'consent_granted_pending_agent';
     ticket.screen_share_active = false;
     ticket.history.push({
@@ -381,16 +453,12 @@ function handleScreenShareConsent(requestId, consentPayload = {}) {
   }
 
   ticket.updatedAt = now;
+  saveTicketsToDisk();
   return getSupportRequest(requestId);
 }
 
 /**
  * CLEAR STOP-SHARING CONTROL
- * Terminates any active or pending screen sharing immediately.
- * 
- * @param {string} requestId
- * @param {string} [stoppedBy='learner'] - 'learner' | 'agent'
- * @returns {Object} Updated ticket and confirmation
  */
 function stopScreenShare(requestId, stoppedBy = 'learner') {
   const ticket = supportQueue.get(requestId);
@@ -422,6 +490,8 @@ function stopScreenShare(requestId, stoppedBy = 'learner') {
     timestamp: now
   });
 
+  saveTicketsToDisk();
+
   return {
     success: true,
     requestId,
@@ -436,9 +506,6 @@ function stopScreenShare(requestId, stoppedBy = 'learner') {
 
 /**
  * Appends a message between learner and agent
- * @param {string} requestId
- * @param {Object} messageData
- * @returns {Object} Updated ticket
  */
 function addMessage(requestId, messageData = {}) {
   const ticket = supportQueue.get(requestId);
@@ -469,6 +536,7 @@ function addMessage(requestId, messageData = {}) {
 
   ticket.messages.push(newMsg);
   ticket.updatedAt = now;
+  saveTicketsToDisk();
 
   return {
     success: true,
@@ -479,70 +547,22 @@ function addMessage(requestId, messageData = {}) {
 
 /**
  * Marks a ticket as resolved
- * @param {string} requestId
- * @param {string} [resolutionNotes]
- * @returns {Object} Updated ticket
  */
 function resolveTicket(requestId, resolutionNotes = 'Resolved with learner confirmation.') {
-  const ticket = supportQueue.get(requestId);
-  if (!ticket) {
-    const error = new Error(`Support ticket not found for ID: ${requestId}`);
-    error.statusCode = 404;
-    throw error;
-  }
-
-  const now = new Date().toISOString();
-  ticket.status = 'resolved';
-  ticket.resolutionNotes = resolutionNotes;
-  ticket.resolvedAt = now;
-  ticket.updatedAt = now;
-
-  // Stop screen sharing if it was running
-  if (ticket.screen_share_active || ticket.screenShareStatus === 'session_active') {
-    ticket.screenShareStatus = 'stopped';
-    ticket.screen_share_active = false;
-    ticket.screenShareStoppedAt = now;
-  }
-
-  ticket.history.push({
-    status: 'resolved',
-    timestamp: now,
+  return updateTicketStatus(requestId, 'resolved', {
+    resolutionNotes,
     note: `Ticket resolved. Notes: ${resolutionNotes}`
   });
-
-  return getSupportRequest(requestId);
 }
 
 /**
  * Learner cancels their own request
- * @param {string} requestId
- * @param {string} [reason='Cancelled by learner']
- * @returns {Object} Updated ticket
  */
 function cancelTicket(requestId, reason = 'Cancelled by learner') {
-  const ticket = supportQueue.get(requestId);
-  if (!ticket) {
-    const error = new Error(`Support ticket not found for ID: ${requestId}`);
-    error.statusCode = 404;
-    throw error;
-  }
-
-  const now = new Date().toISOString();
-  ticket.status = 'cancelled';
-  ticket.cancellationReason = reason;
-  ticket.updatedAt = now;
-
-  // Stop screen sharing if it was running
-  ticket.screenShareStatus = 'stopped';
-  ticket.screen_share_active = false;
-
-  ticket.history.push({
-    status: 'cancelled',
-    timestamp: now,
+  return updateTicketStatus(requestId, 'cancelled', {
+    reason,
     note: `Request cancelled by learner. Reason: ${reason}`
   });
-
-  return getSupportRequest(requestId);
 }
 
 /**
@@ -564,7 +584,10 @@ function getFaqs(query = {}) {
       faqs = faqs.filter(f =>
         (f.question && f.question.toLowerCase().includes(term)) ||
         (f.answer && f.answer.toLowerCase().includes(term)) ||
-        (f.tags && f.tags.some(t => t.toLowerCase().includes(term)))
+        (f.question_en && f.question_en.toLowerCase().includes(term)) ||
+        (f.answer_en && f.answer_en.toLowerCase().includes(term)) ||
+        (f.tags && f.tags.some(t => t.toLowerCase().includes(term))) ||
+        (f.keywords && f.keywords.some(k => k.toLowerCase().includes(term)))
       );
     }
 
@@ -577,7 +600,9 @@ function getFaqs(query = {}) {
 module.exports = {
   createSupportRequest,
   getSupportRequest,
+  getRequests,
   getQueue,
+  updateTicketStatus,
   assignAgent,
   handleScreenShareConsent,
   stopScreenShare,
@@ -586,6 +611,8 @@ module.exports = {
   cancelTicket,
   validateConsent,
   getFaqs,
-  getFaqsPath
+  getFaqsPath,
+  loadTicketsFromDisk,
+  saveTicketsToDisk
 };
 module.exports.default = module.exports;
