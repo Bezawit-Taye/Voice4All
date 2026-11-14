@@ -1,212 +1,223 @@
-# Voice4All — Human Support Workflow & Consent Architecture
+# Voice4All — Human Support Workflow & Consent Architecture (Phase 2)
 
-## 1. Overview and Operational Philosophy
+## 1. Overview & Operational Principles
 
-The **Voice4All Support Module** bridges Savanna learners with support services while upholding strict privacy, accessibility, and transparency standards:
+The **Voice4All Human Support Module** connects Savanna learners with course mentors, peer coaches, and accessibility specialists while upholding strict privacy and transparency standards:
 
-1. **Explicit Learner Consent:** Remote screen sharing and diagnostic data transmission are strictly opt-in. A local screen-capture preview does **not** equal remote transmission.
-2. **Transparent Simulation Notice:** In accordance with hackathon guidelines, all automated queueing, triage, and mock agent assignment mechanisms are prominently labeled as **simulated support**.
-3. **Automated Context Enrichment:** Learner tickets automatically incorporate current course metadata from `assets/js/voice4all/context.js`, minimizing manual typing.
+1. **Active Request Queue & Status Tracking:** Real-time queue tracking transitions tickets through transparent states (`queued` -> `in_review` -> `agent_connected` -> `resolved` / `cancelled`).
+2. **Strict Honest Human Connectivity Policy:**
+   > **Never claim a human is connected unless one actually is.**
+   While a ticket is waiting in queue, `humanConnected` is strictly `false` and `screen_share_active` is strictly `false`. No simulated agent is falsely presented as a live human.
+3. **Learner-Consented Screen Sharing & Clear Stop Control:** Screen capture requires explicit, affirmative learner consent. A local screen preview is not a live connection. Learners and agents have an immediate, one-click **Stop Sharing** control.
+4. **Support-Person Interface:** A dedicated, accessible dashboard allows support staff to triage incoming requests, review learner course context, join sessions, and manage screen-sharing permissions.
 
 ---
 
-## 2. End-to-End Support Workflow
-
-The diagram below illustrates the learner journey, consent checkpoints, and backend processing:
+## 2. End-to-End Support Lifecycle & State Machine
 
 ```mermaid
-flowchart TD
-    A[Learner clicks 'Need Help / Request Support' on Savanna page] --> B[Voice4All Context Extractor gathers courseTitle, moduleTitle, lessonTitle]
-    B --> C[Learner enters support message & selects preferred language]
-    C --> D{Learner requests Screen Assistance?}
+stateDiagram-v2
+    [*] --> Queued: Learner submits POST /api/support/requests
+    Queued --> AgentConnected: Support Agent claims ticket (POST /api/support/requests/:id/assign)
+    Queued --> Cancelled: Learner cancels request (POST /api/support/requests/:id/cancel)
     
-    D -- No --> E[Review Ticket & Standard Diagnostics Consent]
-    D -- Yes --> F[Browser renders LOCAL Screen Capture Preview]
+    state AgentConnected {
+        [*] --> ChatSessionActive
+        ChatSessionActive --> ScreenShareActive: Learner consents & Agent accepts
+        ScreenShareActive --> ScreenShareStopped: Stop Sharing clicked (POST .../screen-share/stop)
+        ScreenShareStopped --> ChatSessionActive: Continues text chat
+    }
     
-    F --> G[Clear Notice: 'Local preview is NOT a live human connection']
-    G --> H{Explicit Opt-In Checkbox Consented?}
-    
-    H -- No --> I[Block Screen Sharing / Revert to Text-Only Ticket]
-    H -- Yes --> E
-    
-    I --> E
-    E --> J[Submit POST /api/support/requests]
-    
-    J --> K[Backend Validation: Consent & Message Verification]
-    K -- Validation Fails --> L[Return 400 Bad Request with field error]
-    K -- Validation Passes --> M[Generate Unique requestId e.g. supp_179465...]
-    
-    M --> N[Enroll into Simulated Support Queue: status = 'queued']
-    N --> O[Return 201 Created with requestId, status & simulation notice]
-    O --> P[UI displays Confirmation & Queue Status]
+    AgentConnected --> Resolved: Support Agent / Learner resolves ticket (POST .../resolve)
+    Resolved --> [*]
+    Cancelled --> [*]
 ```
+
+### State Definitions
+| State | `humanConnected` | `screen_share_active` | Description |
+| :--- | :---: | :---: | :--- |
+| `queued` | `false` | `false` | Learner submitted request; placed in active queue with dynamic wait time estimation. |
+| `in_review` | `false` | `false` | Agent is reviewing ticket and course context prior to joining. |
+| `agent_connected` | **`true`** | `false` | Real support specialist has claimed the ticket and is active in the session. |
+| `session_active` | **`true`** | **`true`** | Explicitly consented screen sharing is actively running between learner and agent. |
+| `stopped` | **`true`** | `false` | Screen sharing terminated via the Stop-Sharing control; text communication continues. |
+| `resolved` | `false` | `false` | Issue concluded with resolution notes. |
+| `cancelled` | `false` | `false` | Ticket withdrawn by learner. |
 
 ---
 
-## 3. Screen Sharing Consent & Local Preview Boundary
+## 3. Screen Sharing Consent & Stop-Sharing Controls
 
-### The Critical Distinction
-A common dark pattern in support widgets is implying that opening a screen-sharing preview connects the user directly to a live human. Voice4All enforces a strict architectural boundary:
+### 3.1 Affirmative Consent Protocol
+- When a learner selects *Screen Share* mode, their browser opens a local media stream (`getDisplayMedia`).
+- **Transparency Rule:** The local preview is rendered strictly inside the learner's own browser. No video frames are transmitted over the network until:
+  1. The learner checks an explicit affirmative consent box (`screenShareConsent: true`).
+  2. A human support agent explicitly joins the session (`humanConnected: true`).
+- If screen sharing is requested without consent, the backend rejects the request with HTTP `400 Bad Request`.
 
-1. **Local Screen-Capture Preview:** When a user selects *"Show my screen"*, the browser uses `navigator.mediaDevices.getDisplayMedia()`. This video feed is displayed strictly inside a local `<video>` or `<canvas>` element for the learner to inspect what is visible. **No network packets or video frames are transmitted to any server or third party.**
-2. **Affirmative Consent Gate:** Transmission of screen diagnostics requires explicit confirmation via an unambiguous, unchecked-by-default toggle:
-   ```json
-   {
-     "screenShareRequested": true,
-     "screenShareConsent": true,
-     "consentedAt": "2026-11-14T11:45:00.000Z"
-   }
-   ```
-3. **Rejection Policy:** If `screenShareRequested === true` but `screenShareConsent !== true`, the backend rejects the request with HTTP `400 Bad Request`:
-   > *"Screen sharing requires explicit learner consent. A local screen-capture preview is not a real human support connection."*
+### 3.2 Clear Stop-Sharing Control
+Learners and support agents have immediate access to stop screen transmission at any time:
+- **Learner Stop Button:** Available on the floating learner drawer and active ticket card.
+- **Agent Stop Button:** Available on the support-person dashboard.
+- **Endpoint:** `POST /api/support/requests/:id/screen-share/stop` (or global `POST /api/support/screen-share/stop`).
+- **Immediate Effect:** Sets `screen_share_active: false` and `screenShareStatus: "stopped"`, broadcasts status update, and appends an audit event to the ticket history.
 
 ---
 
-## 4. API Specification
+## 4. Support-Person Interface
 
-### Endpoint: `POST /api/support/requests`
+Support staff interact with the queue via:
+1. **Interactive Web Dashboard:** `GET /api/support/dashboard` (or `pages/support-dashboard.html`)
+   - Real-time queue metrics: *Waiting in Queue*, *Human Connected*, *Screen Share Sessions*, *Resolved*.
+   - Urgency badges (`HIGH`, `NORMAL`, `LOW`) and channel badges (`chat`, `screen_share`).
+   - Deep inspection of learner's Savanna course context (`courseTitle`, `moduleTitle`, `lessonTitle`).
+   - One-click actions: *Claim & Connect Live*, *Stop Screen Share*, and *Mark Resolved*.
+2. **REST API Endpoints:** Complete programmatic control for headless or integrated helpdesk tools.
 
-#### Request Headers
-```http
-Content-Type: application/json
-```
+---
 
-#### Request Payload Schema
+## 5. API Reference
+
+### 5.1 `POST /api/support/requests`
+Creates a new support ticket and enqueues it.
+
+#### Request Body
 ```json
 {
-  "message": "I am unable to see the submit button on the Quiz page.",
+  "topic": "Screen Navigation Help",
+  "message": "I cannot locate the recap quiz button on my screen.",
+  "preferred_mode": "screen_share",
+  "urgency": "high",
   "language": "en",
   "context": {
     "courseTitle": "VA-1: VA Foundations & Professional Identity",
     "moduleTitle": "Module 2: What is a VA",
-    "lessonTitle": "The Future of the VA Industry",
-    "lessonText": "Optional excerpt or summary..."
+    "lessonTitle": "The Future of the VA Industry"
   },
   "consent": {
-    "screenShareRequested": false,
-    "screenShareConsent": false,
-    "contextSharingConsent": true,
-    "diagnosticsConsent": true
+    "screenShareRequested": true,
+    "screenShareConsent": true
   }
 }
 ```
 
-#### Field Specifications
-| Field | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `message` | `string` | **Yes** | Clear description of the learner's question or issue (non-empty). |
-| `language` | `string` | No | Learner's preferred language (defaults to `"en"`). |
-| `context` | `object` | No | Extracted Savanna context object. |
-| `consent` | `object` | **Yes** | Learner consent flags. If screen sharing is requested, `screenShareConsent: true` is strictly required. |
-
-#### Successful Response (`201 Created`)
+#### Response (`201 Created`)
 ```json
 {
   "success": true,
-  "requestId": "supp_1794654690923_9e3u61",
+  "requestId": "REQ-2026-4821",
+  "request_id": "REQ-2026-4821",
   "status": "queued",
+  "humanConnected": false,
+  "screen_share_active": false,
+  "connectionNotice": "You are currently in the queue. No human agent is currently connected.",
   "isSimulated": true,
-  "simulationNotice": "SIMULATED HUMAN SUPPORT: This ticket has been placed into the Voice4All demonstration support queue. A local screen-capture preview does not establish a live human connection.",
-  "estimatedWaitMinutes": 4,
+  "simulationNotice": "SIMULATED SUPPORT WORKFLOW: This ticket is managed by the Voice4All demonstration support queue...",
+  "estimated_wait_minutes": 2,
+  "ticket": { ... }
+}
+```
+
+---
+
+### 5.2 `GET /api/support/requests/:id`
+Returns current ticket status, queue position, and honest human connection status.
+
+#### Response (`200 OK`)
+```json
+{
+  "success": true,
+  "requestId": "REQ-2026-4821",
+  "status": "queued",
+  "humanConnected": false,
+  "screen_share_active": false,
+  "agentName": null,
   "queuePosition": 1,
-  "ticket": {
-    "requestId": "supp_1794654690923_9e3u61",
-    "status": "queued",
-    "language": "en",
-    "context": {
-      "courseTitle": "VA-1: VA Foundations & Professional Identity",
-      "moduleTitle": "Module 2: What is a VA",
-      "lessonTitle": "The Future of the VA Industry"
-    },
-    "consent": {
-      "screenShareRequested": false,
-      "screenShareConsent": false,
-      "contextSharingConsent": true,
-      "diagnosticsConsent": true,
-      "consentedAt": "2026-11-14T11:45:00.000Z"
-    },
-    "createdAt": "2026-11-14T11:45:00.000Z"
-  }
-}
-```
-
-#### Error Response — Missing Message (`400 Bad Request`)
-```json
-{
-  "success": false,
-  "error": "A support message is required.",
-  "field": "message",
-  "isSimulated": true,
-  "simulationNotice": "A local screen-capture preview is not a real human support connection."
-}
-```
-
-#### Error Response — Missing Screen Share Consent (`400 Bad Request`)
-```json
-{
-  "success": false,
-  "error": "Screen sharing requires explicit learner consent. A local screen-capture preview is not a real human support connection.",
-  "field": "consent",
-  "isSimulated": true,
-  "simulationNotice": "A local screen-capture preview is not a real human support connection."
+  "estimatedWaitMinutes": 2
 }
 ```
 
 ---
 
-### Endpoint: `GET /api/support/requests/:id`
-Retrieves ticket status, queue position, and simulated agent assignment.
+### 5.3 `GET /api/support/queue`
+Retrieves all tickets and summary statistics for support personnel.
 
 #### Response (`200 OK`)
 ```json
 {
   "success": true,
-  "ticket": {
-    "requestId": "supp_1794654690923_9e3u61",
-    "status": "queued",
-    "isSimulated": true,
-    "simulationNotice": "SIMULATED HUMAN SUPPORT: This ticket has been placed into the Voice4All demonstration support queue...",
-    "estimatedWaitMinutes": 4
-  }
+  "stats": {
+    "totalTickets": 4,
+    "queued": 2,
+    "inReview": 0,
+    "agentConnected": 1,
+    "resolved": 1,
+    "screenShareActive": 0
+  },
+  "queue": [ ... ]
 }
 ```
 
 ---
 
-### Endpoint: `GET /api/support/faqs`
-Retrieves curated FAQs with optional `?category=...` or `?search=...` query filters.
+### 5.4 `POST /api/support/requests/:id/assign`
+Support agent claims ticket and initiates real human connection.
 
-#### Example Request
-```http
-GET /api/support/faqs?search=screen+sharing
+#### Request Body
+```json
+{
+  "agentName": "Mentor Grace (Support Specialist)",
+  "agentId": "agent-grace"
+}
 ```
 
 #### Response (`200 OK`)
 ```json
 {
   "success": true,
-  "total": 1,
-  "faqs": [
-    {
-      "id": "faq-02",
-      "category": "Support & Screen Sharing",
-      "question": "Does granting screen capture start a live call with a human immediately?",
-      "answer": "No. A local screen-capture preview only renders your screen locally in your browser for you to verify what is visible. No live human connection is established, and your screen is never transmitted without your separate, explicit consent and an active agent session.",
-      "tags": ["screen-sharing", "consent", "privacy", "simulation"]
-    }
-  ]
+  "message": "Support agent Mentor Grace (Support Specialist) successfully connected to ticket.",
+  "humanConnected": true,
+  "screen_share_active": true,
+  "ticket": { ... }
 }
 ```
 
 ---
 
-## 5. Verification and Test Cases
+### 5.5 `POST /api/support/requests/:id/screen-share/stop`
+Clear stop-sharing control. Terminates screen sharing immediately.
 
-The support workflow is verified against the following test scenarios:
+#### Request Body
+```json
+{
+  "stoppedBy": "learner"
+}
+```
 
-1. **TC-SUPP-01 (Standard Ticket Creation):** Valid message, language, and context submitted. Returns HTTP 201 with unique `requestId`, `status: "queued"`, and `isSimulated: true`. (PASSED)
-2. **TC-SUPP-02 (Empty Message Validation):** Submitting empty string or missing message returns HTTP 400 with message field validation error. (PASSED)
-3. **TC-SUPP-03 (Screen Share Consent Enforcement):** Submitting `screenShareRequested: true` without explicit `screenShareConsent: true` fails immediately with HTTP 400. (PASSED)
-4. **TC-SUPP-04 (Consented Screen Share):** Submitting with affirmative consent succeeds and records consent metadata with timestamp. (PASSED)
-5. **TC-SUPP-05 (Ticket Retrieval by ID):** Verifies ticket can be retrieved by ID with status details. (PASSED)
-6. **TC-SUPP-06 (FAQ Querying):** Retrieves relevant FAQs on screen sharing, navigation, and accessibility. (PASSED)
+#### Response (`200 OK`)
+```json
+{
+  "success": true,
+  "requestId": "REQ-2026-4821",
+  "screenShareStatus": "stopped",
+  "screen_share_active": false,
+  "stoppedBy": "learner",
+  "message": "Screen sharing has been successfully stopped. No screen content is being transmitted."
+}
+```
+
+---
+
+### 5.6 `POST /api/support/requests/:id/resolve`
+Marks ticket resolved with resolution notes.
+
+---
+
+## 6. Documentation of Incomplete & Simulated Functionality
+
+| Capability | Current Implementation Status | Production Roadmap |
+| :--- | :--- | :--- |
+| **Support Queue & State Machine** | **Fully Functional:** In-memory queue tracks tickets, wait calculations, assignments, and resolution notes. | Migrate in-memory map to Redis / PostgreSQL for persistence across server restarts. |
+| **Honest Connectivity Flags** | **Fully Enforced:** Strictly verifies `humanConnected: false` until an agent joins. | Real agent SSO authentication via OAuth2/OIDC. |
+| **Stop-Sharing Controls** | **Fully Enforced:** API and UI controls immediately terminate session and state. | Integrated with WebRTC `track.stop()` in frontend browser client. |
+| **WebRTC Media Server** | **Simulated Signaling:** Status transitions, permission handshakes, and screen state signaling are fully implemented. Live peer-to-peer video streaming is simulated. | In production, integrate an SFU (Selective Forwarding Unit) such as LiveKit or mediasoup with TURN relays for NAT traversal. |

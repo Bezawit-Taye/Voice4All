@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voice4All — Support Person Queue Portal</title>
+  <link rel="stylesheet" href="../assets/css/app.css" media="all">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; }
+    .header { background: #0f172a; color: #fff; padding: 18px 24px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+    .badge-simulated { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-high { background: #fee2e2; color: #991b1b; }
+    .badge-normal { background: #e0f2fe; color: #075985; }
+    .badge-connected { background: #dcfce7; color: #166534; }
+    .card { background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .btn { cursor: pointer; padding: 8px 16px; border-radius: 6px; font-weight: 600; border: none; font-size: 14px; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; text-align: center; }
+    .stat-num { font-size: 28px; font-weight: 700; color: #0f172a; }
+    .stat-label { font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1 style="margin: 0; font-size: 22px;">Voice4All Support-Person Workspace</h1>
+      <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">Learner Queue Triage, Consented Screen Sharing & Honest Connectivity Portal</p>
+    </div>
+    <div>
+      <span class="badge badge-simulated">SIMULATED WORKSPACE</span>
+    </div>
+  </div>
+
+  <div id="stats" class="stats-bar">
+    <div class="stat-card"><div id="stat-queued" class="stat-num">0</div><div class="stat-label">Waiting in Queue</div></div>
+    <div class="stat-card"><div id="stat-connected" class="stat-num">0</div><div class="stat-label">Human Connected</div></div>
+    <div class="stat-card"><div id="stat-screen" class="stat-num">0</div><div class="stat-label">Screen Share Sessions</div></div>
+    <div class="stat-card"><div id="stat-resolved" class="stat-num">0</div><div class="stat-label">Resolved Today</div></div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h2 style="margin: 0; font-size: 18px;">Active Learner Support Queue</h2>
+    <button class="btn btn-primary" onclick="loadQueue()">Refresh Queue</button>
+  </div>
+
+  <div id="queue-container">
+    <p>Loading active tickets...</p>
+  </div>
+
+  <script>
+    async function loadQueue() {
+      try {
+        const res = await fetch('/api/support/queue');
+        const data = await res.json();
+        
+        document.getElementById('stat-queued').innerText = data.stats.queued;
+        document.getElementById('stat-connected').innerText = data.stats.agentConnected;
+        document.getElementById('stat-screen').innerText = data.stats.screenShareActive;
+        document.getElementById('stat-resolved').innerText = data.stats.resolved;
+
+        const container = document.getElementById('queue-container');
+        if (data.queue.length === 0) {
+          container.innerHTML = '<div class="card"><p style="margin: 0; color: #64748b;">No active support tickets in queue. Great job!</p></div>';
+          return;
+        }
+
+        container.innerHTML = data.queue.map(t => {
+          const isConnected = t.humanConnected;
+          const isScreenActive = t.screen_share_active;
+          return `
+            <div class="card" id="ticket-${t.requestId}">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+                <div>
+                  <strong style="font-size: 16px;">${t.requestId}</strong> — ${t.topic}
+                  <span class="badge ${t.urgency === 'high' ? 'badge-high' : 'badge-normal'}" style="margin-left: 8px;">${t.urgency.toUpperCase()}</span>
+                  <span class="badge" style="background: #f1f5f9; color: #475569; margin-left: 4px;">${t.preferred_mode}</span>
+                </div>
+                <div>
+                  <span class="badge ${isConnected ? 'badge-connected' : 'badge-normal'}">${isConnected ? 'HUMAN CONNECTED' : 'IN QUEUE (NO HUMAN)'}</span>
+                </div>
+              </div>
+              <p style="margin: 8px 0; font-size: 15px;"><strong>Learner (${t.learnerId}):</strong> "${t.message}"</p>
+              <div style="background: #f8fafc; padding: 10px; border-radius: 6px; font-size: 13px; color: #475569; margin: 10px 0;">
+                <div><strong>Course:</strong> ${t.context.courseTitle} | <strong>Module:</strong> ${t.context.moduleTitle}</div>
+                <div><strong>Lesson:</strong> ${t.context.lessonTitle}</div>
+                <div style="margin-top: 4px;">
+                  <strong>Screen Share Consent:</strong> ${t.consent?.screenShareConsent ? '✅ Explicitly Granted by Learner' : '❌ Not Consented'}
+                  | <strong>Screen Share State:</strong> ${t.screenShareStatus}
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 14px;">
+                ${!isConnected ? `<button class="btn btn-primary" onclick="claimTicket('${t.requestId}')">Claim & Connect Live</button>` : ''}
+                ${isScreenActive ? `<button class="btn btn-danger" onclick="stopScreenShare('${t.requestId}')">Stop Screen Share</button>` : ''}
+                ${isConnected ? `<button class="btn btn-success" onclick="resolveTicket('${t.requestId}')">Mark Resolved</button>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        document.getElementById('queue-container').innerHTML = '<p style="color: red;">Error loading queue: ' + err.message + '</p>';
+      }
+    }
+
+    async function claimTicket(id) {
+      await fetch('/api/support/requests/' + id + '/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentName: 'Mentor Grace (Support Specialist)', agentId: 'agent-grace' })
+      });
+      loadQueue();
+    }
+
+    async function stopScreenShare(id) {
+      await fetch('/api/support/requests/' + id + '/screen-share/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stoppedBy: 'agent' })
+      });
+      alert('Screen sharing session terminated.');
+      loadQueue();
+    }
+
+    async function resolveTicket(id) {
+      const notes = prompt('Enter resolution notes:', 'Assisted learner with lesson concept clarification.');
+      if (notes) {
+        await fetch('/api/support/requests/' + id + '/resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ resolutionNotes: notes })
+        });
+        loadQueue();
+      }
+    }
+
+    loadQueue();
+    setInterval(loadQueue, 5000);
+  </script>
+</body>
+</html>
