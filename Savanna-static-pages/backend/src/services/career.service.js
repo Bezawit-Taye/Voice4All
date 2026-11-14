@@ -30,6 +30,107 @@ function getJobsPath() {
 }
 
 /**
+ * Safely resolves the path to career-resources.json
+ */
+function getResourcesPath() {
+  const directPath = path.resolve(__dirname, '../../data/career-resources.json');
+  if (fs.existsSync(directPath)) return directPath;
+  const fallback = path.resolve(process.cwd(), 'backend/data/career-resources.json');
+  if (fs.existsSync(fallback)) return fallback;
+  return path.resolve(process.cwd(), 'Savanna-static-pages/backend/data/career-resources.json');
+}
+
+/**
+ * Loads all learning resources from career-resources.json
+ * @returns {Array<Object>}
+ */
+function loadAllResources() {
+  try {
+    const filePath = getResourcesPath();
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
+}
+
+/**
+ * Retrieves learning and professional development resources with category filtering and search.
+ * 
+ * @param {Object} [filters={}]
+ * @param {string} [filters.category] - 'all' | 'assistive_tech' | 'va_skills' | 'self_advocacy' | 'certifications'
+ * @param {string} [filters.q] - Keyword search
+ * @param {string} [filters.lang='en'] - 'en' | 'am'
+ * @returns {Object}
+ */
+function getResources(filters = {}) {
+  const rawResources = loadAllResources();
+  const lang = (filters.lang || filters.language || 'en').toLowerCase();
+  const isAm = (lang === 'am');
+  const cat = (filters.category || 'all').toLowerCase().trim();
+  const q = (filters.q || filters.query || '').toLowerCase().trim();
+
+  const filtered = rawResources.filter((res) => {
+    if (cat && cat !== 'all' && res.category !== cat) {
+      return false;
+    }
+
+    if (q) {
+      const haystack = [
+        res.title,
+        res.title_am,
+        res.summary,
+        res.summary_am,
+        res.category_label,
+        res.category_label_am,
+        ...(res.tags || []),
+        ...(res.tags_am || [])
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      if (!haystack.includes(q)) return false;
+    }
+
+    return true;
+  }).map((res) => ({
+    id: res.id,
+    category: res.category,
+    category_label: isAm && res.category_label_am ? res.category_label_am : res.category_label,
+    title: isAm && res.title_am ? res.title_am : res.title,
+    title_am: res.title_am,
+    summary: isAm && res.summary_am ? res.summary_am : res.summary,
+    summary_am: res.summary_am,
+    duration: res.duration,
+    difficulty: res.difficulty,
+    tags: isAm && res.tags_am ? res.tags_am : res.tags,
+    tags_am: res.tags_am,
+    accessibility_features: res.accessibility_features,
+    key_takeaways: isAm && res.key_takeaways_am ? res.key_takeaways_am : res.key_takeaways,
+    action_steps: res.action_steps,
+    guide_content: res.guide_content
+  }));
+
+  return {
+    success: true,
+    total: filtered.length,
+    category: cat,
+    language: lang,
+    resources: filtered
+  };
+}
+
+/**
+ * Retrieves a single learning resource by ID
+ * @param {string} resourceId
+ * @param {string} [lang='en']
+ * @returns {Object|null}
+ */
+function getResourceById(resourceId, lang = 'en') {
+  if (!resourceId) return null;
+  const { resources } = getResources({ lang });
+  return resources.find(r => r.id === resourceId) || null;
+}
+
+/**
  * Loads all jobs from jobs.json
  * @returns {Array<Object>}
  */
@@ -412,6 +513,9 @@ function sendJobSMS(jobId, phoneNumber, lang = 'en') {
 module.exports = {
   getJobs,
   getJobById,
+  getResources,
+  getResourceById,
+  getResourcesPath,
   askCareerQuestion,
   createAccommodationRequest,
   getAccommodationDraft,

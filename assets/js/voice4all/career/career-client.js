@@ -84,6 +84,32 @@
     },
 
     /**
+     * Browses learning and professional development resources
+     * 
+     * @param {Object} [filters={}]
+     * @param {string} [filters.category] - 'all' | 'assistive_tech' | 'va_skills' | 'self_advocacy' | 'certifications'
+     * @param {string} [filters.q] - Keyword search
+     * @param {string} [filters.lang='en'] - 'en' | 'am'
+     * @returns {Promise<Object>}
+     */
+    async getResources(filters = {}) {
+      const params = new URLSearchParams();
+      if (filters.category && filters.category !== 'all') params.set('category', filters.category);
+      if (filters.q) params.set('q', filters.q);
+      if (filters.lang) params.set('lang', filters.lang);
+
+      const url = `/api/career/resources${params.toString() ? '?' + params.toString() : ''}`;
+      return await apiFetch(url, { method: 'GET' });
+    },
+
+    /**
+     * Retrieves single learning resource details by ID
+     */
+    async getResourceDetails(resourceId, lang = 'en') {
+      return await apiFetch(`/api/career/resources/${resourceId}?lang=${lang}`, { method: 'GET' });
+    },
+
+    /**
      * Asks career questions grounded in the job dataset
      * 
      * @param {string} question
