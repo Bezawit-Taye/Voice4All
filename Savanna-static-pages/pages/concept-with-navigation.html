@@ -47,6 +47,12 @@
     <link rel="stylesheet" href="../assets/css/app.css" media="all" />
 
     <link rel="stylesheet" href="../assets/css/static-page.css" media="all" />
+<<<<<<< HEAD
+=======
+
+    <!-- Voice4All Accessibility Assistant Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/voice4all.css" media="all" />
+>>>>>>> origin/feature/frontend
   </head>
 
   <body class="signed_in env_development notranslate" translate="no" data-theme-suffix="_alx">
@@ -1285,8 +1291,41 @@ alert(example);
         </div>
       </div>
     </div>
+<<<<<<< HEAD
     <script src="../assets/js/popper.js"></script>
     <script src="../assets/js/bootstrap.bundle.js"></script>
     <script src="../assets/js/static-page.js"></script>
+=======
+    <!-- Voice4All Floating Launcher & Accessible Side Drawer -->
+    <div id="v4a-launcher-host">
+      <button
+        type="button"
+        id="v4a-launcher-btn"
+        class="v4a-launcher"
+        aria-haspopup="dialog"
+        aria-controls="v4a-drawer"
+        aria-expanded="false"
+        aria-label="Open Voice4All accessible learning assistant"
+      >
+        <span class="v4a-launcher-icon-wrap" aria-hidden="true">
+          <i class="fa-solid fa-wand-magic-sparkles v4a-launcher-icon"></i>
+          <span class="v4a-launcher-badge-dot"></span>
+        </span>
+        <span class="v4a-launcher-text">Voice4All</span>
+      </button>
+    </div>
+
+    <div id="v4a-drawer-host"></div>
+    <div id="v4a-live-announcer" class="v4a-sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="../assets/js/popper.js"></script>
+    <script src="../assets/js/bootstrap.bundle.js"></script>
+    <script src="../assets/js/static-page.js"></script>
+
+    <!-- Voice4All Integration Scripts -->
+    <script src="../assets/js/voice4all/api.js"></script>
+    <script src="../assets/js/voice4all/ui.js"></script>
+    <script src="../assets/js/voice4all/voice4all.js"></script>
+>>>>>>> origin/feature/frontend
   </body>
 </html>
