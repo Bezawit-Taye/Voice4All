@@ -1,0 +1,44 @@
+[
+  {
+    "id": "faq-01",
+    "category": "Course Navigation",
+    "question": "How do I mark a lesson as complete on Savanna?",
+    "answer": "At the bottom of each concept or lesson page, click the 'Mark as complete' button. Your progress bar in the top navigation will automatically update.",
+    "tags": ["progress", "completion", "navigation"]
+  },
+  {
+    "id": "faq-02",
+    "category": "Support & Screen Sharing",
+    "question": "Does granting screen capture start a live call with a human immediately?",
+    "answer": "No. A local screen-capture preview only renders your screen locally in your browser for you to verify what is visible. No live human connection is established, and your screen is never transmitted without your separate, explicit consent and an active agent session.",
+    "tags": ["screen-sharing", "consent", "privacy", "simulation"]
+  },
+  {
+    "id": "faq-03",
+    "category": "Support & Screen Sharing",
+    "question": "What is the Voice4All Simulated Support queue?",
+    "answer": "Voice4All provides a simulated helpdesk workflow for hackathon testing and learner onboarding. When you submit a support ticket, it enters a simulated queue with estimated response times and mock triage. Live peer and staff escalation is available during scheduled office hours.",
+    "tags": ["support", "helpdesk", "simulated", "tickets"]
+  },
+  {
+    "id": "faq-04",
+    "category": "Accessibility",
+    "question": "What accessibility options are supported in Voice4All?",
+    "answer": "Voice4All supports voice-driven curriculum navigation, high-contrast themes, dyslexia-friendly fonts, screen-reader optimized headings, and automated lesson summarization.",
+    "tags": ["accessibility", "voice", "screen-reader", "contrast"]
+  },
+  {
+    "id": "faq-05",
+    "category": "Career Accommodations",
+    "question": "Can I draft workplace accommodation requests before an interview?",
+    "answer": "Yes. The Career module allows you to select relevant accommodations (such as screen reader friendly task boards or flexible asynchronous check-ins) and generate a polished draft. Drafts remain private and are never sent directly to employers.",
+    "tags": ["career", "accommodations", "draft", "self-advocacy"]
+  },
+  {
+    "id": "faq-06",
+    "category": "Course Navigation",
+    "question": "How does the curriculum switcher work?",
+    "answer": "Click the program dropdown in the top header (e.g. 'VA-1: VA Foundations & Professional Identity') to view other registered courses, track average scores, or switch between modules.",
+    "tags": ["curriculum", "modules", "switcher"]
+  }
+]

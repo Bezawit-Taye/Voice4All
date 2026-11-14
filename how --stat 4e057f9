@@ -1,0 +1,178 @@
+ .gitignore                                         |     4 [31m-[m
+ README.md => Savanna-static-pages/README.md        |     0
+ Savanna-static-pages/assets/css/app.css            |  6909 [32m++++[m
+ .../assets/css/application_alx.css                 | 41274 [32m+++++++++++++++++++[m
+ .../assets/css/bootstrap-slider.css                |   362 [32m+[m
+ .../assets/css/google-fonts-dm-sans.css            |   324 [32m+[m
+ .../assets/css/google-fonts-lexend.css             |   243 [32m+[m
+ .../assets/css/google-fonts-poppins.css            |   486 [32m+[m
+ Savanna-static-pages/assets/css/static-page.css    |    14 [32m+[m
+ Savanna-static-pages/assets/css/typekit-p-css.css  |     1 [32m+[m
+ .../assets/css/typekit-xgz4ilr-css.css             |    43 [32m+[m
+ ...K3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZg.ttf |   Bin [31m0[m -> [32m326464[m bytes
+ ...K3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf |   Bin [31m0[m -> [32m326048[m bytes
+ ...K3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf |   Bin [31m0[m -> [32m325304[m bytes
+ ...K3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf |   Bin [31m0[m -> [32m324820[m bytes
+ ...K3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuOKfMZg.ttf |   Bin [31m0[m -> [32m325748[m bytes
+ .../assets/fonts/fa-brands-400.ttf                 |   Bin [31m0[m -> [32m189684[m bytes
+ .../assets/fonts/fa-brands-400.woff2               |   Bin [31m0[m -> [32m109808[m bytes
+ .../assets/fonts/fa-regular-400.ttf                |   Bin [31m0[m -> [32m63348[m bytes
+ .../assets/fonts/fa-regular-400.woff2              |   Bin [31m0[m -> [32m24488[m bytes
+ Savanna-static-pages/assets/fonts/fa-solid-900.ttf |   Bin [31m0[m -> [32m394668[m bytes
+ .../assets/fonts/fa-solid-900.woff2                |   Bin [31m0[m -> [32m150020[m bytes
+ .../fonts/pxiAyp8kv8JHgFVrJJLmE0tCMPKhSkFE.woff2   |   Bin [31m0[m -> [32m8408[m bytes
+ .../pxiAyp8kv8JHgFVrJJLmE0tDMPKhSkFEkm8.woff2      |   Bin [31m0[m -> [32m42168[m bytes
+ .../pxiAyp8kv8JHgFVrJJLmE0tMMPKhSkFEkm8.woff2      |   Bin [31m0[m -> [32m5708[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLBT5Z11lFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m38192[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLBT5Z1JlFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m5364[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLBT5Z1xlFd2JQEk.woff2    |   Bin [31m0[m -> [32m7600[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLCz7Z11lFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m39204[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLCz7Z1JlFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m5448[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk.woff2    |   Bin [31m0[m -> [32m7848[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLDD4Z11lFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m39088[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLDD4Z1JlFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m5484[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLDD4Z1xlFd2JQEk.woff2    |   Bin [31m0[m -> [32m7816[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLDz8Z11lFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m39416[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLDz8Z1JlFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m5540[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLDz8Z1xlFd2JQEk.woff2    |   Bin [31m0[m -> [32m7844[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLEj6Z11lFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m39384[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLEj6Z1JlFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m5552[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLEj6Z1xlFd2JQEk.woff2    |   Bin [31m0[m -> [32m7992[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLFj_Z11lFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m39176[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLFj_Z1JlFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m5532[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLFj_Z1xlFd2JQEk.woff2    |   Bin [31m0[m -> [32m7896[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLGT9Z11lFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m39160[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLGT9Z1JlFd2JQEl8qw.woff2 |   Bin [31m0[m -> [32m5496[m bytes
+ .../fonts/pxiByp8kv8JHgFVrLGT9Z1xlFd2JQEk.woff2    |   Bin [31m0[m -> [32m7740[m bytes
+ .../fonts/pxiDyp8kv8JHgFVrJJLm111VF9eOYktMqg.woff2 |   Bin [31m0[m -> [32m8668[m bytes
+ .../pxiDyp8kv8JHgFVrJJLm111VFteOYktMqlap.woff2     |   Bin [31m0[m -> [32m44712[m bytes
+ .../pxiDyp8kv8JHgFVrJJLm111VGdeOYktMqlap.woff2     |   Bin [31m0[m -> [32m5956[m bytes
+ .../fonts/pxiDyp8kv8JHgFVrJJLm21lVF9eOYktMqg.woff2 |   Bin [31m0[m -> [32m8708[m bytes
+ .../pxiDyp8kv8JHgFVrJJLm21lVFteOYktMqlap.woff2     |   Bin [31m0[m -> [32m45756[m bytes
+ .../pxiDyp8kv8JHgFVrJJLm21lVGdeOYktMqlap.woff2     |   Bin [31m0[m -> [32m6008[m bytes
+ .../fonts/pxiDyp8kv8JHgFVrJJLm81xVF9eOYktMqg.woff2 |   Bin [31m0[m -> [32m8472[m bytes
+ .../pxiDyp8kv8JHgFVrJJLm81xVFteOYktMqlap.woff2     |   Bin [31m0[m -> [32m41896[m bytes
+ .../pxiDyp8kv8JHgFVrJJLm81xVGdeOYktMqlap.woff2     |   Bin [31m0[m -> [32m5728[m bytes
+ .../fonts/pxiDyp8kv8JHgFVrJJLmg1hVF9eOYktMqg.woff2 |   Bin [31m0[m -> [32m8516[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmg1hVFteOYktMqlap.woff2     |   Bin [31m0[m -> [32m45004[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmg1hVGdeOYktMqlap.woff2     |   Bin [31m0[m -> [32m5872[m bytes
+ .../fonts/pxiDyp8kv8JHgFVrJJLmr19VF9eOYktMqg.woff2 |   Bin [31m0[m -> [32m8740[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmr19VFteOYktMqlap.woff2     |   Bin [31m0[m -> [32m45680[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmr19VGdeOYktMqlap.woff2     |   Bin [31m0[m -> [32m6012[m bytes
+ .../fonts/pxiDyp8kv8JHgFVrJJLmv1pVF9eOYktMqg.woff2 |   Bin [31m0[m -> [32m8716[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmv1pVFteOYktMqlap.woff2     |   Bin [31m0[m -> [32m45272[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmv1pVGdeOYktMqlap.woff2     |   Bin [31m0[m -> [32m5932[m bytes
+ .../fonts/pxiDyp8kv8JHgFVrJJLmy15VF9eOYktMqg.woff2 |   Bin [31m0[m -> [32m8628[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmy15VFteOYktMqlap.woff2     |   Bin [31m0[m -> [32m45056[m bytes
+ .../pxiDyp8kv8JHgFVrJJLmy15VGdeOYktMqlap.woff2     |   Bin [31m0[m -> [32m5912[m bytes
+ .../fonts/pxiEyp8kv8JHgFVrJJbecnFHGPezSQ.woff2     |   Bin [31m0[m -> [32m39504[m bytes
+ .../assets/fonts/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2 |   Bin [31m0[m -> [32m7900[m bytes
+ .../fonts/pxiEyp8kv8JHgFVrJJnecnFHGPezSQ.woff2     |   Bin [31m0[m -> [32m5640[m bytes
+ .../fonts/pxiGyp8kv8JHgFVrJJLucHtAOvWDSA.woff2     |   Bin [31m0[m -> [32m8676[m bytes
+ .../fonts/pxiGyp8kv8JHgFVrJJLucXtAOvWDSHFF.woff2   |   Bin [31m0[m -> [32m45900[m bytes
+ .../fonts/pxiGyp8kv8JHgFVrJJLufntAOvWDSHFF.woff2   |   Bin [31m0[m -> [32m6012[m bytes
+ .../fonts/pxiGyp8kv8JHgFVrLPTucHtAOvWDSA.woff2     |   Bin [31m0[m -> [32m7496[m bytes
+ .../fonts/pxiGyp8kv8JHgFVrLPTucXtAOvWDSHFF.woff2   |   Bin [31m0[m -> [32m36020[m bytes
+ .../fonts/pxiGyp8kv8JHgFVrLPTufntAOvWDSHFF.woff2   |   Bin [31m0[m -> [32m5296[m bytes
+ ...g089UriCZaSExd86J3t9jz86MvyyKK58UfivUw4aw.woff2 |   Bin [31m0[m -> [32m20604[m bytes
+ ...ywxg089UriCZaSExd86J3t9jz86MvyyKy58UfivUw.woff2 |   Bin [31m0[m -> [32m39804[m bytes
+ ...Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K6z9mXg.woff2 |   Bin [31m0[m -> [32m36980[m bytes
+ ...ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2 |   Bin [31m0[m -> [32m18192[m bytes
+ ...t-af-67187a-00000000000000003b9b032a-27-a.woff2 |   Bin [31m0[m -> [32m36488[m bytes
+ ...t-af-97f831-000000000000000000017875-27-a.woff2 |   Bin [31m0[m -> [32m44856[m bytes
+ ...t-af-affdf5-00000000000000003b9b0328-27-a.woff2 |   Bin [31m0[m -> [32m36684[m bytes
+ ...t-af-b5ce2a-00000000000000003b9b032d-27-a.woff2 |   Bin [31m0[m -> [32m37960[m bytes
+ .../assets/fonts/wlpwgwvFAVdoq2_v-6QU82RHaA.woff2  |   Bin [31m0[m -> [32m39692[m bytes
+ .../fonts/wlpwgwvFAVdoq2_v9KQU82RHaBBX.woff2       |   Bin [31m0[m -> [32m13668[m bytes
+ .../fonts/wlpwgwvFAVdoq2_v9aQU82RHaBBX.woff2       |   Bin [31m0[m -> [32m34548[m bytes
+ .../img/1lhlc1k4XRfVWDFTjczeaSoRpKlMY3dAX.png      |   Bin [31m0[m -> [32m669072[m bytes
+ .../34ecf4a655d3993f5ba76bf3bf3a060f7044e262.png   |   Bin [31m0[m -> [32m8098[m bytes
+ .../65ffefe74cb3aff97c8271111e88b3c3f4dd26c6.png   |   Bin [31m0[m -> [32m8257[m bytes
+ .../assets/img/Dropdown-Icon_Navy.png              |   Bin [31m0[m -> [32m1186[m bytes
+ .../assets/img/Dropdown-Icon_White.png             |   Bin [31m0[m -> [32m1077[m bytes
+ .../assets/img/FIT-Facebook-Icon.png               |   Bin [31m0[m -> [32m7803[m bytes
+ .../assets/img/FIT-Instagram-Icon.png              |   Bin [31m0[m -> [32m16591[m bytes
+ .../assets/img/FIT-LinkedIn-Icon.png               |   Bin [31m0[m -> [32m9198[m bytes
+ Savanna-static-pages/assets/img/FIT-Logo-Icon.png  |   Bin [31m0[m -> [32m166146[m bytes
+ Savanna-static-pages/assets/img/FIT-X-Icon.png     |   Bin [31m0[m -> [32m14334[m bytes
+ .../assets/img/Olivia-Reynolds_Headshot.png        |   Bin [31m0[m -> [32m924279[m bytes
+ .../assets/img/Ryan-Hayes_Headshot.png             |   Bin [31m0[m -> [32m815765[m bytes
+ Savanna-static-pages/assets/img/Socratic-Icon.png  |   Bin [31m0[m -> [32m129683[m bytes
+ .../assets/img/VA-Content-Banner.png               |   Bin [31m0[m -> [32m33150[m bytes
+ Savanna-static-pages/assets/img/alx-navy.png       |   Bin [31m0[m -> [32m9516[m bytes
+ Savanna-static-pages/assets/img/amin-avatar.png    |   Bin [31m0[m -> [32m55374[m bytes
+ .../assets/img/dropdown-arrow-green.png            |   Bin [31m0[m -> [32m652[m bytes
+ .../assets/img/dropdown-arrow-navy.png             |   Bin [31m0[m -> [32m675[m bytes
+ .../assets/img/dropdown-arrow-off-white.png        |   Bin [31m0[m -> [32m678[m bytes
+ Savanna-static-pages/assets/img/facebook-logo.png  |   Bin [31m0[m -> [32m7803[m bytes
+ Savanna-static-pages/assets/img/file.riv           |   Bin [31m0[m -> [32m68467[m bytes
+ .../assets/img/graduation-badge-alx.svg            |   153 [32m+[m
+ Savanna-static-pages/assets/img/green-x.png        |   Bin [31m0[m -> [32m252[m bytes
+ .../assets/img/holberton-logo-full-alx.png         |   Bin [31m0[m -> [32m2737[m bytes
+ .../assets/img/homepage-v1-paced-embed-1.png       |   Bin [31m0[m -> [32m5751[m bytes
+ .../assets/img/homepage-v1-paced-embed-2.png       |   Bin [31m0[m -> [32m73421[m bytes
+ .../assets/img/homepage-v1-paced-embed-3.png       |   Bin [31m0[m -> [32m4914[m bytes
+ .../img/homepage-v1-paced-track-393-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-393-embed-2.png    |   Bin [31m0[m -> [32m4914[m bytes
+ .../img/homepage-v1-paced-track-394-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-394-embed-2.png    |   Bin [31m0[m -> [32m29459[m bytes
+ .../img/homepage-v1-paced-track-394-embed-3.png    |   Bin [31m0[m -> [32m4914[m bytes
+ .../img/homepage-v1-paced-track-395-embed-1.png    |   Bin [31m0[m -> [32m37333[m bytes
+ .../img/homepage-v1-paced-track-395-embed-2.png    |   Bin [31m0[m -> [32m4407[m bytes
+ .../img/homepage-v1-paced-track-396-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-396-embed-2.png    |   Bin [31m0[m -> [32m4914[m bytes
+ .../img/homepage-v1-paced-track-397-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-397-embed-2.png    |   Bin [31m0[m -> [32m37198[m bytes
+ .../img/homepage-v1-paced-track-397-embed-3.png    |   Bin [31m0[m -> [32m4407[m bytes
+ .../img/homepage-v1-paced-track-398-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-398-embed-2.png    |   Bin [31m0[m -> [32m15693[m bytes
+ .../img/homepage-v1-paced-track-398-embed-3.png    |   Bin [31m0[m -> [32m4914[m bytes
+ .../img/homepage-v1-paced-track-399-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-399-embed-2.png    |   Bin [31m0[m -> [32m37102[m bytes
+ .../img/homepage-v1-paced-track-399-embed-3.png    |   Bin [31m0[m -> [32m4407[m bytes
+ .../img/homepage-v1-paced-track-400-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-400-embed-2.png    |   Bin [31m0[m -> [32m15693[m bytes
+ .../img/homepage-v1-paced-track-400-embed-3.png    |   Bin [31m0[m -> [32m4914[m bytes
+ .../img/homepage-v1-paced-track-401-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-401-embed-2.png    |   Bin [31m0[m -> [32m72996[m bytes
+ .../img/homepage-v1-paced-track-401-embed-3.png    |   Bin [31m0[m -> [32m4914[m bytes
+ .../img/homepage-v1-paced-track-408-embed-1.png    |   Bin [31m0[m -> [32m5751[m bytes
+ .../img/homepage-v1-paced-track-408-embed-2.png    |   Bin [31m0[m -> [32m4407[m bytes
+ Savanna-static-pages/assets/img/instagram-logo.png |   Bin [31m0[m -> [32m16591[m bytes
+ Savanna-static-pages/assets/img/linkedIn-logo.png  |   Bin [31m0[m -> [32m9198[m bytes
+ Savanna-static-pages/assets/img/linkedin.png       |   Bin [31m0[m -> [32m31330[m bytes
+ Savanna-static-pages/assets/img/logo-navy.png      |   Bin [31m0[m -> [32m10402[m bytes
+ Savanna-static-pages/assets/img/logo-white.png     |   Bin [31m0[m -> [32m9951[m bytes
+ Savanna-static-pages/assets/img/navy-x.png         |   Bin [31m0[m -> [32m218[m bytes
+ Savanna-static-pages/assets/img/slack-logo.svg     |     6 [32m+[m
+ .../assets/img/socratic-girl-thinking-a0902753.png |   Bin [31m0[m -> [32m26875[m bytes
+ .../assets/img/socratic-girl-thinking.png          |   Bin [31m0[m -> [32m55854[m bytes
+ .../assets/img/square-facebook.png                 |   Bin [31m0[m -> [32m31140[m bytes
+ .../assets/img/square-instagram.png                |   Bin [31m0[m -> [32m58888[m bytes
+ .../assets/img/square-x-twitter.png                |   Bin [31m0[m -> [32m58579[m bytes
+ .../assets/img/tools-gpt-grammarly-vertical.png    |   Bin [31m0[m -> [32m8257[m bytes
+ .../assets/img/tools-gpt-grammarly.png             |   Bin [31m0[m -> [32m8098[m bytes
+ .../assets/img/tools-image-small.png               |   Bin [31m0[m -> [32m8257[m bytes
+ Savanna-static-pages/assets/img/tools-image.png    |   Bin [31m0[m -> [32m8098[m bytes
+ Savanna-static-pages/assets/img/tunde-avatar.png   |   Bin [31m0[m -> [32m56035[m bytes
+ Savanna-static-pages/assets/img/twitter-logo.png   |   Bin [31m0[m -> [32m14334[m bytes
+ Savanna-static-pages/assets/img/white-x.png        |   Bin [31m0[m -> [32m173[m bytes
+ Savanna-static-pages/assets/js/bootstrap.bundle.js |  4493 [32m++[m
+ Savanna-static-pages/assets/js/popper.js           |     5 [32m+[m
+ Savanna-static-pages/assets/js/static-page.js      |   268 [32m+[m
+ .../assets/js/voice4all/context.js                 |   425 [32m+[m
+ Savanna-static-pages/backend/data/faqs.json        |    44 [32m+[m
+ Savanna-static-pages/backend/data/jobs.json        |    52 [32m+[m
+ .../backend/src/routes/career.routes.js            |   161 [32m+[m
+ .../backend/src/routes/support.routes.js           |   127 [32m+[m
+ .../backend/src/services/career.service.js         |   191 [32m+[m
+ .../backend/src/services/support.service.js        |   189 [32m+[m
+ Savanna-static-pages/docs/career-flow.md           |   236 [32m+[m
+ Savanna-static-pages/docs/context-contract.md      |   127 [32m+[m
+ Savanna-static-pages/docs/support-flow.md          |   212 [32m+[m
+ index.html => Savanna-static-pages/index.html      |     0
+ .../pages/concept-with-navigation.html             |  1292 [32m+[m
+ Savanna-static-pages/pages/homepage-v1-paced.html  | 11946 [32m++++++[m
+ .../pages/homepage-v1-self-paced.html              |  1412 [32m+[m
+ assets/img/graduation-badge-alx.svg                |   306 [32m+[m[31m-[m
+ 177 files changed, 71148 insertions(+), 157 deletions(-)

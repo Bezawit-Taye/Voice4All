@@ -1,0 +1,26 @@
+{
+  "name": "voice4all-backend",
+  "version": "1.0.0",
+  "description": "Voice4All Backend & AI Foundation - Accessible learning and tutor API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node test/test-endpoints.js"
+  },
+  "keywords": [
+    "voice4all",
+    "ai-tutor",
+    "accessibility",
+    "amharic",
+    "express"
+  ],
+  "author": "Voice4All Team",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
+
