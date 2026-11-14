@@ -89,7 +89,24 @@
       });
     }
 
+    // 9. Listen for online/offline events
+    window.addEventListener('online', () => updateNetworkBanner(true));
+    window.addEventListener('offline', () => updateNetworkBanner(false));
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      updateNetworkBanner(false);
+    }
+
     console.log('[Voice4All] Initialized successfully. Language:', state.lang, 'Simple Mode:', state.simpleMode);
+  }
+
+  function updateNetworkBanner(isOnline) {
+    const banner = document.getElementById('v4a-offline-banner');
+    if (!banner) return;
+    if (isOnline) {
+      banner.classList.remove('v4a-offline-banner--visible');
+    } else {
+      banner.classList.add('v4a-offline-banner--visible');
+    }
   }
 
   // =========================================================================
@@ -113,6 +130,11 @@
     }
     const isLive = root.Voice4AllAPI ? root.Voice4AllAPI.isBackendAvailable() : false;
     drawerContainer.innerHTML = root.Voice4AllUI.renderDrawerShell(state.lang, isLive);
+
+    const drawer = document.getElementById('v4a-drawer');
+    if (drawer && state.simpleMode) {
+      drawer.classList.add('v4a-simple-mode');
+    }
 
     // Render contents of panels
     renderAllPanels();
@@ -166,7 +188,7 @@
     state.conversationHistory = [];
     try {
       sessionStorage.removeItem(SESSION_HISTORY_KEY);
-    } catch (e) {}
+    } catch (e) { }
 
     const chatLog = document.getElementById('v4a-chat-log');
     if (chatLog) {
@@ -234,6 +256,10 @@
 
   function openDrawer() {
     if (state.drawerOpen) return;
+
+    if (root.Voice4AllA11y && typeof root.Voice4AllA11y.setLauncherBadge === 'function') {
+      root.Voice4AllA11y.setLauncherBadge(false);
+    }
 
     state.lastActiveElement = document.activeElement;
     state.drawerOpen = true;
@@ -532,6 +558,11 @@
   // =========================================================================
 
   function speakText(text) {
+    // Show visual captions for sound-off usability (WCAG 1.2)
+    if (root.Voice4AllA11y && typeof root.Voice4AllA11y.showCaptions === 'function') {
+      root.Voice4AllA11y.showCaptions(text, 10000);
+    }
+
     if (!('speechSynthesis' in root)) return;
 
     stopSpeaking();
@@ -543,10 +574,16 @@
 
       utterance.onend = () => {
         state.currentUtterance = null;
+        if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
+          root.Voice4AllA11y.hideCaptions();
+        }
       };
 
       utterance.onerror = () => {
         state.currentUtterance = null;
+        if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
+          root.Voice4AllA11y.hideCaptions();
+        }
       };
 
       state.currentUtterance = utterance;
@@ -557,6 +594,9 @@
   }
 
   function stopSpeaking() {
+    if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
+      root.Voice4AllA11y.hideCaptions();
+    }
     if ('speechSynthesis' in root && root.speechSynthesis.speaking) {
       root.speechSynthesis.cancel();
       state.currentUtterance = null;
@@ -593,7 +633,7 @@
     });
     try {
       sessionStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(state.conversationHistory));
-    } catch (e) {}
+    } catch (e) { }
 
     // Append loading placeholder
     const loadingBubble = document.createElement('div');
@@ -636,7 +676,7 @@
       });
       try {
         sessionStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(state.conversationHistory));
-      } catch (e) {}
+      } catch (e) { }
 
       // Render tutor response with citations
       if (chatLog) {
@@ -647,6 +687,11 @@
       // Accessible announcement with text preview
       const preview = (res.reply || '').slice(0, 90).replace(/\n/g, ' ');
       root.Voice4AllUI.announce(`${root.Voice4AllUI.t('announce_incoming_msg', state.lang)} ${preview}`);
+
+      // Sound-off visual notification badge on launcher if drawer was closed
+      if (!state.drawerOpen && root.Voice4AllA11y && typeof root.Voice4AllA11y.setLauncherBadge === 'function') {
+        root.Voice4AllA11y.setLauncherBadge(true, `${root.Voice4AllUI.t('announce_incoming_msg', state.lang)} ${preview}`);
+      }
 
       // Update starter suggestions if provided
       if (Array.isArray(res.suggestions) && res.suggestions.length > 0) {
@@ -666,193 +711,193 @@
       if (voiceBtn) voiceBtn.disabled = false;
     }
   }
-  }
+}
 
   function updateStarterChips(suggestions) {
-    const wrap = document.querySelector('.v4a-starters-wrap');
-    if (!wrap) return;
+  const wrap = document.querySelector('.v4a-starters-wrap');
+  if (!wrap) return;
 
-    wrap.innerHTML = suggestions.map((s) => `
+  wrap.innerHTML = suggestions.map((s) => `
       <button type="button" class="v4a-starter-chip" data-v4a-prompt="${root.Voice4AllUI.escapeHTML(s)}">
         ${root.Voice4AllUI.escapeHTML(s)}
       </button>
     `).join(' ');
+}
+
+// =========================================================================
+// Live Help Logic & Support Requests
+// =========================================================================
+
+async function handleSupportSubmit() {
+  const topicEl = document.getElementById('v4a-help-topic');
+  const urgencyEl = document.getElementById('v4a-help-urgency');
+  const descEl = document.getElementById('v4a-help-desc');
+  const modeEl = document.querySelector('input[name="v4a-help-mode"]:checked');
+  const submitBtn = document.getElementById('v4a-submit-help-btn');
+
+  if (!descEl || !descEl.value.trim()) {
+    alert(root.Voice4AllUI.t('help_desc_placeholder', state.lang));
+    if (descEl) descEl.focus();
+    return;
   }
 
-  // =========================================================================
-  // Live Help Logic & Support Requests
-  // =========================================================================
+  const payload = {
+    topic: topicEl ? topicEl.value : 'concept_clarification',
+    urgency: urgencyEl ? urgencyEl.value : 'medium',
+    preferred_mode: modeEl ? modeEl.value : 'chat',
+    message: descEl.value.trim(),
+    language: state.lang,
+    context: { page: 'The Future of the VA Industry' }
+  };
 
-  async function handleSupportSubmit() {
-    const topicEl = document.getElementById('v4a-help-topic');
-    const urgencyEl = document.getElementById('v4a-help-urgency');
-    const descEl = document.getElementById('v4a-help-desc');
-    const modeEl = document.querySelector('input[name="v4a-help-mode"]:checked');
-    const submitBtn = document.getElementById('v4a-submit-help-btn');
-
-    if (!descEl || !descEl.value.trim()) {
-      alert(root.Voice4AllUI.t('help_desc_placeholder', state.lang));
-      if (descEl) descEl.focus();
-      return;
-    }
-
-    const payload = {
-      topic: topicEl ? topicEl.value : 'concept_clarification',
-      urgency: urgencyEl ? urgencyEl.value : 'medium',
-      preferred_mode: modeEl ? modeEl.value : 'chat',
-      message: descEl.value.trim(),
-      language: state.lang,
-      context: { page: 'The Future of the VA Industry' }
-    };
-
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
         <div class="v4a-spinner mb-0 me-2" style="width:14px; height:14px;" aria-hidden="true"></div>
         <span>${root.Voice4AllUI.t('submitting_btn', state.lang)}</span>
       `;
+  }
+
+  try {
+    const res = await root.Voice4AllAPI.submitSupportRequest(payload);
+    state.activeTicket = res;
+
+    const ticketContainer = document.getElementById('v4a-ticket-container');
+    if (ticketContainer) {
+      ticketContainer.innerHTML = root.Voice4AllUI.renderTicketCard(res, state.lang);
     }
 
-    try {
-      const res = await root.Voice4AllAPI.submitSupportRequest(payload);
-      state.activeTicket = res;
-
-      const ticketContainer = document.getElementById('v4a-ticket-container');
-      if (ticketContainer) {
-        ticketContainer.innerHTML = root.Voice4AllUI.renderTicketCard(res, state.lang);
-      }
-
-      // Reset form
-      descEl.value = '';
-      root.Voice4AllUI.announce(root.Voice4AllUI.t('announce_help_submitted', state.lang));
-    } catch (err) {
-      console.error('[Voice4All Help] Support request failed:', err);
-    } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `
+    // Reset form
+    descEl.value = '';
+    root.Voice4AllUI.announce(root.Voice4AllUI.t('announce_help_submitted', state.lang));
+  } catch (err) {
+    console.error('[Voice4All Help] Support request failed:', err);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
           <span>${root.Voice4AllUI.t('submit_help_btn', state.lang)}</span>
         `;
-      }
     }
   }
+}
 
-  function cancelActiveTicket() {
-    state.activeTicket = null;
-    const ticketContainer = document.getElementById('v4a-ticket-container');
-    if (ticketContainer) {
-      ticketContainer.innerHTML = `
+function cancelActiveTicket() {
+  state.activeTicket = null;
+  const ticketContainer = document.getElementById('v4a-ticket-container');
+  if (ticketContainer) {
+    ticketContainer.innerHTML = `
         <div class="v4a-empty-state">
           <i class="fa-regular fa-clipboard v4a-empty-icon" aria-hidden="true"></i>
           <p class="mb-0 fs-sm">${root.Voice4AllUI.t('request_cancelled_msg', state.lang)}</p>
         </div>
       `;
-    }
-    root.Voice4AllUI.announce(root.Voice4AllUI.t('request_cancelled_msg', state.lang));
   }
+  root.Voice4AllUI.announce(root.Voice4AllUI.t('request_cancelled_msg', state.lang));
+}
 
-  // =========================================================================
-  // Career Logic & Accommodations
-  // =========================================================================
+// =========================================================================
+// Career Logic & Accommodations
+// =========================================================================
 
-  async function loadJobs() {
-    const listEl = document.getElementById('v4a-job-list');
-    if (!listEl) return;
+async function loadJobs() {
+  const listEl = document.getElementById('v4a-job-list');
+  if (!listEl) return;
 
-    listEl.innerHTML = `
+  listEl.innerHTML = `
       <div class="v4a-loading-state" aria-busy="true">
         <div class="v4a-spinner" aria-hidden="true"></div>
         <span>${root.Voice4AllUI.t('loading_jobs', state.lang)}</span>
       </div>
     `;
 
-    try {
-      const res = await root.Voice4AllAPI.getJobs({
-        query: state.searchQuery,
-        filter: state.activeFilter,
-        language: state.lang
-      });
+  try {
+    const res = await root.Voice4AllAPI.getJobs({
+      query: state.searchQuery,
+      filter: state.activeFilter,
+      language: state.lang
+    });
 
-      if (!res.jobs || res.jobs.length === 0) {
-        listEl.innerHTML = `
+    if (!res.jobs || res.jobs.length === 0) {
+      listEl.innerHTML = `
           <div class="v4a-empty-state">
             <i class="fa-solid fa-magnifying-glass v4a-empty-icon" aria-hidden="true"></i>
             <p class="mb-0 fs-sm">${root.Voice4AllUI.t('no_jobs', state.lang)}</p>
           </div>
         `;
-        return;
-      }
+      return;
+    }
 
-      listEl.innerHTML = res.jobs.map((job) => root.Voice4AllUI.renderJobCard(job, state.lang)).join(' ');
-    } catch (err) {
-      console.error('[Voice4All Career] Failed to load jobs:', err);
-      listEl.innerHTML = `
+    listEl.innerHTML = res.jobs.map((job) => root.Voice4AllUI.renderJobCard(job, state.lang)).join(' ');
+  } catch (err) {
+    console.error('[Voice4All Career] Failed to load jobs:', err);
+    listEl.innerHTML = `
         <div class="v4a-error-state">
           <i class="fa-solid fa-triangle-exclamation v4a-error-icon" aria-hidden="true"></i>
           <p class="mb-0 fs-sm">${root.Voice4AllUI.t('jobs_error', state.lang)}</p>
         </div>
       `;
-    }
+  }
+}
+
+function openAccommodationPanel(jobId, jobTitle) {
+  const container = document.getElementById('v4a-acc-container');
+  if (!container) return;
+
+  container.innerHTML = root.Voice4AllUI.renderAccommodationPanel(jobId, jobTitle, state.lang);
+  container.style.display = 'block';
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const notesInput = document.getElementById('v4a-acc-notes');
+  if (notesInput) notesInput.focus();
+}
+
+function closeAccommodationPanel() {
+  const container = document.getElementById('v4a-acc-container');
+  if (container) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+  }
+}
+
+async function handleAccommodationSubmit() {
+  const jobId = document.getElementById('v4a-acc-job-id')?.value || 'general';
+  const jobTitle = document.getElementById('v4a-acc-job-title')?.value || 'General Position';
+  const notes = document.getElementById('v4a-acc-notes')?.value || '';
+  const email = document.getElementById('v4a-acc-email')?.value || '';
+  const submitBtn = document.getElementById('v4a-acc-submit-btn');
+
+  const checkboxes = document.querySelectorAll('input[name="v4a-acc-types"]:checked');
+  const selectedAccommodations = Array.from(checkboxes).map((c) => c.value);
+
+  if (!email.trim()) {
+    alert(root.Voice4AllUI.t('acc_email_label', state.lang));
+    document.getElementById('v4a-acc-email')?.focus();
+    return;
   }
 
-  function openAccommodationPanel(jobId, jobTitle) {
-    const container = document.getElementById('v4a-acc-container');
-    if (!container) return;
-
-    container.innerHTML = root.Voice4AllUI.renderAccommodationPanel(jobId, jobTitle, state.lang);
-    container.style.display = 'block';
-    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    const notesInput = document.getElementById('v4a-acc-notes');
-    if (notesInput) notesInput.focus();
-  }
-
-  function closeAccommodationPanel() {
-    const container = document.getElementById('v4a-acc-container');
-    if (container) {
-      container.style.display = 'none';
-      container.innerHTML = '';
-    }
-  }
-
-  async function handleAccommodationSubmit() {
-    const jobId = document.getElementById('v4a-acc-job-id')?.value || 'general';
-    const jobTitle = document.getElementById('v4a-acc-job-title')?.value || 'General Position';
-    const notes = document.getElementById('v4a-acc-notes')?.value || '';
-    const email = document.getElementById('v4a-acc-email')?.value || '';
-    const submitBtn = document.getElementById('v4a-acc-submit-btn');
-
-    const checkboxes = document.querySelectorAll('input[name="v4a-acc-types"]:checked');
-    const selectedAccommodations = Array.from(checkboxes).map((c) => c.value);
-
-    if (!email.trim()) {
-      alert(root.Voice4AllUI.t('acc_email_label', state.lang));
-      document.getElementById('v4a-acc-email')?.focus();
-      return;
-    }
-
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
         <div class="v4a-spinner mb-0 me-2" style="width:14px; height:14px;" aria-hidden="true"></div>
         <span>${root.Voice4AllUI.t('acc_submitting', state.lang)}</span>
       `;
-    }
+  }
 
-    try {
-      const res = await root.Voice4AllAPI.submitAccommodationRequest({
-        job_id: jobId,
-        job_title: jobTitle,
-        accommodations: selectedAccommodations,
-        details: notes,
-        contact_email: email,
-        language: state.lang
-      });
+  try {
+    const res = await root.Voice4AllAPI.submitAccommodationRequest({
+      job_id: jobId,
+      job_title: jobTitle,
+      accommodations: selectedAccommodations,
+      details: notes,
+      contact_email: email,
+      language: state.lang
+    });
 
-      const container = document.getElementById('v4a-acc-container');
-      if (container) {
-        container.innerHTML = `
+    const container = document.getElementById('v4a-acc-container');
+    if (container) {
+      container.innerHTML = `
           <div class="v4a-acc-panel" style="border-color:#10b981; background:#ecfdf5;">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <strong class="text-success fs-sm">
@@ -866,240 +911,259 @@
             <p class="mb-0 fs-xs text-muted">${root.Voice4AllUI.escapeHTML(res.message)}</p>
           </div>
         `;
-      }
-
-      root.Voice4AllUI.announce(root.Voice4AllUI.t('announce_acc_submitted', state.lang));
-    } catch (err) {
-      console.error('[Voice4All Accommodation] Submission failed:', err);
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
     }
+
+    root.Voice4AllUI.announce(root.Voice4AllUI.t('announce_acc_submitted', state.lang));
+  } catch (err) {
+    console.error('[Voice4All Accommodation] Submission failed:', err);
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
+}
 
-  // =========================================================================
-  // Global Event Delegation & Bindings
-  // =========================================================================
+// =========================================================================
+// Global Event Delegation & Bindings
+// =========================================================================
 
-  function bindEvents() {
-    // Delegated click handlers
-    document.addEventListener('click', (event) => {
-      // 1. Open drawer from floating launcher
-      const launcher = event.target.closest('#v4a-launcher-btn');
-      if (launcher) {
-        event.preventDefault();
-        openDrawer();
-        return;
+function bindEvents() {
+  // Delegated click handlers
+  document.addEventListener('click', (event) => {
+    // 1. Open drawer from floating launcher
+    const launcher = event.target.closest('#v4a-launcher-btn');
+    if (launcher) {
+      event.preventDefault();
+      openDrawer();
+      return;
+    }
+
+    // 2. Close drawer
+    const closeBtn = event.target.closest('#v4a-close-btn');
+    const backdrop = event.target.closest('#v4a-backdrop');
+    if (closeBtn || backdrop) {
+      event.preventDefault();
+      closeDrawer();
+      return;
+    }
+
+    // 3. Tab switching
+    const tab = event.target.closest('.v4a-tab');
+    if (tab) {
+      event.preventDefault();
+      const tabName = tab.getAttribute('id').replace('v4a-tab-', '');
+      switchTab(tabName, true);
+      return;
+    }
+
+    // 4. Language switcher
+    const langBtn = event.target.closest('.v4a-lang-btn');
+    if (langBtn) {
+      event.preventDefault();
+      const lang = langBtn.getAttribute('data-v4a-lang');
+      setLanguage(lang);
+      return;
+    }
+
+    // 5. Voice Input Toggle
+    const voiceBtn = event.target.closest('#v4a-voice-toggle-btn');
+    if (voiceBtn) {
+      event.preventDefault();
+      toggleVoiceInput();
+      return;
+    }
+
+    // 6. Starter prompt clicks
+    const starter = event.target.closest('.v4a-starter-chip');
+    if (starter) {
+      event.preventDefault();
+      const prompt = starter.getAttribute('data-v4a-prompt');
+      submitTutorMessage(prompt);
+      return;
+    }
+
+    // 7. TTS read aloud button
+    const ttsBtn = event.target.closest('.v4a-tts-btn');
+    if (ttsBtn) {
+      event.preventDefault();
+      const text = ttsBtn.getAttribute('data-v4a-speech-text');
+      speakText(text);
+      return;
+    }
+
+    // 8. Career Filter buttons
+    const filterBtn = event.target.closest('.v4a-filter-btn');
+    if (filterBtn) {
+      event.preventDefault();
+      document.querySelectorAll('.v4a-filter-btn').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      filterBtn.setAttribute('aria-pressed', 'true');
+      state.activeFilter = filterBtn.getAttribute('data-v4a-filter');
+      loadJobs();
+      return;
+    }
+
+    // 9. Career "Request Accommodation" button on job card
+    const accBtn = event.target.closest('.v4a-btn-acc');
+    if (accBtn) {
+      event.preventDefault();
+      const jobId = accBtn.getAttribute('data-job-id');
+      const jobTitle = accBtn.getAttribute('data-job-title');
+      openAccommodationPanel(jobId, jobTitle);
+      return;
+    }
+
+    // 10. Close Accommodation Panel
+    const closeAccBtn = event.target.closest('#v4a-close-acc-btn') || event.target.closest('#v4a-acc-cancel-btn');
+    if (closeAccBtn) {
+      event.preventDefault();
+      closeAccommodationPanel();
+      return;
+    }
+
+    // 11. Career Apply button
+    const applyBtn = event.target.closest('.v4a-btn-apply');
+    if (applyBtn) {
+      event.preventDefault();
+      const title = applyBtn.getAttribute('data-job-title');
+      alert(`${root.Voice4AllUI.t('apply_btn', state.lang)}: ${title}\n\n${state.lang === 'am' ? 'የማመልከቻ ቅጹ በአዲስ መስኮት ይከፈታል።' : 'Application workflow opened for inclusive review.'}`);
+      return;
+    }
+
+    // 12. Cancel active support ticket
+    const cancelTicketBtn = event.target.closest('#v4a-cancel-ticket-btn');
+    if (cancelTicketBtn) {
+      event.preventDefault();
+      cancelActiveTicket();
+      return;
+    }
+
+    // 13. Clear Tutor Conversation History
+    const clearBtn = event.target.closest('#v4a-clear-chat-btn');
+    if (clearBtn) {
+      event.preventDefault();
+      if (confirm(root.Voice4AllUI.t('clear_confirm', state.lang))) {
+        clearChatHistory();
+      }
+      return;
+    }
+
+    // 14. Retry Failed Tutor Request
+    const retryBtn = event.target.closest('.v4a-btn-retry');
+    if (retryBtn) {
+      event.preventDefault();
+      if (state.lastUserMessage) {
+        submitTutorMessage(state.lastUserMessage);
+      }
+      return;
+    }
+
+    // 15. Retry Network / Offline Reconnection
+    const retryNetBtn = event.target.closest('#v4a-retry-network-btn');
+    if (retryNetBtn) {
+      event.preventDefault();
+      const isAm = (state.lang === 'am');
+      root.Voice4AllUI.announce(isAm ? 'ግንኙነትን እንደገና በመሞከር ላይ...' : 'Retrying network connection...');
+      loadJobs();
+      return;
+    }
+  });
+
+  // Delegated change handlers (Simple mode toggle)
+  document.addEventListener('change', (event) => {
+    if (event.target.id === 'v4a-simple-mode-toggle') {
+      state.simpleMode = event.target.checked;
+      try {
+        sessionStorage.setItem(SESSION_SIMPLE_MODE_KEY, String(state.simpleMode));
+      } catch (e) { }
+
+      const drawer = document.getElementById('v4a-drawer');
+      if (drawer) {
+        if (state.simpleMode) {
+          drawer.classList.add('v4a-simple-mode');
+        } else {
+          drawer.classList.remove('v4a-simple-mode');
+        }
       }
 
-      // 2. Close drawer
-      const closeBtn = event.target.closest('#v4a-close-btn');
-      const backdrop = event.target.closest('#v4a-backdrop');
-      if (closeBtn || backdrop) {
-        event.preventDefault();
-        closeDrawer();
-        return;
-      }
+      const msg = state.simpleMode
+        ? root.Voice4AllUI.t('announce_simple_mode_on', state.lang)
+        : root.Voice4AllUI.t('announce_simple_mode_off', state.lang);
+      root.Voice4AllUI.announce(msg);
+    }
+  });
 
-      // 3. Tab switching
-      const tab = event.target.closest('.v4a-tab');
-      if (tab) {
-        event.preventDefault();
-        const tabName = tab.getAttribute('id').replace('v4a-tab-', '');
-        switchTab(tabName, true);
-        return;
-      }
+  // Global Accesskey / Shortcut: Alt + V to toggle Voice4All
+  document.addEventListener('keydown', (event) => {
+    if (event.altKey && (event.key === 'v' || event.key === 'V')) {
+      event.preventDefault();
+      if (state.drawerOpen) closeDrawer();
+      else openDrawer();
+    }
+  });
 
-      // 4. Language switcher
-      const langBtn = event.target.closest('.v4a-lang-btn');
-      if (langBtn) {
-        event.preventDefault();
-        const lang = langBtn.getAttribute('data-v4a-lang');
-        setLanguage(lang);
-        return;
+  // Delegated submit handlers
+  document.addEventListener('submit', (event) => {
+    // Tutor Form Submit
+    if (event.target.id === 'v4a-tutor-form') {
+      event.preventDefault();
+      const input = document.getElementById('v4a-tutor-input');
+      if (input && input.value.trim()) {
+        submitTutorMessage(input.value.trim());
       }
+      return;
+    }
 
-      // 5. Voice Input Toggle
-      const voiceBtn = event.target.closest('#v4a-voice-toggle-btn');
-      if (voiceBtn) {
-        event.preventDefault();
-        toggleVoiceInput();
-        return;
-      }
+    // Support Help Form Submit
+    if (event.target.id === 'v4a-help-form') {
+      event.preventDefault();
+      handleSupportSubmit();
+      return;
+    }
 
-      // 6. Starter prompt clicks
-      const starter = event.target.closest('.v4a-starter-chip');
-      if (starter) {
-        event.preventDefault();
-        const prompt = starter.getAttribute('data-v4a-prompt');
-        submitTutorMessage(prompt);
-        return;
-      }
+    // Accommodation Form Submit
+    if (event.target.id === 'v4a-acc-form') {
+      event.preventDefault();
+      handleAccommodationSubmit();
+      return;
+    }
+  });
 
-      // 7. TTS read aloud button
-      const ttsBtn = event.target.closest('.v4a-tts-btn');
-      if (ttsBtn) {
-        event.preventDefault();
-        const text = ttsBtn.getAttribute('data-v4a-speech-text');
-        speakText(text);
-        return;
-      }
+  // Tab keyboard navigation listeners
+  ['tutor', 'help', 'career'].forEach((name) => {
+    const tabEl = document.getElementById(`v4a-tab-${name}`);
+    if (tabEl) tabEl.addEventListener('keydown', handleTabKeydown);
+  });
 
-      // 8. Career Filter buttons
-      const filterBtn = event.target.closest('.v4a-filter-btn');
-      if (filterBtn) {
-        event.preventDefault();
-        document.querySelectorAll('.v4a-filter-btn').forEach((b) => b.setAttribute('aria-pressed', 'false'));
-        filterBtn.setAttribute('aria-pressed', 'true');
-        state.activeFilter = filterBtn.getAttribute('data-v4a-filter');
+  // Job search input debounced handler
+  let searchTimer = null;
+  document.addEventListener('input', (event) => {
+    if (event.target.id === 'v4a-job-search') {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        state.searchQuery = event.target.value.trim();
         loadJobs();
-        return;
-      }
+      }, 300);
+    }
+  });
+}
 
-      // 9. Career "Request Accommodation" button on job card
-      const accBtn = event.target.closest('.v4a-btn-acc');
-      if (accBtn) {
-        event.preventDefault();
-        const jobId = accBtn.getAttribute('data-job-id');
-        const jobTitle = accBtn.getAttribute('data-job-title');
-        openAccommodationPanel(jobId, jobTitle);
-        return;
-      }
+// Auto-boot on DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 
-      // 10. Close Accommodation Panel
-      const closeAccBtn = event.target.closest('#v4a-close-acc-btn') || event.target.closest('#v4a-acc-cancel-btn');
-      if (closeAccBtn) {
-        event.preventDefault();
-        closeAccommodationPanel();
-        return;
-      }
-
-      // 11. Career Apply button
-      const applyBtn = event.target.closest('.v4a-btn-apply');
-      if (applyBtn) {
-        event.preventDefault();
-        const title = applyBtn.getAttribute('data-job-title');
-        alert(`${root.Voice4AllUI.t('apply_btn', state.lang)}: ${title}\n\n${state.lang === 'am' ? 'የማመልከቻ ቅጹ በአዲስ መስኮት ይከፈታል።' : 'Application workflow opened for inclusive review.'}`);
-        return;
-      }
-
-      // 12. Cancel active support ticket
-      const cancelTicketBtn = event.target.closest('#v4a-cancel-ticket-btn');
-      if (cancelTicketBtn) {
-        event.preventDefault();
-        cancelActiveTicket();
-        return;
-      }
-
-      // 13. Clear Tutor Conversation History
-      const clearBtn = event.target.closest('#v4a-clear-chat-btn');
-      if (clearBtn) {
-        event.preventDefault();
-        if (confirm(root.Voice4AllUI.t('clear_confirm', state.lang))) {
-          clearChatHistory();
-        }
-        return;
-      }
-
-      // 14. Retry Failed Tutor Request
-      const retryBtn = event.target.closest('.v4a-btn-retry');
-      if (retryBtn) {
-        event.preventDefault();
-        if (state.lastUserMessage) {
-          submitTutorMessage(state.lastUserMessage);
-        }
-        return;
-      }
-    });
-
-    // Delegated change handlers (Simple mode toggle)
-    document.addEventListener('change', (event) => {
-      if (event.target.id === 'v4a-simple-mode-toggle') {
-        state.simpleMode = event.target.checked;
-        try {
-          sessionStorage.setItem(SESSION_SIMPLE_MODE_KEY, String(state.simpleMode));
-        } catch (e) {}
-
-        const msg = state.simpleMode
-          ? root.Voice4AllUI.t('announce_simple_mode_on', state.lang)
-          : root.Voice4AllUI.t('announce_simple_mode_off', state.lang);
-        root.Voice4AllUI.announce(msg);
-      }
-    });
-
-    // Global Accesskey / Shortcut: Alt + V to toggle Voice4All
-    document.addEventListener('keydown', (event) => {
-      if (event.altKey && (event.key === 'v' || event.key === 'V')) {
-        event.preventDefault();
-        if (state.drawerOpen) closeDrawer();
-        else openDrawer();
-      }
-    });
-
-    // Delegated submit handlers
-    document.addEventListener('submit', (event) => {
-      // Tutor Form Submit
-      if (event.target.id === 'v4a-tutor-form') {
-        event.preventDefault();
-        const input = document.getElementById('v4a-tutor-input');
-        if (input && input.value.trim()) {
-          submitTutorMessage(input.value.trim());
-        }
-        return;
-      }
-
-      // Support Help Form Submit
-      if (event.target.id === 'v4a-help-form') {
-        event.preventDefault();
-        handleSupportSubmit();
-        return;
-      }
-
-      // Accommodation Form Submit
-      if (event.target.id === 'v4a-acc-form') {
-        event.preventDefault();
-        handleAccommodationSubmit();
-        return;
-      }
-    });
-
-    // Tab keyboard navigation listeners
-    ['tutor', 'help', 'career'].forEach((name) => {
-      const tabEl = document.getElementById(`v4a-tab-${name}`);
-      if (tabEl) tabEl.addEventListener('keydown', handleTabKeydown);
-    });
-
-    // Job search input debounced handler
-    let searchTimer = null;
-    document.addEventListener('input', (event) => {
-      if (event.target.id === 'v4a-job-search') {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => {
-          state.searchQuery = event.target.value.trim();
-          loadJobs();
-        }, 300);
-      }
-    });
-  }
-
-  // Auto-boot on DOMContentLoaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-  // Expose for inspection and programmatic testing
-  root.Voice4All = {
-    state,
-    init,
-    openDrawer,
-    closeDrawer,
-    switchTab,
-    setLanguage,
-    submitTutorMessage,
-    clearChatHistory,
-    handleSupportSubmit,
-    handleAccommodationSubmit,
-    loadJobs
-  };
-})(typeof window !== 'undefined' ? window : this);
+// Expose for inspection and programmatic testing
+root.Voice4All = {
+  state,
+  init,
+  openDrawer,
+  closeDrawer,
+  switchTab,
+  setLanguage,
+  submitTutorMessage,
+  clearChatHistory,
+  handleSupportSubmit,
+  handleAccommodationSubmit,
+  loadJobs
+};
+}) (typeof window !== 'undefined' ? window : this);

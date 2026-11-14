@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <title>EduSphere Academy — Independent Learning Platform (Voice4All Standalone Demo)</title>
+
+  <!-- Google Fonts for the Host Page -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- 
+    =======================================================================
+    EduSphere Host Page Stylesheet
+    Completely independent styling, custom CSS classes, custom color theme.
+    Zero dependency on Savanna styles or Voice4All styles.
+    =======================================================================
+  -->
+  <style>
+    :root {
+      --edu-primary: #059669;
+      --edu-primary-dark: #047857;
+      --edu-accent: #6366f1;
+      --edu-dark: #0f172a;
+      --edu-text: #334155;
+      --edu-bg: #f8fafc;
+      --edu-card: #ffffff;
+      --edu-border: #e2e8f0;
+      --edu-radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--edu-bg);
+      color: var(--edu-text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Host Header */
+    .edu-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--edu-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .edu-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .edu-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--edu-dark);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .edu-logo-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--edu-primary), var(--edu-accent));
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .edu-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .edu-nav a {
+      color: var(--edu-text);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .edu-nav a:hover {
+      color: var(--edu-primary);
+    }
+
+    /* Host Main Container */
+    .edu-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* Hero Banner */
+    .edu-hero {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #0f766e 100%);
+      color: #ffffff;
+      padding: 44px 36px;
+      border-radius: var(--edu-radius);
+      margin-bottom: 36px;
+      box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.2);
+    }
+
+    .edu-hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .edu-hero h1 {
+      font-size: 2.1rem;
+      line-height: 1.25;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .edu-hero p {
+      font-size: 1.05rem;
+      max-width: 720px;
+      color: #d1fae5;
+      line-height: 1.6;
+    }
+
+    /* Verification Badge Callout */
+    .edu-badge-callout {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: var(--edu-radius);
+      padding: 18px 22px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .edu-badge-icon {
+      font-size: 1.4rem;
+      color: var(--edu-primary);
+    }
+
+    .edu-badge-callout h3 {
+      font-size: 1.05rem;
+      color: #065f46;
+      margin-bottom: 4px;
+    }
+
+    .edu-badge-callout p {
+      font-size: 0.9rem;
+      color: #047857;
+      margin: 0;
+    }
+
+    /* Developer Integration Playground */
+    .edu-demo-section {
+      background: #ffffff;
+      border: 1px solid var(--edu-border);
+      border-radius: var(--edu-radius);
+      padding: 28px;
+      margin-bottom: 36px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .edu-demo-section h2 {
+      font-size: 1.35rem;
+      color: var(--edu-dark);
+      margin-bottom: 10px;
+    }
+
+    .edu-demo-section p {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin-bottom: 22px;
+    }
+
+    .edu-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .edu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: #ffffff;
+      color: var(--edu-dark);
+      border: 1px solid var(--edu-border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 44px;
+    }
+
+    .edu-btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .edu-btn-primary {
+      background: var(--edu-primary);
+      color: #ffffff;
+      border-color: var(--edu-primary);
+    }
+
+    .edu-btn-primary:hover {
+      background: var(--edu-primary-dark);
+      border-color: var(--edu-primary-dark);
+    }
+
+    .edu-btn-accent {
+      background: var(--edu-accent);
+      color: #ffffff;
+      border-color: var(--edu-accent);
+    }
+
+    .edu-btn-accent:hover {
+      background: #4f46e5;
+    }
+
+    /* Code Snippet Box */
+    .edu-code-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px 22px;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      margin-bottom: 22px;
+      position: relative;
+    }
+
+    .edu-code-box pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .edu-code-tag {
+      color: #38bdf8;
+    }
+
+    .edu-code-attr {
+      color: #a5b4fc;
+    }
+
+    .edu-code-val {
+      color: #fde047;
+    }
+
+    /* Event Stream Log */
+    .edu-event-log-wrap {
+      background: #f8fafc;
+      border: 1px solid var(--edu-border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .edu-event-log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+    }
+
+    .edu-event-log {
+      max-height: 140px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.82rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .edu-event-item {
+      display: flex;
+      gap: 8px;
+    }
+
+    .edu-event-time {
+      color: #94a3b8;
+    }
+
+    .edu-event-name {
+      color: #0284c7;
+      font-weight: 600;
+    }
+
+    /* Course Cards Grid */
+    .edu-courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .edu-card {
+      background: #ffffff;
+      border: 1px solid var(--edu-border);
+      border-radius: var(--edu-radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .edu-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+    }
+
+    .edu-card-tag {
+      align-self: flex-start;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+
+    .edu-card h3 {
+      font-size: 1.15rem;
+      color: var(--edu-dark);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .edu-card p {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    .edu-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 14px;
+    }
+
+    .edu-card-lessons {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    /* Responsive adjustments for low-cost Android phones */
+    @media (max-width: 480px) {
+      .edu-hero {
+        padding: 24px 18px;
+      }
+      .edu-hero h1 {
+        font-size: 1.5rem;
+      }
+      .edu-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .edu-courses-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <!-- 
+    =======================================================================
+    ONE SCRIPT TAG INSTALLATION
+    This is all that is required for any external learning site to install
+    Voice4All! The loader dynamically injects the scoped CSS, fonts,
+    accessibility modules, and public API.
+    =======================================================================
+  -->
+  <script
+    src="../../assets/js/voice4all/loader.js"
+    data-api-base="http://localhost:5000"
+    data-lang="en"
+    data-position="bottom-right"
+    data-simple-mode="false"
+    async
+  ></script>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="edu-header">
+    <div class="edu-header-inner">
+      <a href="#" class="edu-brand">
+        <span class="edu-logo-badge">E</span>
+        <span>EduSphere Academy</span>
+      </a>
+      <nav class="edu-nav">
+        <a href="#courses">Courses</a>
+        <a href="#demo">Widget Playground</a>
+        <a href="#docs">Integration Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="edu-container">
+    <!-- Hero Banner -->
+    <section class="edu-hero">
+      <div class="edu-hero-pill">
+        <span>✨ Standalone Plugin Demonstration</span>
+      </div>
+      <h1>Universal Voice & Text Learning Assistant</h1>
+      <p>
+        EduSphere Academy is an independent learning platform with completely separate styling.
+        Voice4All is embedded here using <strong>a single script tag</strong>, operating with zero CSS leaks,
+        offline fallback, full keyboard accessibility, and dual English/Amharic support.
+      </p>
+    </section>
+
+    <!-- Verification Callout -->
+    <aside class="edu-badge-callout" role="note">
+      <div class="edu-badge-icon">ℹ️</div>
+      <div>
+        <h3>Independent Website Integration Active</h3>
+        <p>
+          Notice the floating <strong>Voice4All</strong> launcher in the bottom-right corner. It is self-contained,
+          accessible, responds to <kbd>Alt</kbd> + <kbd>V</kbd>, and traps keyboard focus inside its accessible dialog.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Interactive Developer Integration Playground -->
+    <section id="demo" class="edu-demo-section" aria-labelledby="playground-heading">
+      <h2 id="playground-heading">Host Site Developer API Console</h2>
+      <p>
+        The host platform can interact with Voice4All programmatically through the global <code>window.Voice4All</code> API.
+        Try the controls below to trigger widget behaviors:
+      </p>
+
+      <div class="edu-btn-group">
+        <button type="button" class="edu-btn edu-btn-primary" onclick="Voice4All.open()">
+          <span>Open Widget (<code>Voice4All.open()</code>)</span>
+        </button>
+        <button type="button" class="edu-btn" onclick="Voice4All.close()">
+          <span>Close Widget (<code>Voice4All.close()</code>)</span>
+        </button>
+        <button type="button" class="edu-btn" onclick="Voice4All.setLanguage(Voice4All.getLanguage() === 'am' ? 'en' : 'am')">
+          <span>Toggle Amharic / English</span>
+        </button>
+        <button type="button" class="edu-btn edu-btn-accent" onclick="Voice4All.setSimpleMode(!Voice4All.isSimpleMode())">
+          <span>Toggle Simple Mode</span>
+        </button>
+        <button type="button" class="edu-btn" onclick="Voice4All.askTutor('What is a Virtual Assistant?')">
+          <span>Ask Tutor Sample Question</span>
+        </button>
+        <button type="button" class="edu-btn" onclick="Voice4All.showCaption('Voice4All is providing live visual speech captions for sound-off usability.', 5000)">
+          <span>Test Sound-Off Captions</span>
+        </button>
+        <button type="button" class="edu-btn" onclick="testOfflineSimulation()">
+          <span id="offline-btn-text">Simulate Offline Mode</span>
+        </button>
+      </div>
+
+      <!-- Installation Script Tag Code -->
+      <h3 style="font-size: 1rem; margin-bottom: 8px; color: var(--edu-dark);">1. Installation Code (Single Tag):</h3>
+      <div class="edu-code-box">
+<pre>&lt;<span class="edu-code-tag">script</span>
+  <span class="edu-code-attr">src</span>=<span class="edu-code-val">"https://cdn.example.com/assets/js/voice4all/loader.js"</span>
+  <span class="edu-code-attr">data-api-base</span>=<span class="edu-code-val">"https://api.example.com"</span>
+  <span class="edu-code-attr">data-lang</span>=<span class="edu-code-val">"en"</span>
+  <span class="edu-code-attr">data-position</span>=<span class="edu-code-val">"bottom-right"</span>
+  <span class="edu-code-attr">data-simple-mode</span>=<span class="edu-code-val">"false"</span>
+  <span class="edu-code-attr">async</span>&gt;&lt;/<span class="edu-code-tag">script</span>&gt;</pre>
+      </div>
+
+      <!-- Real-time Event Logger -->
+      <div class="edu-event-log-wrap">
+        <div class="edu-event-log-header">
+          <span>Live Plugin Event Stream</span>
+          <span id="log-count">0 events</span>
+        </div>
+        <div class="edu-event-log" id="event-log" aria-live="polite">
+          <div class="edu-event-item">
+            <span class="edu-event-time">[Host Page Ready]</span>
+            <span class="edu-event-name">Waiting for Voice4All loader initialization...</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sample Host Courses Grid -->
+    <section id="courses">
+      <h2 style="font-size: 1.4rem; color: var(--edu-dark); margin-bottom: 6px;">Available Learning Modules</h2>
+      <p style="color: #64748b; margin-bottom: 24px;">Explore courses hosted on this platform. Voice4All integrates with any course curriculum.</p>
+
+      <div class="edu-courses-grid">
+        <article class="edu-card">
+          <span class="edu-card-tag">Foundation</span>
+          <h3>Digital Productivity & Remote Collaboration</h3>
+          <p>Master modern asynchronous communication, Google Workspace, calendar scheduling, and ethical data handling.</p>
+          <div class="edu-card-footer">
+            <span class="edu-card-lessons">6 Lessons • 2 Hours</span>
+            <button type="button" class="edu-btn edu-btn-primary" style="min-height:36px; padding:6px 14px; font-size:0.85rem;" onclick="Voice4All.askTutor('What are the core productivity tools for remote assistants?')">
+              Ask Tutor
+            </button>
+          </div>
+        </article>
+
+        <article class="edu-card">
+          <span class="edu-card-tag">Career</span>
+          <h3>Inclusive Workplace Navigation & Job Search</h3>
+          <p>Learn how to request accommodations, present assistive tech capabilities to international employers, and win remote contracts.</p>
+          <div class="edu-card-footer">
+            <span class="edu-card-lessons">8 Lessons • 3 Hours</span>
+            <button type="button" class="edu-btn edu-btn-primary" style="min-height:36px; padding:6px 14px; font-size:0.85rem;" onclick="Voice4All.switchTab('career'); Voice4All.open();">
+              View Jobs
+            </button>
+          </div>
+        </article>
+
+        <article class="edu-card">
+          <span class="edu-card-tag">Technical</span>
+          <h3>AI-Powered Virtual Assistance</h3>
+          <p>Integrate conversational AI assistants, automated meeting transcripts, and prompt engineering into daily operations.</p>
+          <div class="edu-card-footer">
+            <span class="edu-card-lessons">5 Lessons • 2.5 Hours</span>
+            <button type="button" class="edu-btn edu-btn-primary" style="min-height:36px; padding:6px 14px; font-size:0.85rem;" onclick="Voice4All.askTutor('How does AI enhance virtual assistant workflows?')">
+              Ask Tutor
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Interactive Demo Script -->
+  <script>
+    let isOfflineSimulated = false;
+
+    function logEvent(name, detail = '') {
+      const log = document.getElementById('event-log');
+      const countEl = document.getElementById('log-count');
+      if (!log) return;
+
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'edu-event-item';
+      div.innerHTML = `
+        <span class="edu-event-time">[${time}]</span>
+        <span class="edu-event-name">voice4all:${name}</span>
+        <span style="color:#64748b;">${typeof detail === 'object' ? JSON.stringify(detail) : detail}</span>
+      `;
+      log.prepend(div);
+
+      const items = log.querySelectorAll('.edu-event-item');
+      if (countEl) countEl.textContent = `${items.length} events`;
+    }
+
+    // Attach listeners to Voice4All events
+    window.addEventListener('voice4all:ready', (e) => logEvent('ready', e.detail));
+    window.addEventListener('voice4all:open', () => logEvent('open'));
+    window.addEventListener('voice4all:close', () => logEvent('close'));
+    window.addEventListener('voice4all:tabchange', (e) => logEvent('tabchange', e.detail));
+    window.addEventListener('voice4all:languagechange', (e) => logEvent('languagechange', e.detail));
+    window.addEventListener('voice4all:simplemodechange', (e) => logEvent('simplemodechange', e.detail));
+    window.addEventListener('voice4all:offline', () => logEvent('offline'));
+    window.addEventListener('voice4all:online', () => logEvent('online'));
+
+    function testOfflineSimulation() {
+      const btnText = document.getElementById('offline-btn-text');
+      isOfflineSimulated = !isOfflineSimulated;
+
+      if (isOfflineSimulated) {
+        window.dispatchEvent(new Event('offline'));
+        btnText.textContent = 'Restore Online Mode';
+      } else {
+        window.dispatchEvent(new Event('online'));
+        btnText.textContent = 'Simulate Offline Mode';
+      }
+    }
+  </script>
+</body>
+</html>

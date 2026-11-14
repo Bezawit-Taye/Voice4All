@@ -301,6 +301,11 @@
    * Screen reader announcer utility
    */
   function announce(message, priority = 'polite') {
+    if (root.Voice4AllA11y && typeof root.Voice4AllA11y.announce === 'function') {
+      root.Voice4AllA11y.announce(message, priority);
+      return;
+    }
+
     let region = document.getElementById('v4a-live-announcer');
     if (!region) {
       region = document.createElement('div');
@@ -407,6 +412,22 @@
                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
               </button>
             </div>
+          </div>
+
+          <!-- Real-Time Offline Notice Banner -->
+          <div
+            id="v4a-offline-banner"
+            class="v4a-offline-banner"
+            role="alert"
+            aria-live="assertive"
+          >
+            <div style="display:flex;align-items:center;gap:6px;">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <span>${lang === 'am' ? 'ከመስመር ውጭ ነዎት (የሙከራ ሁነታ)' : 'You are currently offline (Demo Mode)'}</span>
+            </div>
+            <button type="button" class="v4a-btn v4a-btn--sm" id="v4a-retry-network-btn" style="min-height:30px;padding:2px 8px;font-size:11px;">
+              ${t('retry_btn', lang)}
+            </button>
           </div>
 
           <!-- Backend / Demo Status Banner -->
