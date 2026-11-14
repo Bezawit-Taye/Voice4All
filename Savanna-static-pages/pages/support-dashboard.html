@@ -6,33 +6,44 @@
   <title>Voice4All — Support Person Queue Portal</title>
   <link rel="stylesheet" href="../assets/css/app.css" media="all">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; margin: 0; }
     .header { background: #0f172a; color: #fff; padding: 18px 24px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
     .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
     .badge-simulated { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
     .badge-high { background: #fee2e2; color: #991b1b; }
     .badge-normal { background: #e0f2fe; color: #075985; }
+    .badge-low { background: #f1f5f9; color: #475569; }
     .badge-connected { background: #dcfce7; color: #166534; }
+    .badge-screen { background: #fae8ff; color: #86198f; }
     .card { background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .btn { cursor: pointer; padding: 8px 16px; border-radius: 6px; font-weight: 600; border: none; font-size: 14px; }
+    .btn { cursor: pointer; padding: 8px 16px; border-radius: 6px; font-weight: 600; border: none; font-size: 14px; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.9; }
     .btn-primary { background: #2563eb; color: #fff; }
     .btn-danger { background: #dc2626; color: #fff; }
     .btn-success { background: #16a34a; color: #fff; }
+    .btn-secondary { background: #64748b; color: #fff; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .stat-card { background: #fff; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; text-align: center; }
     .stat-num { font-size: 28px; font-weight: 700; color: #0f172a; }
-    .stat-label { font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-label { font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    .chat-box { background: #f1f5f9; border-radius: 6px; padding: 12px; max-height: 200px; overflow-y: auto; margin: 12px 0; }
+    .chat-msg { margin-bottom: 8px; font-size: 14px; }
+    .chat-sender-agent { font-weight: 600; color: #2563eb; }
+    .chat-sender-learner { font-weight: 600; color: #0f172a; }
+    .chat-sender-system { font-weight: 600; color: #9333ea; font-style: italic; }
+    .media-notice-box { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 13px; margin: 10px 0; color: #92400e; }
   </style>
 </head>
 <body>
   <div class="header">
     <div>
       <h1 style="margin: 0; font-size: 22px;">Voice4All Support-Person Workspace</h1>
-      <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">Learner Queue Triage, Consented Screen Sharing & Honest Connectivity Portal</p>
+      <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">Learner Queue Triage, Consented Screen Sharing & Real-Time Status Portal</p>
     </div>
-    <div>
+    <div style="display: flex; gap: 8px; align-items: center;">
       <span class="badge badge-simulated">SIMULATED WORKSPACE</span>
+      <span id="agent-display" style="font-size: 13px; color: #cbd5e1;">Agent: Mentor Grace</span>
     </div>
   </div>
 
@@ -44,18 +55,33 @@
   </div>
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-    <h2 style="margin: 0; font-size: 18px;">Active Learner Support Queue</h2>
-    <button class="btn btn-primary" onclick="loadQueue()">Refresh Queue</button>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <h2 style="margin: 0; font-size: 18px;">Active Learner Support Queue</h2>
+      <select id="filter-urgency" onchange="loadQueue()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px;">
+        <option value="all">All Urgencies</option>
+        <option value="high">High Urgency</option>
+        <option value="medium">Medium Urgency</option>
+        <option value="low">Low Urgency</option>
+      </select>
+    </div>
+    <div>
+      <button class="btn btn-primary" onclick="loadQueue()">Refresh Queue</button>
+    </div>
   </div>
 
   <div id="queue-container">
     <p>Loading active tickets...</p>
   </div>
 
+  <div id="aria-announcer" class="v4a-sr-only" aria-live="polite" style="position: absolute; left: -9999px;"></div>
+
   <script>
+    let activeAgentName = 'Mentor Grace (Support Specialist)';
+
     async function loadQueue() {
       try {
-        const res = await fetch('/api/support/queue');
+        const urgency = document.getElementById('filter-urgency').value;
+        const res = await fetch('/api/support/queue?urgency=' + urgency);
         const data = await res.json();
         
         document.getElementById('stat-queued').innerText = data.stats.queued;
@@ -64,39 +90,77 @@
         document.getElementById('stat-resolved').innerText = data.stats.resolved;
 
         const container = document.getElementById('queue-container');
-        if (data.queue.length === 0) {
-          container.innerHTML = '<div class="card"><p style="margin: 0; color: #64748b;">No active support tickets in queue. Great job!</p></div>';
+        if (!data.queue || data.queue.length === 0) {
+          container.innerHTML = '<div class="card"><p style="margin: 0; color: #64748b;">No active support tickets in queue. All learners assisted!</p></div>';
           return;
         }
 
         container.innerHTML = data.queue.map(t => {
           const isConnected = t.humanConnected;
           const isScreenActive = t.screen_share_active;
+          const screenStatus = t.screenShareStatus;
+          
           return `
             <div class="card" id="ticket-${t.requestId}">
               <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
                 <div>
-                  <strong style="font-size: 16px;">${t.requestId}</strong> — ${t.topic}
-                  <span class="badge ${t.urgency === 'high' ? 'badge-high' : 'badge-normal'}" style="margin-left: 8px;">${t.urgency.toUpperCase()}</span>
-                  <span class="badge" style="background: #f1f5f9; color: #475569; margin-left: 4px;">${t.preferred_mode}</span>
+                  <strong style="font-size: 17px;">${t.requestId}</strong> — <span style="font-weight: 600;">${t.topic}</span>
+                  <span class="badge ${t.urgency === 'high' ? 'badge-high' : (t.urgency === 'low' ? 'badge-low' : 'badge-normal')}" style="margin-left: 8px;">${t.urgency.toUpperCase()}</span>
+                  <span class="badge" style="background: #f1f5f9; color: #475569; margin-left: 4px;">Mode: ${t.preferred_mode}</span>
+                  <span class="badge" style="background: #ede9fe; color: #6d28d9; margin-left: 4px;">Lang: ${t.language.toUpperCase()}</span>
                 </div>
                 <div>
-                  <span class="badge ${isConnected ? 'badge-connected' : 'badge-normal'}">${isConnected ? 'HUMAN CONNECTED' : 'IN QUEUE (NO HUMAN)'}</span>
+                  <span class="badge ${isConnected ? 'badge-connected' : 'badge-normal'}">
+                    ${isConnected ? '● HUMAN CONNECTED (' + (t.agentName || 'Agent') + ')' : '○ WAITING IN QUEUE (NO HUMAN)'}
+                  </span>
                 </div>
               </div>
-              <p style="margin: 8px 0; font-size: 15px;"><strong>Learner (${t.learnerId}):</strong> "${t.message}"</p>
-              <div style="background: #f8fafc; padding: 10px; border-radius: 6px; font-size: 13px; color: #475569; margin: 10px 0;">
+
+              <p style="margin: 10px 0; font-size: 15px; line-height: 1.5;"><strong>Learner (${t.learnerId}):</strong> "${t.message}"</p>
+
+              <div style="background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px; color: #475569; margin: 12px 0;">
                 <div><strong>Course:</strong> ${t.context.courseTitle} | <strong>Module:</strong> ${t.context.moduleTitle}</div>
                 <div><strong>Lesson:</strong> ${t.context.lessonTitle}</div>
-                <div style="margin-top: 4px;">
+                <div style="margin-top: 6px;">
                   <strong>Screen Share Consent:</strong> ${t.consent?.screenShareConsent ? '✅ Explicitly Granted by Learner' : '❌ Not Consented'}
-                  | <strong>Screen Share State:</strong> ${t.screenShareStatus}
+                  | <strong>Session State:</strong> <span class="badge badge-screen">${screenStatus}</span>
                 </div>
               </div>
-              <div style="display: flex; gap: 10px; margin-top: 14px;">
-                ${!isConnected ? `<button class="btn btn-primary" onclick="claimTicket('${t.requestId}')">Claim & Connect Live</button>` : ''}
-                ${isScreenActive ? `<button class="btn btn-danger" onclick="stopScreenShare('${t.requestId}')">Stop Screen Share</button>` : ''}
-                ${isConnected ? `<button class="btn btn-success" onclick="resolveTicket('${t.requestId}')">Mark Resolved</button>` : ''}
+
+              ${screenStatus === 'session_active' ? `
+                <div class="media-notice-box">
+                  <strong>Screen Transmission Notice:</strong> Screen capture session is active on learner device.
+                  Signaling active. In this test environment, actual live peer media rendering requires an SFU/WebRTC peer connection.
+                </div>
+              ` : ''}
+
+              <!-- Messaging Thread -->
+              <div class="chat-box" id="chat-${t.requestId}">
+                ${(t.messages || []).map(m => `
+                  <div class="chat-msg">
+                    <span class="chat-sender-${m.sender}">[${m.senderName}]:</span>
+                    <span>${m.text}</span>
+                    <span style="font-size: 11px; color: #94a3b8; margin-left: 6px;">${new Date(m.timestamp).toLocaleTimeString()}</span>
+                  </div>
+                `).join('')}
+              </div>
+
+              ${isConnected ? `
+                <div style="display: flex; gap: 8px; margin: 10px 0;">
+                  <input type="text" id="reply-input-${t.requestId}" placeholder="Type message to learner..." style="flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+                  <button class="btn btn-primary" onclick="sendAgentMessage('${t.requestId}')">Send Message</button>
+                </div>
+              ` : ''}
+
+              <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+                ${!isConnected ? `
+                  <button class="btn btn-primary" onclick="claimTicket('${t.requestId}')">Claim & Connect Live</button>
+                ` : `
+                  <button class="btn btn-success" onclick="resolveTicket('${t.requestId}')">Mark Resolved</button>
+                `}
+                ${isScreenActive || screenStatus === 'session_active' ? `
+                  <button class="btn btn-danger" onclick="stopScreenShare('${t.requestId}')">Stop Screen Share (Immediate)</button>
+                ` : ''}
               </div>
             </div>
           `;
@@ -107,21 +171,41 @@
     }
 
     async function claimTicket(id) {
+      const agent = prompt('Enter your support specialist name:', activeAgentName) || activeAgentName;
+      activeAgentName = agent;
       await fetch('/api/support/requests/' + id + '/assign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentName: 'Mentor Grace (Support Specialist)', agentId: 'agent-grace' })
+        body: JSON.stringify({ agentName: agent, agentId: 'agent-portal' })
       });
       loadQueue();
     }
 
+    async function sendAgentMessage(id) {
+      const input = document.getElementById('reply-input-' + id);
+      if (!input || !input.value.trim()) return;
+      const text = input.value.trim();
+      await fetch('/api/support/requests/' + id + '/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sender: 'agent',
+          senderName: activeAgentName,
+          text: text
+        })
+      });
+      input.value = '';
+      loadQueue();
+    }
+
     async function stopScreenShare(id) {
-      await fetch('/api/support/requests/' + id + '/screen-share/stop', {
+      const res = await fetch('/api/support/requests/' + id + '/screen-share/stop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stoppedBy: 'agent' })
       });
-      alert('Screen sharing session terminated.');
+      const data = await res.json();
+      alert(data.message || 'Screen sharing stopped.');
       loadQueue();
     }
 
@@ -138,7 +222,7 @@
     }
 
     loadQueue();
-    setInterval(loadQueue, 5000);
+    setInterval(loadQueue, 4000);
   </script>
 </body>
 </html>

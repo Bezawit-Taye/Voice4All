@@ -13,11 +13,10 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const notificationService = require('./notification.service');
 
 // In-memory repositories for session state
 const accommodationDrafts = new Map();
-const telegramSubscribers = new Map();
-const smsSubscribers = new Map();
 
 /**
  * Safely resolves the path to jobs.json
@@ -361,60 +360,13 @@ function listAccommodationDrafts() {
 }
 
 // =========================================================================
-// Telegram Job Notification Integration
+// Telegram & SMS Delegation to notification.service.js
 // =========================================================================
 
-/**
- * Subscribes a learner to Telegram job notifications
- * @param {Object} payload
- * @returns {Object} Subscription result
- */
 function subscribeTelegram(payload = {}) {
-  const chatId = String(payload.chatId || payload.chat_id || '').trim();
-  if (!chatId) {
-    const error = new Error('A valid Telegram chatId is required for subscription.');
-    error.statusCode = 400;
-    error.field = 'chatId';
-    throw error;
-  }
-
-  const username = payload.username || 'AnonymousLearner';
-  const language = payload.language || 'en';
-  const preferences = payload.preferences || {
-    types: ['remote', 'fulltime', 'parttime'],
-    accessibleOnly: true
-  };
-
-  const subscriber = {
-    chatId,
-    username,
-    language,
-    preferences,
-    subscribedAt: new Date().toISOString(),
-    status: 'active'
-  };
-
-  telegramSubscribers.set(chatId, subscriber);
-
-  return {
-    success: true,
-    message: `Telegram job alert subscription activated for chat ID: ${chatId}`,
-    subscriber,
-    isSimulated: !Boolean(process.env.TELEGRAM_BOT_TOKEN),
-    integrationNotice: process.env.TELEGRAM_BOT_TOKEN
-      ? 'Live Telegram Bot dispatch configured.'
-      : 'SIMULATED TELEGRAM DISPATCH — Demonstrating Telegram Bot integration for low-bandwidth mobile notifications.'
-  };
+  return notificationService.subscribeTelegram(payload);
 }
 
-/**
- * Formats and broadcasts a sample job notification via Telegram
- * Uses screen-reader friendly Markdown formatting.
- * 
- * @param {string} jobId
- * @param {string} [targetChatId]
- * @returns {Object} Broadcast result
- */
 function broadcastJobTelegram(jobId, targetChatId = null) {
   const job = getJobById(jobId);
   if (!job) {
@@ -422,117 +374,17 @@ function broadcastJobTelegram(jobId, targetChatId = null) {
     error.statusCode = 404;
     throw error;
   }
-
-  const messageText = 
-    `🔔 *Voice4All Accessible Career Alert*\n\n` +
-    `💼 *${job.title}*\n` +
-    `🏢 *Company:* ${job.company}\n` +
-    `📍 *Location:* ${job.location}\n` +
-    `🕒 *Type:* ${job.type_label}\n\n` +
-    `📝 *Description:*\n${job.description}\n\n` +
-    `♿ *Accessibility & Accommodations:*\n${job.accessibilityOrAccommodation}\n\n` +
-    `🤝 *Interview Accommodations Supported:*\n` +
-    (job.interviewAccommodationsOffered.map(a => `• ${a}`).join('\n') || '• Custom accommodations on request') +
-    `\n\n_Note: This is a simulated job opportunity for training & demonstration._`;
-
-  const now = new Date().toISOString();
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-
-  // If live bot token configured, dispatch to Telegram API
-  if (token && targetChatId) {
-    // Live dispatch logic (optional fallback to mock if API unreachable)
-    try {
-      const postData = JSON.stringify({
-        chat_id: targetChatId,
-        text: messageText,
-        parse_mode: 'Markdown'
-      });
-      const req = https.request({
-        hostname: 'api.telegram.org',
-        path: `/bot${token}/sendMessage`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
-        }
-      });
-      req.write(postData);
-      req.end();
-    } catch (e) {
-      // Non-fatal fallback
-    }
-  }
-
-  return {
-    success: true,
-    jobId: job.id,
-    targetChatId: targetChatId || 'broadcast_all_subscribers',
-    totalRecipients: targetChatId ? 1 : Math.max(1, telegramSubscribers.size),
-    formattedMessage: messageText,
-    isSimulated: !Boolean(token),
-    status: 'dispatched_or_simulated',
-    dispatchedAt: now
-  };
+  return notificationService.sendTelegramJobAlert(job, targetChatId);
 }
 
-/**
- * Returns Telegram integration configuration status
- */
 function getTelegramStatus() {
-  const hasToken = Boolean(process.env.TELEGRAM_BOT_TOKEN);
-  return {
-    isConfigured: hasToken,
-    botUsername: hasToken ? (process.env.TELEGRAM_BOT_USERNAME || '@Voice4AllBot') : '@Voice4AllJobsDemoBot (Simulated)',
-    subscribersCount: telegramSubscribers.size,
-    mode: hasToken ? 'live_gateway' : 'simulated_demo',
-    channelNotice: 'Telegram notifications provide low-bandwidth accessible alerts for learners across Africa.'
-  };
+  return notificationService.getTelegramConfig();
 }
 
-// =========================================================================
-// SMS-Compatible Notification Interface (Low Bandwidth)
-// =========================================================================
-
-/**
- * Formats a job alert into a concise, standard 160-character SMS segment
- * @param {Object} job
- * @param {string} [lang='en']
- * @returns {{text: string, charCount: number, segments: number, isSingleSegment: boolean}}
- */
 function formatJobSMS(job, lang = 'en') {
-  const isAm = (lang === 'am');
-  let smsText = '';
-
-  if (isAm) {
-    // Amharic SMS (UCS-2 encoding, 70 chars per single segment)
-    const title = job.title_am || job.title;
-    smsText = `[Voice4All] ${title} (${job.company})። የርቀት ሥራ። ስክሪን አንባቢ ይደገፋል። ዝርዝር: v4a.alx/j/${job.id} ማቆም: STOP`;
-  } else {
-    // Standard English GSM-7 (160 characters per segment)
-    const shortTitle = job.title.length > 25 ? job.title.substring(0, 22) + '...' : job.title;
-    const shortComp = job.company.replace(' (Sample)', '');
-    smsText = `[Voice4All Job] ${shortTitle} at ${shortComp}. Screen-reader ok. Remote. Apply/Draft: v4a.alx/j/${job.id} Msg STOP to unsub`;
-  }
-
-  const charCount = smsText.length;
-  const maxPerSegment = isAm ? 70 : 160;
-  const segments = Math.ceil(charCount / maxPerSegment);
-
-  return {
-    text: smsText,
-    charCount,
-    maxPerSegment,
-    segments,
-    isSingleSegment: segments === 1
-  };
+  return notificationService.formatJobSmsMessage(job, lang);
 }
 
-/**
- * Previews SMS message and segment count for any sample job
- * @param {string} jobId
- * @param {string} [lang='en']
- * @returns {Object} SMS preview and technical metrics
- */
 function previewJobSMS(jobId, lang = 'en') {
   const job = getJobById(jobId, lang);
   if (!job) {
@@ -540,60 +392,13 @@ function previewJobSMS(jobId, lang = 'en') {
     error.statusCode = 404;
     throw error;
   }
-
-  const smsMetrics = formatJobSMS(job, lang);
-  return {
-    success: true,
-    jobId: job.id,
-    language: lang,
-    encoding: lang === 'am' ? 'UCS-2 (Amharic / Unicode)' : 'GSM-7 (Standard)',
-    ...smsMetrics,
-    complianceNotice: smsMetrics.isSingleSegment
-      ? 'Complies with single-segment 160-char carrier limit.'
-      : `Splits across ${smsMetrics.segments} SMS segments.`
-  };
+  return notificationService.previewSmsJobAlert(job, lang);
 }
 
-/**
- * Subscribes a phone number for SMS job notifications
- * @param {Object} payload
- * @returns {Object} Subscription receipt
- */
 function subscribeSMS(payload = {}) {
-  const phoneNumber = String(payload.phoneNumber || payload.phone || '').trim();
-  if (!phoneNumber || phoneNumber.length < 9) {
-    const error = new Error('A valid phone number (minimum 9 digits) is required.');
-    error.statusCode = 400;
-    error.field = 'phoneNumber';
-    throw error;
-  }
-
-  const language = payload.language || 'en';
-  const subscriber = {
-    phoneNumber,
-    language,
-    subscribedAt: new Date().toISOString(),
-    status: 'active'
-  };
-
-  smsSubscribers.set(phoneNumber, subscriber);
-
-  return {
-    success: true,
-    message: `SMS job notification subscription confirmed for ${phoneNumber}`,
-    subscriber,
-    isSimulated: true,
-    gatewayNotice: 'SIMULATED SMS GATEWAY — Supports low-bandwidth feature-phone access via Africa\'s Talking or Twilio integration.'
-  };
+  return notificationService.subscribeSms(payload);
 }
 
-/**
- * Simulates sending an SMS job alert
- * @param {string} jobId
- * @param {string} phoneNumber
- * @param {string} [lang='en']
- * @returns {Object} Dispatch receipt
- */
 function sendJobSMS(jobId, phoneNumber, lang = 'en') {
   const job = getJobById(jobId, lang);
   if (!job) {
@@ -601,21 +406,7 @@ function sendJobSMS(jobId, phoneNumber, lang = 'en') {
     error.statusCode = 404;
     throw error;
   }
-
-  const sms = formatJobSMS(job, lang);
-  const now = new Date().toISOString();
-
-  return {
-    success: true,
-    phoneNumber,
-    messageId: `SMS-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
-    status: 'simulated_delivered',
-    segmentCount: sms.segments,
-    messageText: sms.text,
-    deliveredAt: now,
-    isSimulated: true,
-    deliveryNotice: 'SIMULATED SMS DISPATCH: Low-bandwidth SMS alert formatted and logged. No real carrier fees charged.'
-  };
+  return notificationService.sendSmsJobAlert(job, phoneNumber, lang);
 }
 
 module.exports = {
