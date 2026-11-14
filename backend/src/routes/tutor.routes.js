@@ -1,6 +1,6 @@
 /**
- * Tutor Routes
- * Handles /api/tutor/ask endpoints
+ * Tutor Routes (Phase 2 Enhanced)
+ * Handles /api/tutor/ask endpoints with simple-language mode, grounded sources, and refusal handling.
  */
 
 const express = require('express');
@@ -13,6 +13,7 @@ const { askTutor } = require('../services/ai.service');
  * {
  *   "question": "string (required)",
  *   "language": "en | am (optional)",
+ *   "simplify": boolean (optional - default false),
  *   "context": {
  *     "courseTitle": "string",
  *     "moduleTitle": "string",
@@ -24,13 +25,15 @@ const { askTutor } = require('../services/ai.service');
  * {
  *   "answer": "string",
  *   "language": "en | am",
- *   "sources": [ { "courseTitle", "moduleTitle", "lessonTitle", "snippet" } ],
- *   "mode": "mock_demo | offline_faq | cloud_ai | local_ai"
+ *   "sources": [ { "courseTitle", "moduleTitle", "lessonTitle", "snippet", "score" } ],
+ *   "mode": "mock_demo | offline_faq | cloud_ai | local_ai | unsupported_refusal",
+ *   "isGrounded": boolean,
+ *   "simplified": boolean
  * }
  */
 router.post('/ask', async (req, res, next) => {
   try {
-    const { question, language, context } = req.body;
+    const { question, language, context, simplify } = req.body;
 
     if (!question || typeof question !== 'string' || question.trim().length === 0) {
       return res.status(400).json({
@@ -50,9 +53,12 @@ router.post('/ask', async (req, res, next) => {
       };
     }
 
+    const shouldSimplify = Boolean(simplify || req.body.simplified || req.query.simplify === 'true');
+
     const result = await askTutor({
       question: question.trim(),
       language,
+      simplify: shouldSimplify,
       context: normalizedContext
     });
 
@@ -63,4 +69,3 @@ router.post('/ask', async (req, res, next) => {
 });
 
 module.exports = router;
-

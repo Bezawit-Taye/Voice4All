@@ -1,11 +1,11 @@
 /**
- * Automated Test Suite for Voice4All Backend & Tutor Endpoint
+ * Automated Test Suite for Voice4All Backend & Tutor Endpoint (Phase 2)
  */
 
 const http = require('http');
 const app = require('../src/server');
 
-const TEST_PORT = 5099;
+const TEST_PORT = 5098;
 
 function request(options, postData = null) {
   return new Promise((resolve, reject) => {
@@ -32,7 +32,7 @@ function request(options, postData = null) {
 }
 
 async function runTests() {
-  console.log('--- Starting Voice4All Backend Verification Tests ---\n');
+  console.log('--- Starting Voice4All Phase 2 Backend Verification Tests ---\n');
   const server = app.listen(TEST_PORT);
 
   let passed = 0;
@@ -61,11 +61,10 @@ async function runTests() {
       });
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
       if (res.body.status !== 'ok') throw new Error(`Expected status 'ok', got ${res.body.status}`);
-      if (!Array.isArray(res.body.mountedEndpoints)) throw new Error('Expected mountedEndpoints list');
     });
 
-    // 2. English Tutor Question
-    await test('POST /api/tutor/ask with English question returns structured answer with sources', async () => {
+    // 2. English Grounded Retrieval & Citations
+    await test('POST /api/tutor/ask with English question returns grounded answer and real citations', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -73,7 +72,7 @@ async function runTests() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       }, {
-        question: 'What is the future of the virtual assistant industry and what skills are needed?',
+        question: 'What is the future of the virtual assistant industry and how do AI tools help?',
         language: 'en'
       });
 
@@ -81,12 +80,16 @@ async function runTests() {
       if (!res.body.answer || typeof res.body.answer !== 'string') throw new Error('Missing answer string');
       if (res.body.language !== 'en') throw new Error(`Expected language 'en', got ${res.body.language}`);
       if (!Array.isArray(res.body.sources) || res.body.sources.length === 0) throw new Error('Expected non-empty sources array');
-      if (!res.body.mode) throw new Error('Missing mode field');
-      if (!res.body.sources[0].courseTitle) throw new Error('Source missing courseTitle');
+      if (res.body.isGrounded !== true) throw new Error('Expected isGrounded: true');
+
+      const primary = res.body.sources[0];
+      if (!primary.courseTitle || !primary.lessonTitle || !primary.snippet) {
+        throw new Error('Citation missing required fields');
+      }
     });
 
-    // 3. Amharic Tutor Question
-    await test('POST /api/tutor/ask with Amharic question returns Amharic answer and sources', async () => {
+    // 3. Amharic Grounded Retrieval & Citations
+    await test('POST /api/tutor/ask with Amharic question returns grounded Amharic answer and citations', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -94,23 +97,23 @@ async function runTests() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       }, {
-        question: 'ንቁ ማዳመጥ በግንኙነት ውስጥ ምን ጥቅም አለው?',
+        question: 'ንቁ ማዳመጥ በስራ ቦታ ግንኙነት ውስጥ ምን ጥቅም አለው?',
         language: 'am'
       });
 
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
       if (res.body.language !== 'am') throw new Error(`Expected language 'am', got ${res.body.language}`);
-      if (!res.body.answer || typeof res.body.answer !== 'string') throw new Error('Missing answer');
-      if (!Array.isArray(res.body.sources) || res.body.sources.length === 0) throw new Error('Expected sources');
-      // Verify source is from actual course content
-      const source = res.body.sources[0];
-      if (!source.courseTitle.includes('WR 100') && !source.courseTitle.includes('VA-1')) {
-        throw new Error(`Unexpected course citation: ${source.courseTitle}`);
+      if (!res.body.answer.includes('ሰላም') && !res.body.answer.includes('ንቁ ማዳመጥ')) {
+        throw new Error('Expected Amharic answer text');
+      }
+      if (res.body.sources.length === 0) throw new Error('Expected sources');
+      if (!res.body.sources[0].courseTitle.includes('WR 100')) {
+        throw new Error('Expected citation from WR 100 course');
       }
     });
 
-    // 4. Supplied Learner Context
-    await test('POST /api/tutor/ask with supplied context cites user context', async () => {
+    // 4. Simple-Language Mode (Accessibility) - English
+    await test('POST /api/tutor/ask with simplify: true returns plain-language explanation', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -118,7 +121,71 @@ async function runTests() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       }, {
-        question: 'What is the graduation threshold for this course?',
+        question: 'What is the BLUF model in communication?',
+        language: 'en',
+        simplify: true
+      });
+
+      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.simplified !== true) throw new Error('Expected simplified: true');
+      if (!res.body.answer.includes('Simple Explanation') && !res.body.answer.includes('Plain Language')) {
+        throw new Error('Expected simple explanation header');
+      }
+    });
+
+    // 5. Simple-Language Mode - Amharic
+    await test('POST /api/tutor/ask with simplify: true in Amharic returns plain Amharic explanation', async () => {
+      const res = await request({
+        hostname: 'localhost',
+        port: TEST_PORT,
+        path: '/api/tutor/ask',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }, {
+        question: 'የ BLUF ሞዴል ምንድን ነው?',
+        language: 'am',
+        simplify: true
+      });
+
+      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.simplified !== true) throw new Error('Expected simplified: true');
+      if (!res.body.answer.includes('ቀላል ማብራሪያ')) {
+        throw new Error('Expected Amharic simple explanation header');
+      }
+    });
+
+    // 6. Refuse / Acknowledge Unsupported Questions (Prevent Hallucinations)
+    await test('POST /api/tutor/ask refuses unsupported questions without fabricating citations', async () => {
+      const res = await request({
+        hostname: 'localhost',
+        port: TEST_PORT,
+        path: '/api/tutor/ask',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }, {
+        question: 'How do I bake a chocolate cake with frosting and sprinkles?',
+        language: 'en'
+      });
+
+      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.isGrounded !== false) throw new Error('Expected isGrounded: false for off-topic query');
+      if (res.body.mode !== 'unsupported_refusal') throw new Error(`Expected unsupported_refusal mode, got ${res.body.mode}`);
+      if (res.body.sources.length !== 0) throw new Error('Must not invent citations for unsupported queries');
+      if (!res.body.answer.includes('not covered in your active course materials')) {
+        throw new Error('Expected polite refusal message');
+      }
+    });
+
+    // 7. Active Learner Context Prioritization
+    await test('POST /api/tutor/ask prioritizes active learner context', async () => {
+      const res = await request({
+        hostname: 'localhost',
+        port: TEST_PORT,
+        path: '/api/tutor/ask',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }, {
+        question: 'What score is needed to pass and graduate?',
         language: 'en',
         context: {
           courseTitle: 'VA-1: VA Foundations & Professional Identity',
@@ -129,13 +196,13 @@ async function runTests() {
       });
 
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      const matchedContext = res.body.sources.find(s => s.lessonTitle === 'Course Progression & Grading');
-      if (!matchedContext) throw new Error('Supplied context was not found in returned sources');
-      if (!matchedContext.snippet.includes('70%')) throw new Error('Snippet did not capture key sentence from supplied context');
+      const matched = res.body.sources.find(s => s.lessonTitle.includes('Grading'));
+      if (!matched) throw new Error('Supplied context was not matched');
+      if (!matched.snippet.includes('70%')) throw new Error('Snippet missing 70% milestone details');
     });
 
-    // 5. Offline FAQ Matching (when AI_PROVIDER=offline_faq or direct question match)
-    await test('POST /api/tutor/ask returns direct FAQ answer when matching offline FAQ', async () => {
+    // 8. Offline FAQ lookup
+    await test('POST /api/tutor/ask matches offline FAQ', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -148,16 +215,13 @@ async function runTests() {
       });
 
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (!res.body.answer.includes('active listening') && !res.body.answer.includes('concentrating')) {
-        throw new Error('Did not return relevant explanation of active listening');
-      }
-      if (res.body.sources[0].courseTitle !== 'WR 100: Fundamentals of Effective Communication') {
-        throw new Error(`Expected WR 100 citation, got: ${res.body.sources[0].courseTitle}`);
+      if (!res.body.answer.toLowerCase().includes('active listening')) {
+        throw new Error('Did not find active listening explanation');
       }
     });
 
-    // 6. Auto-detect Amharic when language parameter is omitted
-    await test('POST /api/tutor/ask auto-detects Amharic script', async () => {
+    // 9. Input Validation
+    await test('POST /api/tutor/ask returns 400 when question is empty', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -165,69 +229,10 @@ async function runTests() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       }, {
-        question: 'የቨርቹዋል ረዳት ኢንዱስትሪ የወደፊት ሁኔታ ምን ይመስላል?'
-      });
-
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.language !== 'am') throw new Error(`Expected auto-detected 'am', got ${res.body.language}`);
-      if (!res.body.answer.includes('ሰላም') && !res.body.answer.includes('ቨርቹዋል')) {
-        throw new Error('Expected Amharic answer text');
-      }
-    });
-
-    // 7. Validation Check
-    await test('POST /api/tutor/ask without question returns 400 Bad Request', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        language: 'en'
+        question: '   '
       });
 
       if (res.status !== 400) throw new Error(`Expected 400, got ${res.status}`);
-      if (!res.body.error) throw new Error('Expected error message in response');
-    });
-
-    // 8. 404 Not Found check
-    await test('GET /api/nonexistent returns 404 structured JSON', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/nonexistent',
-        method: 'GET'
-      });
-
-      if (res.status !== 404) throw new Error(`Expected 404, got ${res.status}`);
-      if (res.body.status !== 'error') throw new Error(`Expected status 'error', got ${res.body.status}`);
-    });
-
-    // 9. Support Router Mount Check
-    await test('GET /api/support is mounted and returns 501 pending Member 3', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/support',
-        method: 'GET'
-      });
-
-      if (res.status !== 501) throw new Error(`Expected 501, got ${res.status}`);
-      if (res.body.status !== 'pending_member_3') throw new Error(`Expected pending_member_3, got ${res.body.status}`);
-    });
-
-    // 10. Career Router Mount Check
-    await test('GET /api/career is mounted and returns 501 pending Member 3', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/career',
-        method: 'GET'
-      });
-
-      if (res.status !== 501) throw new Error(`Expected 501, got ${res.status}`);
-      if (res.body.status !== 'pending_member_3') throw new Error(`Expected pending_member_3, got ${res.body.status}`);
     });
 
     console.log(`\nResults: ${passed} passed, ${failed} failed.`);

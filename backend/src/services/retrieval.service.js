@@ -1,7 +1,7 @@
 /**
- * Retrieval Service
- * Responsible for searching course content and extracting relevant lesson sources.
- * Adheres strictly to factual citations from supplied course content and learner context.
+ * Retrieval Service (Phase 2 Enhanced)
+ * Searches actual course materials from Savanna knowledge base and active learner context.
+ * Computes relevance confidence and prevents fabricated or hallucinated citations.
  */
 
 const fs = require('fs');
@@ -9,60 +9,71 @@ const path = require('path');
 
 const COURSE_DATA_PATH = path.join(__dirname, '..', '..', 'data', 'course-content.json');
 
+// Common stopwords to filter for higher signal-to-noise ratio in search
+const STOPWORDS = new Set([
+  'what', 'is', 'are', 'the', 'a', 'an', 'in', 'on', 'of', 'for', 'and', 'or',
+  'to', 'this', 'that', 'with', 'from', 'by', 'at', 'it', 'its', 'as', 'do',
+  'does', 'how', 'why', 'who', 'when', 'where', 'which', 'be', 'been', 'can',
+  'could', 'would', 'should', 'about', 'my', 'your', 'tell', 'me', 'please',
+  'explain', 'give', 'like'
+]);
+
+// Minimum score threshold to consider a question relevant to the course
+const RELEVANCE_THRESHOLD = 3.0;
+
 /**
- * Loads course content from disk
+ * Loads course content from disk safely
  */
 function loadCourseContent() {
   try {
     const rawData = fs.readFileSync(COURSE_DATA_PATH, 'utf-8');
     return JSON.parse(rawData);
   } catch (error) {
-    console.error('Error loading course content from', COURSE_DATA_PATH, error.message);
+    console.error('[Retrieval] Error loading course content:', error.message);
     return [];
   }
 }
 
-const STOPWORDS = new Set([
-  'what', 'is', 'are', 'the', 'a', 'an', 'in', 'on', 'of', 'for', 'and', 'or',
-  'to', 'this', 'that', 'with', 'from', 'by', 'at', 'it', 'its', 'as', 'do',
-  'does', 'how', 'why', 'who', 'when', 'where', 'which', 'be', 'been', 'can'
-]);
-
 /**
- * Tokenize text into normalized search terms (supporting English and Amharic)
+ * Tokenize text into search terms (English & Ethiopic characters)
  * @param {string} text
  * @param {boolean} [filterStopwords=true]
  * @returns {string[]}
  */
 function tokenize(text, filterStopwords = true) {
   if (!text || typeof text !== 'string') return [];
-  // Split on whitespace and common punctuation, retaining Ethiopic & Latin characters
-  const rawTokens = text
+  const raw = text
     .toLowerCase()
     .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'፡።፣፤]/g, ' ')
     .split(/\s+/)
-    .filter((word) => word.length > 1);
+    .filter((w) => w.length > 1);
 
-  if (!filterStopwords) return rawTokens;
-  const filtered = rawTokens.filter((token) => !STOPWORDS.has(token));
-  return filtered.length > 0 ? filtered : rawTokens;
+  if (!filterStopwords) return raw;
+  const filtered = raw.filter((w) => !STOPWORDS.has(w));
+  return filtered.length > 0 ? filtered : raw;
 }
 
 /**
- * Computes overlap score between query tokens and target text
+ * Computes detailed relevance score between query tokens and candidate text
  * @param {string[]} queryTokens
  * @param {string} targetText
+ * @param {string} fullQuery
  * @returns {number}
  */
-function computeScore(queryTokens, targetText) {
+function computeScore(queryTokens, targetText, fullQuery = '') {
   if (!targetText || queryTokens.length === 0) return 0;
   const targetLower = targetText.toLowerCase();
   let score = 0;
 
+  // Exact full phrase bonus
+  if (fullQuery && fullQuery.length > 4 && targetLower.includes(fullQuery.toLowerCase())) {
+    score += 8.0;
+  }
+
+  // Token matches
   for (const token of queryTokens) {
-    // Exact word or substring match
     if (targetLower.includes(token)) {
-      score += 2;
+      score += 2.0;
     }
   }
 
@@ -76,11 +87,10 @@ function computeScore(queryTokens, targetText) {
  * @param {number} maxWords
  * @returns {string}
  */
-function extractSnippet(fullText, queryTokens, maxWords = 45) {
+function extractSnippet(fullText, queryTokens, maxWords = 50) {
   if (!fullText) return '';
   const sentences = fullText.split(/(?<=[.!?።])\s+/);
   
-  // Find sentence with highest token hit
   let bestSentence = sentences[0] || fullText;
   let maxHits = -1;
 
@@ -96,7 +106,6 @@ function extractSnippet(fullText, queryTokens, maxWords = 45) {
     }
   }
 
-  // Trim to max words if overly long
   const words = bestSentence.split(/\s+/);
   if (words.length > maxWords) {
     return words.slice(0, maxWords).join(' ') + '...';
@@ -106,12 +115,13 @@ function extractSnippet(fullText, queryTokens, maxWords = 45) {
 
 /**
  * Search the course catalog and optional user-provided context
+ * Returns retrieved sources along with relevance confidence.
  * @param {string} question
  * @param {object} options
  * @param {string} [options.language='en']
  * @param {object} [options.context]
  * @param {number} [options.limit=3]
- * @returns {Array<object>} list of retrieved sources
+ * @returns {{ sources: Array<object>, isRelevant: boolean, topScore: number }}
  */
 function retrieveSources(question, options = {}) {
   const language = options.language === 'am' ? 'am' : 'en';
@@ -119,23 +129,27 @@ function retrieveSources(question, options = {}) {
   const courseItems = loadCourseContent();
   const candidates = [];
 
-  // 1. Evaluate supplied learner context if present
-  // When the student is currently reading a lesson, their question is primarily in that context
+  // 1. Evaluate supplied learner context (e.g. learner is currently on a specific Savanna concept)
   if (options.context && typeof options.context === 'object') {
     const ctx = options.context;
     const ctxText = ctx.lessonText || '';
     const ctxTitle = `${ctx.courseTitle || ''} ${ctx.moduleTitle || ''} ${ctx.lessonTitle || ''}`;
-    const ctxScore = (computeScore(queryTokens, ctxTitle) * 2.5) + (computeScore(queryTokens, ctxText) * 2.0) + 10.0; // Strong priority for the learner's active context
+    
+    const titleScore = computeScore(queryTokens, ctxTitle, question) * 3.0;
+    const textScore = computeScore(queryTokens, ctxText, question) * 2.0;
+    const ctxTotal = titleScore + textScore;
 
     if (ctxText || ctx.lessonTitle) {
+      // If the question actually overlaps with the learner's current page, give strong boost
+      const activeBoost = ctxTotal > 0 ? 12.0 : 0.5;
       candidates.push({
         id: 'provided-context',
         courseTitle: ctx.courseTitle || 'Current Course',
         moduleTitle: ctx.moduleTitle || 'Current Module',
         lessonTitle: ctx.lessonTitle || 'Current Lesson',
         snippet: extractSnippet(ctxText || ctxTitle, queryTokens),
-        score: ctxScore,
-        fullContent: ctxText,
+        score: ctxTotal + activeBoost,
+        simpleExplanation: '',
         isContextSource: true
       });
     }
@@ -147,10 +161,9 @@ function retrieveSources(question, options = {}) {
     const keywords = (item.keywords || []).join(' ');
     const titleText = `${item.courseTitle} ${item.moduleTitle} ${item.lessonTitle}`;
 
-    // Token score
-    const textScore = computeScore(queryTokens, textToSearch);
-    const titleScore = computeScore(queryTokens, titleText) * 2;
-    const keywordScore = computeScore(queryTokens, keywords) * 1.5;
+    const textScore = computeScore(queryTokens, textToSearch, question);
+    const titleScore = computeScore(queryTokens, titleText, question) * 2.5;
+    const keywordScore = computeScore(queryTokens, keywords, question) * 2.0;
     const totalScore = textScore + titleScore + keywordScore;
 
     if (totalScore > 0) {
@@ -161,54 +174,33 @@ function retrieveSources(question, options = {}) {
         lessonTitle: item.lessonTitle,
         snippet: extractSnippet(textToSearch, queryTokens),
         score: totalScore,
-        fullContent: textToSearch,
-        isContextSource: false,
-        faqs: item.faqs || []
-      });
-    }
-  }
-
-  // 3. Sort by score descending
-  candidates.sort((a, b) => b.score - a.score);
-
-  // If no hits at all, fallback to the first course item or supplied context
-  if (candidates.length === 0) {
-    if (options.context && options.context.lessonTitle) {
-      candidates.push({
-        id: 'provided-context',
-        courseTitle: options.context.courseTitle || 'Current Course',
-        moduleTitle: options.context.moduleTitle || 'Current Module',
-        lessonTitle: options.context.lessonTitle || 'Current Lesson',
-        snippet: options.context.lessonText ? options.context.lessonText.slice(0, 150) + '...' : '',
-        score: 0.1,
-        fullContent: options.context.lessonText || '',
-        isContextSource: true
-      });
-    } else if (courseItems.length > 0) {
-      const fallback = courseItems[0];
-      const text = language === 'am' ? (fallback.content_am || fallback.content) : fallback.content;
-      candidates.push({
-        id: fallback.id,
-        courseTitle: fallback.courseTitle,
-        moduleTitle: fallback.moduleTitle,
-        lessonTitle: fallback.lessonTitle,
-        snippet: text.slice(0, 150) + '...',
-        score: 0.1,
-        fullContent: text,
+        simpleExplanation: language === 'am' ? item.simple_explanation_am : item.simple_explanation_en,
         isContextSource: false
       });
     }
   }
 
-  // Return formatted sources respecting limit
+  // 3. Sort candidates by relevance score descending
+  candidates.sort((a, b) => b.score - a.score);
+
+  const topScore = candidates.length > 0 ? candidates[0].score : 0;
+  const isRelevant = topScore >= RELEVANCE_THRESHOLD;
+
   const limit = options.limit || 3;
-  return candidates.slice(0, limit).map((cand) => ({
+  const sources = (isRelevant ? candidates.slice(0, limit) : []).map((cand) => ({
     courseTitle: cand.courseTitle,
     moduleTitle: cand.moduleTitle,
     lessonTitle: cand.lessonTitle,
     snippet: cand.snippet,
-    score: parseFloat(cand.score.toFixed(2))
+    score: parseFloat(cand.score.toFixed(2)),
+    simpleExplanation: cand.simpleExplanation || ''
   }));
+
+  return {
+    sources,
+    isRelevant,
+    topScore
+  };
 }
 
 /**
@@ -219,7 +211,7 @@ function retrieveSources(question, options = {}) {
  */
 function findFaqMatch(question, language = 'en') {
   const items = loadCourseContent();
-  const qTokens = tokenize(question);
+  const qTokens = tokenize(question, true);
   if (qTokens.length === 0) return null;
 
   let bestMatch = null;
@@ -232,7 +224,7 @@ function findFaqMatch(question, language = 'en') {
       const faqQ = language === 'am' ? faq.question_am : faq.question_en;
       if (!faqQ) continue;
 
-      const faqTokens = tokenize(faqQ);
+      const faqTokens = tokenize(faqQ, true);
       let hits = 0;
       for (const t of qTokens) {
         if (faqTokens.includes(t)) hits++;
@@ -249,7 +241,8 @@ function findFaqMatch(question, language = 'en') {
             courseTitle: item.courseTitle,
             moduleTitle: item.moduleTitle,
             lessonTitle: item.lessonTitle,
-            snippet: answer
+            snippet: answer,
+            score: parseFloat((ratio * 10).toFixed(2))
           }
         };
       }
@@ -263,5 +256,6 @@ module.exports = {
   loadCourseContent,
   retrieveSources,
   findFaqMatch,
-  tokenize
+  tokenize,
+  RELEVANCE_THRESHOLD
 };

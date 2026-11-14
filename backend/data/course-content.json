@@ -1,77 +1,125 @@
 [
   {
-    "id": "va1-m1-l1",
+    "id": "va1-m2-future-va",
     "courseTitle": "VA-1: VA Foundations & Professional Identity",
-    "moduleTitle": "Module 1: The Modern Virtual Assistant",
+    "moduleTitle": "Module 2: The Modern Virtual Assistant",
     "lessonTitle": "The Future of the VA Industry",
-    "summary": "Overview of how remote work, AI tools, and specialization are shaping the future of virtual assistance.",
-    "content": "The Virtual Assistant (VA) industry has evolved from basic administrative support into specialized digital partnerships. Modern VAs operate as proactive problem-solvers who integrate AI productivity tools, manage asynchronous communication across global timezones, and deliver high-value support in project management, executive administration, and digital marketing. Key success factors include technological adaptability, emotional intelligence, confidentiality, and dependable delivery.",
-    "content_am": "የቨርቹዋል ረዳት (VA) ኢንዱስትሪ ከመደበኛ የአስተዳደር ድጋፍ ወደ ልዩ የዲጂታል አጋርነት ተሸጋግሯል። የዘመኑ ቨርቹዋል ረዳቶች የሰው ሰራሽ አስተዋፅኦ (AI) መሣሪያዎችን የሚጠቀሙ፣ በዓለም ዙሪያ ካሉ የተለያዩ የሰዓት ቀጠናዎች ጋር በተመሳሳይ ያልሆነ (asynchronous) ግንኙነት የሚያደርጉ እና በፕሮጀክት አመራር፣ በከፍተኛ አመራር ድጋፍ እና በዲጂታል ግብይት ውስጥ ከፍተኛ ዋጋ ያለው ድጋፍ የሚሰጡ ባለሙያዎች ናቸው። ለስኬት ወሳኝ የሆኑት የቴክኖሎጂ ተለዋዋጭነት፣ የስሜት ብልህነት (emotional intelligence)፣ ሚስጥራዊነትን መጠበቅ እና አስተማማኝ አፈፃፀም ናቸው።",
+    "summary": "Core concept covering how remote work, digital operations, and artificial intelligence are transforming the virtual assistant profession.",
+    "content": "The Virtual Assistant profession is not shrinking; it is evolving. As businesses become more digital, more global, and more comfortable with remote collaboration, the need for skilled support professionals continues to grow. At the same time, new technologies like Artificial Intelligence are changing how support work gets done and what clients value most. Key drivers shaping the future include remote-first businesses, growing demand for flexible scalable support, expanding digital operations, rising specialization in niche domains (such as project coordination, customer care, and operations), and AI-powered productivity. Qualities like human judgment, reliability, communication, empathy, and proactive problem-solving become even more valuable as routine tasks automate.",
+    "content_am": "የቨርቹዋል ረዳት (VA) ሙያ እየቀነሰ አይደለም፤ ይልቁንም እያደገ እና እየተለወጠ ነው። የንግድ ድርጅቶች ይበልጥ ዲጂታል፣ ዓለም አቀፋዊ እና በርቀት ስራ ላይ ምቹ እየሆኑ ሲመጡ፣ የሰለጠኑ የድጋፍ ባለሙያዎች ፍላጎት እየጨመረ ነው። በተመሳሳይ ጊዜ እንደ አርቴፊሻል ኢንተለጀንስ (AI) ያሉ አዳዲስ ቴክኖሎጂዎች የድጋፍ ስራዎች እንዴት እንደሚከናወኑ እና ደንበኞች ምን እንደሚፈልጉ እየቀየሩት ነው። የወደፊቱን የሚቀርጹት ዋና ዋና ጉዳዮች የርቀት ስራ መስፋፋት፣ ተለዋዋጭ እና በቀላሉ የሚጨምር ድጋፍ ፍላጎት፣ ዲጂታል አሰራሮች፣ የሙያ ልዩ ሙያዎች (እንደ ፕሮጀክት ቅንጅት እና ኦፕሬሽንስ) እና በ AI የታገዘ ምርታማነት ናቸው። መደበኛ ስራዎች በቴክኖሎጂ ሲተኩ የሰው ልጅ አስተዋይነት፣ አስተማማኝነት፣ ግንኙነት፣ ርህራሄ እና ችግር ፈቺነት የበለጠ ዋጋ ያገኛሉ።",
+    "simple_explanation_en": "The virtual assistant job is growing, not disappearing. Computers and AI help with repetitive work like typing and scheduling, which means human assistants are valued most for being caring, trustworthy, solving unexpected problems, and communicating clearly.",
+    "simple_explanation_am": "የቨርቹዋል ረዳት ስራ አይጠፋም፤ ይልቁንም እየዘመነ ነው። ኮምፒውተሮች እና AI ተደጋጋሚ ስራዎችን ያቀላሉ፤ ስለዚህ የሰው ረዳቶች በደንበኞች የሚወደዱት በታማኝነታቸው፣ ሰዎችን በሚገባ በማዳመጣቸው እና ችግሮችን በብልሃት በመፍታታቸው ነው።",
     "keywords": [
       "virtual assistant",
       "va industry",
       "future",
       "remote work",
-      "ai tools",
-      "asynchronous communication",
+      "digital operations",
+      "evolution",
+      "specialization",
+      "flexibility",
       "ቨርቹዋል ረዳት",
       "የስራ እድል",
       "የርቀት ስራ",
+      "የወደፊት ሁኔታ",
       "ቴክኖሎጂ"
     ],
     "faqs": [
       {
-        "question_en": "What is the future of the VA industry?",
-        "question_am": "የቨርቹዋል ረዳት ኢንዱስትሪ የወደፊት ሁኔታ ምን ይመስላል?",
-        "answer_en": "The VA industry is shifting toward specialized digital services, AI-assisted workflows, and strategic administrative support across global remote teams.",
-        "answer_am": "የቨርቹዋል ረዳት ኢንዱስትሪ ወደ ልዩ የዲጂታል አገልግሎቶች፣ በ AI የታገዙ የአሰራር ሂደቶች እና ዓለም አቀፍ የርቀት የስራ ቡድኖችን ወደ መደገፍ እየተሸጋገረ ነው።"
+        "question_en": "Is the virtual assistant profession shrinking or growing?",
+        "question_am": "የቨርቹዋል ረዳት ሙያ እየቀነሰ ነው ወይስ እያደገ?",
+        "answer_en": "The Virtual Assistant profession is not shrinking; it is evolving. Growing remote-first businesses and digital operations have increased the demand for skilled, flexible support professionals.",
+        "answer_am": "የቨርቹዋል ረዳት ሙያ እየቀነሰ አይደለም፤ ይልቁንም እያደገ ነው። የርቀት ስራ እና ዲጂታል አሰራሮች መስፋፋት የሰለጠኑ ረዳቶች ፍላጎት እንዲጨምር አድርጓል።"
       },
       {
-        "question_en": "What skills are needed for modern virtual assistants?",
-        "question_am": "ለዘመናዊ ቨርቹዋል ረዳት ምን ዓይነት ክህሎቶች ያስፈልጋሉ?",
-        "answer_en": "Key skills include technological adaptability, proactive problem solving, emotional intelligence, data confidentiality, and asynchronous communication.",
-        "answer_am": "ዋናዎቹ ክህሎቶች የቴክኖሎጂ ተለዋዋጭነት፣ ቅድመ-ተነሳሽነት ያለው ችግር ፈቺነት፣ የስሜት ብልህነት፣ ሚስጥራዊነትን መጠበቅ እና ውጤታማ ግንኙነት ናቸው።"
+        "question_en": "What forces are shaping the future of virtual assistant work?",
+        "question_am": "የቨርቹዋል ረዳት ስራን የወደፊት ሁኔታ የሚቀርጹት ዋና ዋና ነገሮች ምንድን ናቸው?",
+        "answer_en": "The key forces are remote-first businesses, demand for flexible scalable teams, digital operations, rising domain specialization, AI-powered productivity, and greater value on human judgment and empathy.",
+        "answer_am": "ዋናዎቹ ምክንያቶች የርቀት ስራ መስፋፋት፣ ተለዋዋጭ የስራ ቡድኖች ፍላጎት፣ ዲጂታል አሰራሮች፣ የሙያ ልዩ ችሎታዎች፣ በ AI የታገዘ ምርታማነት እና የሰው ልጅ ስሜታዊ ብልህነት ናቸው።"
       }
     ]
   },
   {
-    "id": "va1-m1-l2",
+    "id": "va1-m2-ai-distinction",
     "courseTitle": "VA-1: VA Foundations & Professional Identity",
-    "moduleTitle": "Module 1: The Modern Virtual Assistant",
-    "lessonTitle": "Client Confidentiality and Ethics",
-    "summary": "Best practices for data security, non-disclosure agreements, and ethical boundaries in remote work.",
-    "content": "Confidentiality forms the bedrock of client trust in remote assistance. Virtual assistants handle sensitive corporate documents, financial records, client credentials, and proprietary strategy plans. Key ethical guidelines require implementing two-factor authentication, avoiding unauthorized data sharing, signing non-disclosure agreements (NDAs), and maintaining professional boundaries in all client interactions.",
-    "content_am": "ሚስጥራዊነት በቨርቹዋል ረዳትነት ስራ ውስጥ የደንበኛ እምነት መሰረት ነው። ቨርቹዋል ረዳቶች ሚስጥራዊ የሆኑ የኩባንያ ሰነዶችን፣ የፋይናንስ መረጃዎችን፣ የይለፍ ቃሎችን እና ስትራቴጂካዊ ዕቅዶችን ይይዛሉ። ዋናዎቹ የስነ-ምግባር መርሆዎች ባለ ሁለት ደረጃ ማረጋገጫ (2FA) መጠቀምን፣ ያልተፈቀደ የመረጃ ልውውጥን ማስወገድን፣ ሚስጥር የመጠበቅ ስምምነቶችን (NDA) መፈረምን እና ሙያዊ ወሰኖችን ማክበርን ያካትታሉ።",
+    "moduleTitle": "Module 2: The Modern Virtual Assistant",
+    "lessonTitle": "An Important Distinction: AI vs Human VAs",
+    "summary": "Clarifying the difference between AI software assistants (chatbots) and human remote professionals, and how they collaborate.",
+    "content": "Virtual Assistant can mean two fundamentally different things. In technical reports, a 'virtual assistant' often refers to AI software tools, chatbots, voice assistants, and digital agents (such as Siri, Alexa, or automated customer bots). In workplace and professional contexts, it refers to human remote professionals who provide comprehensive business support online. The future of the industry includes both, and increasingly, they work together: AI software provides fast automation, while human VAs provide strategic oversight, empathetic client care, and ethical judgment.",
+    "content_am": "ቨርቹዋል ረዳት (Virtual Assistant) የሚለው ቃል ሁለት የተለያዩ ነገሮችን ሊያመለክት ይችላል። በአንዳንድ የቴክኖሎጂ ጽሑፎች 'ቨርቹዋል ረዳት' ማለት የ AI ሶፍትዌሮች፣ ቻትቦቶች፣ የድምፅ ረዳቶች እና ዲጂታል ወኪሎች (እንደ Siri፣ Alexa) ማለት ነው። በስራ ቦታ እና በሙያዊ አውድ ውስጥ ግን በመስመር ላይ ሁሉን አቀፍ የንግድ ድጋፍ የሚሰጡ የሰው የርቀት ባለሙያዎችን ያመለክታል። የወደፊቱ ጊዜ ሁለቱንም የሚያካትት ሲሆን ተቀናጅተው ይሰራሉ፡ AI ሶፍትዌር ፈጣን አውቶሜሽን ይሰጣል፣ የሰው ቨርቹዋል ረዳቶች ደግሞ ስትራቴጂካዊ ቁጥጥር፣ ርህራሄ የተሞላበት የደንበኞች እንክብካቤ እና ስነ-ምግባራዊ ውሳኔዎችን ይሰጣሉ።",
+    "simple_explanation_en": "A virtual assistant can mean a robot program like a chatbot, or a real human working remotely. In this course, it means a real person who uses smart computer tools to help businesses run smoothly.",
+    "simple_explanation_am": "ቨርቹዋል ረዳት ማለት እንደ ቻትቦት ያለ የኮምፒውተር ፕሮግራም ሊሆን ይችላል፣ ወይም ከሩቅ ሆኖ በኮምፒውተር የሚሰራ እውነተኛ ሰው ነው። በዚህ ትምህርት ውስጥ ድርጅቶችን ለመርዳት ቴክኖሎጂን የሚጠቀም እውነተኛ የሰው ባለሙያ ማለት ነው።",
     "keywords": [
-      "confidentiality",
-      "ethics",
-      "nda",
-      "data security",
-      "passwords",
-      "trust",
-      "ሚስጥራዊነት",
-      "ስነ-ምግባር",
-      "ደህንነት",
-      "የይለፍ ቃል",
-      "እምነት"
+      "distinction",
+      "ai vs human",
+      "chatbots",
+      "software assistants",
+      "human professionals",
+      "collaboration",
+      "ልዩነት",
+      "ሶፍትዌር",
+      "የሰው ረዳት",
+      "ቻትቦት"
     ],
     "faqs": [
       {
-        "question_en": "Why is client confidentiality critical for a VA?",
-        "question_am": "ለቨርቹዋል ረዳት የደንበኛ ሚስጥር መጠበቅ ለምን አስፈላጊ ሆነ?",
-        "answer_en": "Client confidentiality protects proprietary business data and client privacy, serving as the essential foundation of professional trust.",
-        "answer_am": "የደንበኛ ሚስጥራዊነት የንግድ ድርጅቱን መረጃ እና የግል ደህንነት የሚጠብቅ ሲሆን የሙያዊ እምነት መሰረት ነው።"
+        "question_en": "What is the difference between an AI assistant and a human virtual assistant?",
+        "question_am": "በ AI ረዳት እና በሰው ቨርቹዋል ረዳት መካከል ያለው ልዩነት ምንድን ነው?",
+        "answer_en": "An AI assistant is software (like chatbots and automation bots), whereas a human virtual assistant is a remote professional who uses strategic judgment, empathy, and tools to support businesses.",
+        "answer_am": "የ AI ረዳት ማለት እንደ ቻትቦት ያለ ሶፍትዌር ሲሆን፣ የሰው ቨርቹዋል ረዳት ግን አስተዋይነትን እና ርህራሄን ተጠቅሞ ድርጅቶችን የሚደግፍ የርቀት የስራ ባለሙያ ነው።"
       }
     ]
   },
   {
-    "id": "wr100-m1-l1",
+    "id": "va1-m2-ai-tools-value",
+    "courseTitle": "VA-1: VA Foundations & Professional Identity",
+    "moduleTitle": "Module 2: The Modern Virtual Assistant",
+    "lessonTitle": "Artificial Intelligence in VA Work and Human Superpowers",
+    "summary": "Practical tasks AI tools can assist with, versus irreplaceable human skills in client relationships, empathy, and complex judgment.",
+    "content": "Artificial Intelligence is a productivity partner for modern virtual assistants. AI tools excel at drafting first-pass emails, summarizing lengthy meeting transcripts, organizing workflows, conducting initial research, and assisting with calendar scheduling. However, human virtual assistants remain irreplaceable in: managing client relationships with emotional intelligence, exercising discretion when priorities shift or instructions are ambiguous, handling confidential and sensitive situations, coordinating cross-functional teams, and thinking proactively to improve existing operating systems. Clients increasingly seek VAs who possess both AI fluency and strong human interpersonal skills.",
+    "content_am": "አርቴፊሻል ኢንተለጀንስ ለዘመናዊ ቨርቹዋል ረዳቶች የምርታማነት አጋር ነው። የ AI መሣሪያዎች የመጀመሪያ ረቂቅ ኢሜይሎችን ለመጻፍ፣ ረጅም የስብሰባ ቃለ-ጉባኤዎችን ለማጠቃለል፣ የስራ ፍሰቶችን ለማደራጀት፣ የመጀመሪያ ደረጃ ጥናት ለማድረግ እና የቀን መቁጠሪያዎችን ለማስተካከል በጣም ጎበዝ ናቸው። ይሁን እንጂ የሰው ቨርቹዋል ረዳቶች በሚከተሉት የማይተኩ ናቸው፡ የደንበኞችን ግንኙነት በስሜታዊ ብልህነት መምራት፣ መመሪያዎች ግልጽ ባልሆኑበት ጊዜ ትክክለኛ ውሳኔ መስጠት፣ ሚስጥራዊ እና ስሜታዊ ሁኔታዎችን መያዝ፣ ቡድኖችን ማስተባበር እና አሰራሮችን ለማሻሻል ቅድመ-ተነሳሽነት ማሳየት። ደንበኞች ሁለቱንም የ AI እውቀት እና ጠንካራ የሰው ግንኙነት ክህሎት ያላቸውን ረዳቶች ይፈልጋሉ።",
+    "simple_explanation_en": "AI is like a super-fast helper that writes notes and organizes folders, but it cannot understand feelings or make tough human decisions. The best assistants use AI tools to work faster while using their own kindness and smart thinking to keep clients happy.",
+    "simple_explanation_am": "AI ማስታወሻዎችን የሚጽፍ እና ፋይሎችን የሚያደራጅ ፈጣን ረዳት ነው፤ ነገር ግን ስሜትን መረዳት ወይም ከባድ ውሳኔዎችን መወሰን አይችልም። ምርጥ ረዳቶች ስራቸውን ለማፍጠን AIን ይጠቀማሉ፤ ደንበኞችን ለማስደሰት ደግሞ የራሳቸውን ደግነት እና ብልህነት ይጠቀማሉ።",
+    "keywords": [
+      "ai tools",
+      "human superpowers",
+      "drafting",
+      "summarizing",
+      "emotional intelligence",
+      "client care",
+      "productivity",
+      "judgment",
+      "የሰው ብልህነት",
+      "ማጠቃለል",
+      "ኢሜይል",
+      "ደንበኛ እንክብካቤ",
+      "ስሜታዊ ብልህነት"
+    ],
+    "faqs": [
+      {
+        "question_en": "How can AI tools support virtual assistants in their daily tasks?",
+        "question_am": "የ AI መሣሪያዎች ቨርቹዋል ረዳቶችን በእለት ተእለት ስራቸው እንዴት ሊረዷቸው ይችላሉ?",
+        "answer_en": "AI tools support VAs by drafting emails and documents, summarizing meetings, conducting rapid research, scheduling appointments, and organizing task workflows.",
+        "answer_am": "የ AI መሣሪያዎች ኢሜይሎችን በማርቀቅ፣ ስብሰባዎችን በማጠቃለል፣ ፈጣን ጥናት በማድረግ እና የቀን መቁጠሪያዎችን በማደራጀት ይረዳሉ።"
+      },
+      {
+        "question_en": "Where do human virtual assistants still add the most value over AI?",
+        "question_am": "የሰው ቨርቹዋል ረዳቶች ከ AI በላይ ከፍተኛ ዋጋ የሚሰጡት በየትኞቹ ዘርፎች ነው?",
+        "answer_en": "Human VAs add the most value in relationship management, emotional intelligence, handling ambiguity and changing priorities, maintaining confidentiality, and solving complex human problems.",
+        "answer_am": "የሰው ረዳቶች የደንበኛ ግንኙነትን በመንከባከብ፣ በስሜታዊ ብልህነት፣ ያልተጠበቁ ሁኔታዎችን በማስተናገድ፣ ሚስጥር በመጠበቅ እና ውስብስብ ችግሮችን በመፍታት የላቀ ዋጋ አላቸው።"
+      }
+    ]
+  },
+  {
+    "id": "wr100-m1-listening",
     "courseTitle": "WR 100: Fundamentals of Effective Communication",
     "moduleTitle": "Module 1: Foundations of Communication",
     "lessonTitle": "Active Listening and Empathetic Feedback",
-    "summary": "Principles of active listening, empathetic responses, and eliminating misunderstandings.",
+    "summary": "Core communication techniques for workplace interactions, deep concentration, paraphrasing, and empathetic feedback.",
     "content": "Active listening requires fully concentrating, understanding, responding, and remembering what is being said rather than passively hearing the speaker. In workplace interactions, practitioners demonstrate active listening by paraphrasing key points, asking clarifying questions, acknowledging speaker emotions without interruption, and validating perspective before offering solutions.",
     "content_am": "ንቁ ማዳመጥ (Active listening) ተናጋሪው የሚናገረውን በዝምታ ከመስማት ይልቅ ሙሉ ትኩረትን መስጠት፣ መረዳት፣ መልስ መስጠት እና ማስታወስን ይጠይቃል። በስራ ቦታ ግንኙነት ውስጥ ቁልፍ ነጥቦችን በራስ ቃል ደግሞ መግለጽ፣ ግልጽ ያልሆኑ ነጥቦችን መጠየቅ፣ ሳያቋርጡ የተናጋሪውን ስሜት መረዳት እና መፍትሄ ከመስጠት በፊት አመለካከታቸውን ማረጋገጥ ንቁ ማዳመጥን ያሳያል።",
+    "simple_explanation_en": "Active listening means paying 100% attention to the speaker instead of just waiting for your turn to talk. You show you understand by repeating their main point in your own words and asking friendly questions.",
+    "simple_explanation_am": "ንቁ ማዳመጥ ማለት ተናጋሪው የሚለውን በሙሉ ልብ ማዳመጥ ነው። የተናገሩትን በራስህ ቃል ደግመህ በመናገር እና ግልጽ ያልሆነህን በትህትና በመጠየቅ መረዳትህን ታሳያለህ።",
     "keywords": [
       "active listening",
       "empathy",
@@ -94,13 +142,15 @@
     ]
   },
   {
-    "id": "wr100-m2-l1",
+    "id": "wr100-m2-bluf",
     "courseTitle": "WR 100: Fundamentals of Effective Communication",
     "moduleTitle": "Module 2: Professional Written Communication",
-    "lessonTitle": "Structuring Clear Workplace Messages",
-    "summary": "Techniques for concise and actionable emails, memos, and asynchronous messages.",
+    "lessonTitle": "Structuring Clear Workplace Messages & The BLUF Model",
+    "summary": "Professional communication methodology: Bottom Line Up Front, action items, concise paragraphs, and clear deadlines.",
     "content": "Effective written communication in professional environments relies on the 'Bottom Line Up Front' (BLUF) model. State the core purpose, decision, or request in the first two sentences. Follow with concise supporting context, organize action items using bullet points, and conclude with clear deadlines and next steps. Avoid jargon and keep paragraphs limited to three or four sentences.",
     "content_am": "በሙያዊ የስራ አካባቢ ውስጥ ውጤታማ የጽሑፍ ግንኙነት 'ዋናውን ነጥብ ከፊት ማስቀደም' (BLUF) በሚባለው መርህ ላይ የተመሰረተ ነው። የመልእክቱን ዋና አላማ፣ ውሳኔ ወይም ጥያቄ በመጀመሪያዎቹ ሁለት አረፍተ ነገሮች ይግለጹ። ከዚያም አጭር ማብራሪያ ይስጡ፣ የሚከናወኑ ተግባራትን በነጥብ (bullet points) ያደራጁ፣ እና ግልጽ በሆነ የጊዜ ገደብ ያጠቃልሉ። ያልተለመዱ ቃላትን ያስወግዱ እና አንቀጾችን በአጭሩ ይያዙ።",
+    "simple_explanation_en": "The BLUF rule means putting your most important question or conclusion right at the start of your message, so busy people understand what you need in five seconds.",
+    "simple_explanation_am": "የ BLUF መርህ ማለት አስፈላጊውን መልእክት ወይም ጥያቄ ወዲያውኑ በመጀመሪያው መስመር ላይ ማስቀመጥ ነው፤ በዚህም ስራ የበዛበት ሰው የፈለከውን በአምስት ሰከንድ ውስጥ ይረዳልናል!",
     "keywords": [
       "written communication",
       "emails",
@@ -123,33 +173,36 @@
     ]
   },
   {
-    "id": "va1-m2-l1",
+    "id": "savanna-progression-grading",
     "courseTitle": "VA-1: VA Foundations & Professional Identity",
-    "moduleTitle": "Module 2: Productivity and Digital Workspaces",
-    "lessonTitle": "Managing Asynchronous Workflows",
-    "summary": "How remote teams collaborate using shared documents, task boards, and asynchronous updates.",
-    "content": "Asynchronous workflows allow distributed teams across different time zones to collaborate without requiring simultaneous online presence. Successful asynchronous operations depend on single sources of truth (such as project management boards), thorough documentation of decisions, explicit deadlines with time zone indicators (e.g., UTC/EAT), and video or text summaries rather than spontaneous meetings.",
-    "content_am": "ያልተመሳሰሉ (Asynchronous) የስራ ፍሰቶች በተለያዩ የሰዓት ቀጠናዎች ያሉ ቡድኖች በአንድ ጊዜ በመስመር ላይ መገኘት ሳያስፈልጋቸው አብረው እንዲሰሩ ያስችላቸዋል። ለስኬታማነቱ የፕሮጀክት ሰሌዳዎችን መጠቀም፣ የተደረጉ ውሳኔዎችን በሚገባ መመዝገብ፣ ግልጽ የጊዜ ገደቦችን ከሰዓት ቀጠና (UTC/EAT) ጋር ማመልከት እና ረጅም ስብሰባዎችን በአጭር የጽሑፍ ወይም የቪዲዮ ማጠቃለያዎች መተካት አስፈላጊ ነው።",
+    "moduleTitle": "Module 1: Orientation and Programme Overview",
+    "lessonTitle": "Course Progression, Milestone Grading & Graduation Threshold",
+    "summary": "Rules for Savanna cohort pacing, graduation score threshold (70%), self-paced vs paced tracks, and module completion.",
+    "content": "Savanna learners must achieve an overall score of at least 70% across milestone assignments, quizzes, and project evaluations to satisfy the graduation threshold. Self-paced programmes offer modular switchers where learners can complete activities ahead of schedule, with pacing alerts showing remaining days. In paced cohort models, learners unlock curriculum modules week-by-week (e.g., 15 weeks total), with immediate deliverables and period progress metrics displayed on the learner dashboard.",
+    "content_am": "የሳቫና (Savanna) ተማሪዎች የምረቃውን መስፈርት ለማሟላት በሁሉም ምዕራፎች፣ ፈተናዎች እና የፕሮጀክት ምዘናዎች ቢያንስ 70% አጠቃላይ ውጤት ማምጣት አለባቸው። በግል ፍጥነት በሚወሰዱ ትምህርቶች (self-paced) ተማሪዎች ከጊዜ ሰሌዳቸው ቀድመው ማጠናቀቅ ይችላሉ። በቡድን በሚወሰዱ ትምህርቶች (paced cohort) ደግሞ ትምህርቶች በየሳምንቱ (ለምሳሌ በ 15 ሳምንታት) ይከፈታሉ።",
+    "simple_explanation_en": "To pass your course and graduate, you need at least 70% overall score. You can track your score directly on the dashboard progress bar.",
+    "simple_explanation_am": "ትምህርቱን አጠናቀው ለመመረቅ ቢያንስ 70% አጠቃላይ ውጤት ማምጣት ያስፈልግዎታል። ውጤትዎን በዳሽቦርዱ ላይ በማንኛውም ጊዜ ማየት ይችላሉ።",
     "keywords": [
-      "asynchronous",
-      "workflows",
-      "timezones",
-      "productivity",
-      "remote teams",
-      "documentation",
-      "አሲንክሮነስ",
-      "የስራ ፍሰት",
-      "የሰዓት ቀጠና",
-      "ምርታማነት"
+      "graduation",
+      "threshold",
+      "passing score",
+      "70 percent",
+      "grading",
+      "pacing",
+      "savanna",
+      "progress",
+      "ምረቃ",
+      "ውጤት",
+      "70 በመቶ",
+      "ሳቫና"
     ],
     "faqs": [
       {
-        "question_en": "What is asynchronous collaboration?",
-        "question_am": "ያልተመሳሰለ (Asynchronous) የጋራ ስራ ምንድን ነው?",
-        "answer_en": "Asynchronous collaboration is working together without needing team members to be online at the exact same moment, utilizing documentation and task boards.",
-        "answer_am": "ያልተመሳሰለ የጋራ ስራ ማለት የቡድን አባላት በአንድ ጊዜ በመስመር ላይ ሳይገናኙ በሰነዶች እና በስራ ሰሌዳዎች አማካኝነት አብረው የሚሰሩበት መንገድ ነው።"
+        "question_en": "What is the passing graduation threshold score?",
+        "question_am": "የምረቃ ማለፊያ ውጤት ስንት ነው?",
+        "answer_en": "Learners must achieve an overall score of at least 70% across all milestone evaluations and activities to graduate.",
+        "answer_am": "ተማሪዎች ለመመረቅ በሁሉም ምዘናዎች ቢያንስ 70% አጠቃላይ ውጤት ማምጣት አለባቸው።"
       }
     ]
   }
 ]
-
