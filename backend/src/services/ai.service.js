@@ -1,15 +1,18 @@
 /**
- * AI Service & Provider Interface (Phase 2 Enhanced)
+ * AI Service & Provider Interface (Phase 2 Full)
  * Pluggable architecture:
  * - MockDemoProvider: Grounded educational tutor with simple-language option and hallucination prevention
- * - OfflineFAQProvider: Rapid offline lookup from pre-approved course FAQs
+ * - OfflineFAQProvider: Rapid offline lookup from verified course FAQs (faq.service.js)
  * - CloudAIProvider: Cloud LLM interface (OpenAI / Gemini)
  * - LocalAIProvider: Local endpoint interface (Ollama / llama.cpp)
  *
- * Adheres strictly to factual grounded content; refuses out-of-scope/unsupported questions.
+ * Automatically records anonymized (Zero-PII) query metrics for teacher intelligence.
+ * Strictly adheres to factual grounded content; refuses out-of-scope/unsupported questions.
  */
 
-const { findFaqMatch, retrieveSources } = require('./retrieval.service');
+const { retrieveSources } = require('./retrieval.service');
+const { matchFaq } = require('./faq.service');
+const { logTutorQuery } = require('./analytics.service');
 
 /**
  * Base AI Provider Interface
@@ -26,7 +29,7 @@ class BaseAIProvider {
 
 /**
  * Offline FAQ Provider
- * Handles exact curriculum FAQs with instantaneous verified responses
+ * Handles exact curriculum FAQs with instantaneous verified responses from faqs.json
  */
 class OfflineFAQProvider extends BaseAIProvider {
   constructor() {
@@ -34,7 +37,7 @@ class OfflineFAQProvider extends BaseAIProvider {
   }
 
   async generateAnswer({ question, language, context, sources, simplify, isRelevant }) {
-    const faqMatch = findFaqMatch(question, language);
+    const faqMatch = matchFaq(question, language);
 
     if (faqMatch) {
       return {
@@ -123,6 +126,7 @@ class MockDemoProvider extends BaseAIProvider {
 
 /**
  * Cloud AI Provider (Interface for OpenAI / Gemini)
+ * Evaluates live cloud LLMs when configured and tested; falls back safely to grounded mock demo.
  */
 class CloudAIProvider extends BaseAIProvider {
   constructor() {
@@ -246,6 +250,21 @@ async function askTutor({ question, language, simplify = false, context }) {
     sources,
     isRelevant
   });
+
+  // 4. Anonymously record query event for teacher analytics (Zero-PII)
+  try {
+    const primarySource = (response.sources && response.sources[0]) || {};
+    logTutorQuery({
+      question: question.trim(),
+      language: resolvedLang,
+      isGrounded: response.isGrounded !== false,
+      simplified: Boolean(response.simplified),
+      mode: response.mode || 'mock_demo',
+      courseTitle: primarySource.courseTitle || (context && context.courseTitle)
+    });
+  } catch (err) {
+    console.error('[Analytics] Failed to log anonymous query:', err.message);
+  }
 
   return {
     answer: response.answer,

@@ -331,6 +331,10 @@
             <span id="v4a-stt-badge" style="font-size: 10px; color: #10B981;">● Speech Ready</span>
           </div>
 
+          <div id="v4a-fallback-banner" style="display: none; background: #FEF3C7; color: #92400E; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #FDE68A;">
+            ℹ️ <span id="v4a-fallback-text">Amharic voice engine is not supported in this browser. Please use text input.</span>
+          </div>
+
           <div class="v4a-chat-body" id="v4a-chat-body">
             <!-- Messages stream here -->
           </div>
@@ -399,6 +403,8 @@
         document.getElementById('v4a-title-text').innerText = 'Course AI Tutor';
         document.getElementById('v4a-simplify-label').innerText = 'Plain Language Mode';
         input.placeholder = 'Ask a question about this course...';
+        const banner = document.getElementById('v4a-fallback-banner');
+        if (banner) banner.style.display = 'none';
       };
 
       langAm.onclick = () => {
@@ -408,6 +414,17 @@
         document.getElementById('v4a-title-text').innerText = 'የኮርስ AI ረዳት';
         document.getElementById('v4a-simplify-label').innerText = 'ቀላል ማብራሪያ ሁነታ';
         input.placeholder = 'ስለዚህ ኮርስ ጥያቄ ይጠይቁ...';
+
+        // Check browser Amharic speech capability
+        if (speechService && speechService.checkAmharicSupport) {
+          const cap = speechService.checkAmharicSupport();
+          const banner = document.getElementById('v4a-fallback-banner');
+          const fallbackText = document.getElementById('v4a-fallback-text');
+          if (banner && fallbackText && cap.fallbackReason) {
+            fallbackText.innerText = cap.fallbackReason;
+            banner.style.display = 'block';
+          }
+        }
       };
 
       simplifyToggle.onchange = (e) => {
@@ -593,3 +610,4 @@
   // Initialize widget
   window.Voice4AllTutorWidget = new Voice4AllTutorWidget();
 })();
+

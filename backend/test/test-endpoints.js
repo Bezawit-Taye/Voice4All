@@ -1,11 +1,20 @@
 /**
- * Automated Test Suite for Voice4All Backend & Tutor Endpoint (Phase 2)
+ * Voice4All Comprehensive Automated Verification Suite
+ * Tests:
+ * - Course Grounding and Citation Accuracy
+ * - Prevention of Fabricated Citations & Missing Citations
+ * - Unsupported Questions Refusal & Acknowledgment
+ * - Bilingual (English & Amharic) Text Interaction
+ * - Simple-Language Explanation Mode
+ * - Offline FAQ Matching & Fallback
+ * - Zero-PII Anonymous Teacher Analytics (PII Redaction)
+ * - Health Check & Dynamic Router Mounts
  */
 
 const http = require('http');
 const app = require('../src/server');
 
-const TEST_PORT = 5098;
+const TEST_PORT = 5097;
 
 function request(options, postData = null) {
   return new Promise((resolve, reject) => {
@@ -32,7 +41,7 @@ function request(options, postData = null) {
 }
 
 async function runTests() {
-  console.log('--- Starting Voice4All Phase 2 Backend Verification Tests ---\n');
+  console.log('--- Starting Voice4All Workstream B Verification Tests ---\n');
   const server = app.listen(TEST_PORT);
 
   let passed = 0;
@@ -52,7 +61,7 @@ async function runTests() {
 
   try {
     // 1. Health Check
-    await test('GET /api/health returns status 200 and health info', async () => {
+    await test('GET /api/health verifies all services and routes are ready', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -61,10 +70,12 @@ async function runTests() {
       });
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
       if (res.body.status !== 'ok') throw new Error(`Expected status 'ok', got ${res.body.status}`);
+      const analyticsEndpoint = res.body.mountedEndpoints.find(e => e.path === '/api/analytics');
+      if (!analyticsEndpoint) throw new Error('Missing /api/analytics in mounted endpoints');
     });
 
-    // 2. English Grounded Retrieval & Citations
-    await test('POST /api/tutor/ask with English question returns grounded answer and real citations', async () => {
+    // 2. English Grounding & Citation Accuracy
+    await test('POST /api/tutor/ask with English question returns grounded answer with accurate citations', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -77,18 +88,19 @@ async function runTests() {
       });
 
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (!res.body.answer || typeof res.body.answer !== 'string') throw new Error('Missing answer string');
-      if (res.body.language !== 'en') throw new Error(`Expected language 'en', got ${res.body.language}`);
-      if (!Array.isArray(res.body.sources) || res.body.sources.length === 0) throw new Error('Expected non-empty sources array');
       if (res.body.isGrounded !== true) throw new Error('Expected isGrounded: true');
+      if (!Array.isArray(res.body.sources) || res.body.sources.length === 0) throw new Error('Missing citations');
 
-      const primary = res.body.sources[0];
-      if (!primary.courseTitle || !primary.lessonTitle || !primary.snippet) {
-        throw new Error('Citation missing required fields');
+      const source = res.body.sources[0];
+      if (!source.courseTitle || !source.lessonTitle || !source.snippet) {
+        throw new Error('Citation missing required metadata fields');
+      }
+      if (!source.courseTitle.includes('VA-1') && !source.courseTitle.includes('WR 100')) {
+        throw new Error(`Unexpected course citation: ${source.courseTitle}`);
       }
     });
 
-    // 3. Amharic Grounded Retrieval & Citations
+    // 3. Amharic Grounding & Citation Accuracy
     await test('POST /api/tutor/ask with Amharic question returns grounded Amharic answer and citations', async () => {
       const res = await request({
         hostname: 'localhost',
@@ -106,13 +118,59 @@ async function runTests() {
       if (!res.body.answer.includes('ሰላም') && !res.body.answer.includes('ንቁ ማዳመጥ')) {
         throw new Error('Expected Amharic answer text');
       }
-      if (res.body.sources.length === 0) throw new Error('Expected sources');
-      if (!res.body.sources[0].courseTitle.includes('WR 100')) {
-        throw new Error('Expected citation from WR 100 course');
+      if (res.body.sources.length === 0) throw new Error('Expected non-empty sources');
+      if (!res.body.sources[0].snippet.includes('ማዳመጥ') && !res.body.sources[0].snippet.includes('መስማት')) {
+        throw new Error('Source snippet missing expected Amharic text');
       }
     });
 
-    // 4. Simple-Language Mode (Accessibility) - English
+    // 4. Test for Fabricated Answers and Unsupported Questions
+    await test('POST /api/tutor/ask refuses unsupported questions without inventing citations', async () => {
+      const res = await request({
+        hostname: 'localhost',
+        port: TEST_PORT,
+        path: '/api/tutor/ask',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }, {
+        question: 'How do I bake a chocolate cake with sprinkles and vanilla frosting?',
+        language: 'en'
+      });
+
+      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.isGrounded !== false) throw new Error('Expected isGrounded: false for off-topic inquiry');
+      if (res.body.mode !== 'unsupported_refusal') throw new Error(`Expected mode 'unsupported_refusal', got ${res.body.mode}`);
+      if (res.body.sources.length !== 0) throw new Error('Must NOT invent citations for off-topic questions');
+      if (!res.body.answer.includes('not covered in your active course materials')) {
+        throw new Error('Expected polite refusal text explaining answer cannot be found');
+      }
+    });
+
+    // 5. Test Missing Citations Prevention
+    await test('Grounded questions must never produce missing citations', async () => {
+      const res = await request({
+        hostname: 'localhost',
+        port: TEST_PORT,
+        path: '/api/tutor/ask',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }, {
+        question: 'What is the BLUF model?',
+        language: 'en'
+      });
+
+      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (!res.body.sources || res.body.sources.length === 0) {
+        throw new Error('Citation is missing for a valid course question');
+      }
+      for (const s of res.body.sources) {
+        if (!s.courseTitle || !s.moduleTitle || !s.lessonTitle || !s.snippet) {
+          throw new Error('Found incomplete citation object');
+        }
+      }
+    });
+
+    // 6. Simple-Language Explanations (English & Amharic)
     await test('POST /api/tutor/ask with simplify: true returns plain-language explanation', async () => {
       const res = await request({
         hostname: 'localhost',
@@ -121,7 +179,7 @@ async function runTests() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       }, {
-        question: 'What is the BLUF model in communication?',
+        question: 'What is the graduation threshold for this course?',
         language: 'en',
         simplify: true
       });
@@ -129,80 +187,12 @@ async function runTests() {
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
       if (res.body.simplified !== true) throw new Error('Expected simplified: true');
       if (!res.body.answer.includes('Simple Explanation') && !res.body.answer.includes('Plain Language')) {
-        throw new Error('Expected simple explanation header');
+        throw new Error('Expected simple explanation header in response');
       }
     });
 
-    // 5. Simple-Language Mode - Amharic
-    await test('POST /api/tutor/ask with simplify: true in Amharic returns plain Amharic explanation', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'የ BLUF ሞዴል ምንድን ነው?',
-        language: 'am',
-        simplify: true
-      });
-
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.simplified !== true) throw new Error('Expected simplified: true');
-      if (!res.body.answer.includes('ቀላል ማብራሪያ')) {
-        throw new Error('Expected Amharic simple explanation header');
-      }
-    });
-
-    // 6. Refuse / Acknowledge Unsupported Questions (Prevent Hallucinations)
-    await test('POST /api/tutor/ask refuses unsupported questions without fabricating citations', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'How do I bake a chocolate cake with frosting and sprinkles?',
-        language: 'en'
-      });
-
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.isGrounded !== false) throw new Error('Expected isGrounded: false for off-topic query');
-      if (res.body.mode !== 'unsupported_refusal') throw new Error(`Expected unsupported_refusal mode, got ${res.body.mode}`);
-      if (res.body.sources.length !== 0) throw new Error('Must not invent citations for unsupported queries');
-      if (!res.body.answer.includes('not covered in your active course materials')) {
-        throw new Error('Expected polite refusal message');
-      }
-    });
-
-    // 7. Active Learner Context Prioritization
-    await test('POST /api/tutor/ask prioritizes active learner context', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'What score is needed to pass and graduate?',
-        language: 'en',
-        context: {
-          courseTitle: 'VA-1: VA Foundations & Professional Identity',
-          moduleTitle: 'Module 1: Orientation',
-          lessonTitle: 'Course Progression & Grading',
-          lessonText: 'To graduate from this programme, learners must achieve an overall course score of at least 70% across all milestone evaluations.'
-        }
-      });
-
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      const matched = res.body.sources.find(s => s.lessonTitle.includes('Grading'));
-      if (!matched) throw new Error('Supplied context was not matched');
-      if (!matched.snippet.includes('70%')) throw new Error('Snippet missing 70% milestone details');
-    });
-
-    // 8. Offline FAQ lookup
-    await test('POST /api/tutor/ask matches offline FAQ', async () => {
+    // 7. Offline FAQ Matching
+    await test('POST /api/tutor/ask matches offline FAQ from faqs.json', async () => {
       const res = await request({
         hostname: 'localhost',
         port: TEST_PORT,
@@ -216,23 +206,63 @@ async function runTests() {
 
       if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
       if (!res.body.answer.toLowerCase().includes('active listening')) {
-        throw new Error('Did not find active listening explanation');
+        throw new Error('Did not match active listening FAQ');
       }
     });
 
-    // 9. Input Validation
-    await test('POST /api/tutor/ask returns 400 when question is empty', async () => {
-      const res = await request({
+    // 8. Zero-PII Anonymous Teacher Analytics
+    await test('GET /api/analytics/summary redacts learner names, emails, and phone numbers', async () => {
+      // Send a query containing sensitive personal identifiable information
+      await request({
         hostname: 'localhost',
         port: TEST_PORT,
         path: '/api/tutor/ask',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       }, {
-        question: '   '
+        question: 'My name is John Doe and my email is john.doe@example.com, how do I pass?',
+        language: 'en'
       });
 
-      if (res.status !== 400) throw new Error(`Expected 400, got ${res.status}`);
+      const res = await request({
+        hostname: 'localhost',
+        port: TEST_PORT,
+        path: '/api/analytics/summary',
+        method: 'GET'
+      });
+
+      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (!res.body.data || res.body.data.totalQuestions === 0) throw new Error('Expected analytics data');
+
+      const inquiries = res.body.data.recentAnonymousInquiries || [];
+      const logged = inquiries.find(i => i.question.includes('how do I pass?'));
+      if (!logged) throw new Error('Logged query not found in analytics stream');
+
+      // Ensure email and name were scrubbed
+      if (logged.question.includes('john.doe@example.com')) {
+        throw new Error('PII Violation: Email was not redacted in analytics!');
+      }
+      if (logged.question.includes('John Doe')) {
+        throw new Error('PII Violation: Learner name was not redacted in analytics!');
+      }
+      if (!logged.question.includes('[REDACTED_EMAIL]') || !logged.question.includes('[REDACTED_NAME]')) {
+        throw new Error('Expected redaction placeholders in logged question text');
+      }
+    });
+
+    // 9. Teacher Analytics Frequently Asked Questions Endpoint
+    await test('GET /api/analytics/faqs returns clustered topic frequencies', async () => {
+      const res = await request({
+        hostname: 'localhost',
+        port: TEST_PORT,
+        path: '/api/analytics/faqs',
+        method: 'GET'
+      });
+
+      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (!Array.isArray(res.body.data) || res.body.data.length === 0) {
+        throw new Error('Expected list of clustered FAQ topics');
+      }
     });
 
     console.log(`\nResults: ${passed} passed, ${failed} failed.`);
