@@ -16,12 +16,17 @@
   'use strict';
 
   const STORAGE_LANG_KEY = 'v4a_preferred_lang';
+  const SESSION_HISTORY_KEY = 'v4a_conversation_history';
+  const SESSION_SIMPLE_MODE_KEY = 'v4a_simple_mode';
 
   // State Management
   const state = {
     lang: 'en',
     drawerOpen: false,
     activeTab: 'tutor', // 'tutor' | 'help' | 'career'
+    simpleMode: false,
+    conversationHistory: [],
+    lastUserMessage: '',
     isListening: false,
     speechRecognition: null,
     currentUtterance: null,
@@ -46,26 +51,45 @@
       /* private browsing or storage disabled */
     }
 
-    // 2. Setup DOM Containers if not already injected
+    // 2. Determine simple mode preference
+    try {
+      const savedSimple = sessionStorage.getItem(SESSION_SIMPLE_MODE_KEY);
+      state.simpleMode = (savedSimple === 'true');
+    } catch (e) {
+      /* private browsing */
+    }
+
+    // 3. Restore session conversation history
+    try {
+      const savedHistory = sessionStorage.getItem(SESSION_HISTORY_KEY);
+      if (savedHistory) {
+        const parsed = JSON.parse(savedHistory);
+        if (Array.isArray(parsed)) state.conversationHistory = parsed;
+      }
+    } catch (e) {
+      /* ignore */
+    }
+
+    // 4. Setup DOM Containers if not already injected
     setupDOM();
 
-    // 3. Initialize Speech Recognition instance if supported
+    // 5. Initialize Speech Recognition instance if supported
     setupSpeechRecognition();
 
-    // 4. Attach event listeners
+    // 6. Attach event listeners
     bindEvents();
 
-    // 5. Initial load for Career jobs
+    // 7. Initial load for Career jobs
     loadJobs();
 
-    // 6. Listen for API backend status changes
+    // 8. Listen for API backend status changes
     if (root.Voice4AllAPI && typeof root.Voice4AllAPI.onStatusChange === 'function') {
       root.Voice4AllAPI.onStatusChange((isLive) => {
         updateStatusBanner(isLive);
       });
     }
 
-    console.log('[Voice4All] Initialized successfully. Language:', state.lang);
+    console.log('[Voice4All] Initialized successfully. Language:', state.lang, 'Simple Mode:', state.simpleMode);
   }
 
   // =========================================================================
@@ -96,7 +120,10 @@
 
   function renderAllPanels() {
     const tutorPanel = document.getElementById('v4a-panel-tutor');
-    if (tutorPanel) tutorPanel.innerHTML = root.Voice4AllUI.renderTutorPanel(state.lang);
+    if (tutorPanel) tutorPanel.innerHTML = root.Voice4AllUI.renderTutorPanel(state.lang, state.simpleMode);
+
+    // Restore prior session conversation history if present
+    restoreChatHistory();
 
     const helpPanel = document.getElementById('v4a-panel-help');
     if (helpPanel) {
@@ -111,6 +138,76 @@
 
     const careerPanel = document.getElementById('v4a-panel-career');
     if (careerPanel) careerPanel.innerHTML = root.Voice4AllUI.renderCareerPanel(state.lang);
+  }
+
+  function restoreChatHistory() {
+    const chatLog = document.getElementById('v4a-chat-log');
+    if (!chatLog) return;
+    if (!Array.isArray(state.conversationHistory) || state.conversationHistory.length === 0) return;
+
+    // Clear initial welcome message and rehydrate saved conversation
+    chatLog.innerHTML = '';
+    state.conversationHistory.forEach((item) => {
+      if (item.role === 'user') {
+        chatLog.insertAdjacentHTML('beforeend', root.Voice4AllUI.renderUserBubble(item.content));
+      } else if (item.role === 'assistant') {
+        chatLog.insertAdjacentHTML('beforeend', root.Voice4AllUI.renderTutorBubble({
+          reply: item.content,
+          citations: item.citations || [],
+          isDemo: item.isDemo || false,
+          demoNotice: item.demoNotice || ''
+        }, state.lang));
+      }
+    });
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  function clearChatHistory() {
+    state.conversationHistory = [];
+    try {
+      sessionStorage.removeItem(SESSION_HISTORY_KEY);
+    } catch (e) {}
+
+    const chatLog = document.getElementById('v4a-chat-log');
+    if (chatLog) {
+      const isAm = (state.lang === 'am');
+      const defaultCitation = isAm ? [
+        {
+          title: 'ሞጁል 2፡ ቨርቹዋል ረዳት ምንድን ነው',
+          section: 'መግቢያ እና አጠቃላይ እይታ',
+          source: 'የሳቫና ስርዓተ-ትምህርት',
+          url: '#module-2-overview'
+        }
+      ] : [
+        {
+          title: 'Module 2: What is a VA',
+          section: 'Overview & Foundation',
+          source: 'Savanna Concept Materials',
+          url: '#module-2-overview'
+        }
+      ];
+
+      chatLog.innerHTML = `
+        <div class="v4a-chat-item v4a-chat-item--tutor">
+          <div class="v4a-bubble" dir="auto">${root.Voice4AllUI.t('tutor_welcome', state.lang)}</div>
+          ${root.Voice4AllUI.renderCitations(defaultCitation, state.lang)}
+          <div class="v4a-bubble-footer">
+            <span>${root.Voice4AllUI.t('brand_title', state.lang)}</span>
+            <button
+              type="button"
+              class="v4a-tts-btn"
+              data-v4a-speech-text="${root.Voice4AllUI.escapeHTML(root.Voice4AllUI.t('tutor_welcome', state.lang))}"
+              aria-label="${root.Voice4AllUI.t('listen_btn_aria', state.lang)}"
+            >
+              <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+              <span>${root.Voice4AllUI.t('listen_btn', state.lang)}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    root.Voice4AllUI.announce(root.Voice4AllUI.t('clear_chat', state.lang));
   }
 
   function updateStatusBanner(isLive) {
@@ -474,25 +571,29 @@
     const message = (text || '').trim();
     if (!message) return;
 
+    state.lastUserMessage = message;
+
     const chatLog = document.getElementById('v4a-chat-log');
     const inputEl = document.getElementById('v4a-tutor-input');
     const sendBtn = document.getElementById('v4a-send-btn');
+    const voiceBtn = document.getElementById('v4a-voice-toggle-btn');
 
     if (inputEl) inputEl.value = '';
 
-    // Append user message bubble
+    // Append user message bubble and record history
     if (chatLog) {
-      const userBubble = document.createElement('div');
-      userBubble.className = 'v4a-chat-item v4a-chat-item--user';
-      userBubble.innerHTML = `
-        <div class="v4a-bubble">${root.Voice4AllUI.escapeHTML(message)}</div>
-        <div class="v4a-bubble-footer">
-          <span>You</span>
-        </div>
-      `;
-      chatLog.appendChild(userBubble);
+      chatLog.insertAdjacentHTML('beforeend', root.Voice4AllUI.renderUserBubble(message));
       chatLog.scrollTop = chatLog.scrollHeight;
     }
+
+    state.conversationHistory.push({
+      role: 'user',
+      content: message,
+      timestamp: new Date().toISOString()
+    });
+    try {
+      sessionStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(state.conversationHistory));
+    } catch (e) {}
 
     // Append loading placeholder
     const loadingBubble = document.createElement('div');
@@ -510,46 +611,42 @@
     }
 
     if (sendBtn) sendBtn.disabled = true;
+    if (voiceBtn) voiceBtn.disabled = true;
     root.Voice4AllUI.announce(root.Voice4AllUI.t('announce_msg_sent', state.lang));
 
     try {
       const res = await root.Voice4AllAPI.askTutor({
         message,
         language: state.lang,
+        simple_mode: state.simpleMode,
+        conversation_history: state.conversationHistory,
         context: { page: 'The Future of the VA Industry' }
       });
 
       if (loadingBubble.parentNode) loadingBubble.remove();
 
-      // Render tutor response
-      if (chatLog) {
-        const tutorBubble = document.createElement('div');
-        tutorBubble.className = 'v4a-chat-item v4a-chat-item--tutor';
-        const demoTag = res.isDemo
-          ? `<span class="badge text-bg-warning fs-xs mb-1">${root.Voice4AllUI.escapeHTML(res.demoNotice || 'Demo')}</span>`
-          : '';
+      // Record assistant message in history
+      state.conversationHistory.push({
+        role: 'assistant',
+        content: res.reply,
+        citations: res.citations || [],
+        isDemo: res.isDemo || false,
+        demoNotice: res.demoNotice || '',
+        timestamp: res.timestamp || new Date().toISOString()
+      });
+      try {
+        sessionStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(state.conversationHistory));
+      } catch (e) {}
 
-        tutorBubble.innerHTML = `
-          ${demoTag}
-          <div class="v4a-bubble">${root.Voice4AllUI.escapeHTML(res.reply)}</div>
-          <div class="v4a-bubble-footer">
-            <span>${root.Voice4AllUI.t('brand_title', state.lang)}</span>
-            <button
-              type="button"
-              class="v4a-tts-btn"
-              data-v4a-speech-text="${root.Voice4AllUI.escapeHTML(res.reply)}"
-              aria-label="${root.Voice4AllUI.t('listen_btn_aria', state.lang)}"
-            >
-              <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
-              <span>${root.Voice4AllUI.t('listen_btn', state.lang)}</span>
-            </button>
-          </div>
-        `;
-        chatLog.appendChild(tutorBubble);
+      // Render tutor response with citations
+      if (chatLog) {
+        chatLog.insertAdjacentHTML('beforeend', root.Voice4AllUI.renderTutorBubble(res, state.lang));
         chatLog.scrollTop = chatLog.scrollHeight;
       }
 
-      root.Voice4AllUI.announce(root.Voice4AllUI.t('announce_tutor_reply', state.lang));
+      // Accessible announcement with text preview
+      const preview = (res.reply || '').slice(0, 90).replace(/\n/g, ' ');
+      root.Voice4AllUI.announce(`${root.Voice4AllUI.t('announce_incoming_msg', state.lang)} ${preview}`);
 
       // Update starter suggestions if provided
       if (Array.isArray(res.suggestions) && res.suggestions.length > 0) {
@@ -558,9 +655,17 @@
     } catch (err) {
       if (loadingBubble.parentNode) loadingBubble.remove();
       console.error('[Voice4All Tutor] Request failed:', err);
+
+      if (chatLog) {
+        chatLog.insertAdjacentHTML('beforeend', root.Voice4AllUI.renderErrorBubble(err.message, state.lang));
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+      root.Voice4AllUI.announce(root.Voice4AllUI.t('tutor_error', state.lang), 'assertive');
     } finally {
       if (sendBtn) sendBtn.disabled = false;
+      if (voiceBtn) voiceBtn.disabled = false;
     }
+  }
   }
 
   function updateStarterChips(suggestions) {
@@ -884,6 +989,50 @@
         cancelActiveTicket();
         return;
       }
+
+      // 13. Clear Tutor Conversation History
+      const clearBtn = event.target.closest('#v4a-clear-chat-btn');
+      if (clearBtn) {
+        event.preventDefault();
+        if (confirm(root.Voice4AllUI.t('clear_confirm', state.lang))) {
+          clearChatHistory();
+        }
+        return;
+      }
+
+      // 14. Retry Failed Tutor Request
+      const retryBtn = event.target.closest('.v4a-btn-retry');
+      if (retryBtn) {
+        event.preventDefault();
+        if (state.lastUserMessage) {
+          submitTutorMessage(state.lastUserMessage);
+        }
+        return;
+      }
+    });
+
+    // Delegated change handlers (Simple mode toggle)
+    document.addEventListener('change', (event) => {
+      if (event.target.id === 'v4a-simple-mode-toggle') {
+        state.simpleMode = event.target.checked;
+        try {
+          sessionStorage.setItem(SESSION_SIMPLE_MODE_KEY, String(state.simpleMode));
+        } catch (e) {}
+
+        const msg = state.simpleMode
+          ? root.Voice4AllUI.t('announce_simple_mode_on', state.lang)
+          : root.Voice4AllUI.t('announce_simple_mode_off', state.lang);
+        root.Voice4AllUI.announce(msg);
+      }
+    });
+
+    // Global Accesskey / Shortcut: Alt + V to toggle Voice4All
+    document.addEventListener('keydown', (event) => {
+      if (event.altKey && (event.key === 'v' || event.key === 'V')) {
+        event.preventDefault();
+        if (state.drawerOpen) closeDrawer();
+        else openDrawer();
+      }
     });
 
     // Delegated submit handlers
@@ -948,6 +1097,7 @@
     switchTab,
     setLanguage,
     submitTutorMessage,
+    clearChatHistory,
     handleSupportSubmit,
     handleAccommodationSubmit,
     loadJobs

@@ -60,6 +60,15 @@
       tutor_loading: 'Tutor is formulating response...',
       tutor_error: 'Unable to reach the tutor service. Switched to demo mode.',
       clear_chat: 'Clear chat history',
+      simple_mode_label: 'Simple Mode',
+      simple_mode_desc: 'Plain language explanations with easy examples',
+      citations_heading: 'Sources & Lesson Citations',
+      clear_chat_title: 'Clear Session History',
+      clear_confirm: 'Clear all conversation history in this session?',
+      retry_btn: 'Retry',
+      announce_simple_mode_on: 'Simple explanation mode enabled.',
+      announce_simple_mode_off: 'Simple explanation mode disabled.',
+      announce_incoming_msg: 'Tutor replied:',
 
       // Live Help Section
       help_title: 'Live Support & Peer Help',
@@ -180,6 +189,15 @@
       tutor_loading: 'አስተማሪው መልስ በማዘጋጀት ላይ ነው...',
       tutor_error: 'ከአስተማሪው ሰርቨር ጋር መገናኘት አልተቻለም። ወደ ሙከራ ሁነታ ተቀይሯል።',
       clear_chat: 'የውይይት ታሪክን አጽዳ',
+      simple_mode_label: 'ቀላል ማብራሪያ',
+      simple_mode_desc: 'ቀላል ቋንቋ እና ግልጽ ምሳሌዎች',
+      citations_heading: 'የትምህርት ማጣቀሻዎች',
+      clear_chat_title: 'የክፍለ-ጊዜ ታሪክን አጽዳ',
+      clear_confirm: 'የዚህን ክፍለ-ጊዜ የውይይት ታሪክ ማጽዳት ይፈልጋሉ?',
+      retry_btn: 'እንደገና ሞክር',
+      announce_simple_mode_on: 'ቀላል የማብራሪያ ሁነታ ነቅቷል።',
+      announce_simple_mode_off: 'ቀላል የማብራሪያ ሁነታ ጠፍቷል።',
+      announce_incoming_msg: 'አስተማሪው ምላሽ ሰጥቷል፡',
 
       // Live Help Section
       help_title: 'የቀጥታ እርዳታ እና የአቻ ድጋፍ',
@@ -340,10 +358,12 @@
         <div id="v4a-backdrop" class="v4a-backdrop" aria-hidden="true"></div>
         <aside
           id="v4a-drawer"
-          class="v4a-drawer"
+          class="v4a-drawer ${isAm ? 'v4a-lang-am' : ''}"
           role="dialog"
           aria-modal="true"
           aria-labelledby="v4a-drawer-heading"
+          dir="${isAm ? 'auto' : 'ltr'}"
+          lang="${lang}"
           tabindex="-1"
         >
           <!-- Header -->
@@ -474,11 +494,58 @@
     /**
      * Render the Tutor Tab Content
      */
-    renderTutorPanel(lang = 'en') {
+    renderTutorPanel(lang = 'en', simpleMode = false) {
+      const isAm = (lang === 'am');
+      const defaultCitation = isAm ? [
+        {
+          title: 'ሞጁል 2፡ ቨርቹዋል ረዳት ምንድን ነው',
+          section: 'መግቢያ እና አጠቃላይ እይታ',
+          source: 'የሳቫና ስርዓተ-ትምህርት',
+          url: '#module-2-overview'
+        }
+      ] : [
+        {
+          title: 'Module 2: What is a VA',
+          section: 'Overview & Foundation',
+          source: 'Savanna Concept Materials',
+          url: '#module-2-overview'
+        }
+      ];
+
       return `
-        <div class="v4a-section-header">
-          <h3 class="v4a-section-title">${t('tutor_title', lang)}</h3>
-          <p class="v4a-section-desc">${t('tutor_desc', lang)}</p>
+        <div class="v4a-section-header d-flex justify-content-between align-items-start">
+          <div>
+            <h3 class="v4a-section-title">${t('tutor_title', lang)}</h3>
+            <p class="v4a-section-desc">${t('tutor_desc', lang)}</p>
+          </div>
+          <button
+            type="button"
+            id="v4a-clear-chat-btn"
+            class="v4a-icon-btn v4a-icon-btn--voice v4a-btn-clear"
+            title="${t('clear_chat_title', lang)}"
+            aria-label="${t('clear_chat_title', lang)}"
+          >
+            <i class="fa-solid fa-trash-can fa-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- Simple Mode Toggle Bar -->
+        <div class="v4a-simple-mode-bar" role="region" aria-label="${t('simple_mode_label', lang)}">
+          <label class="v4a-toggle-label" for="v4a-simple-mode-toggle">
+            <input
+              type="checkbox"
+              id="v4a-simple-mode-toggle"
+              class="v4a-toggle-input"
+              ${simpleMode ? 'checked' : ''}
+              aria-describedby="v4a-simple-mode-desc"
+            />
+            <span class="v4a-toggle-slider" aria-hidden="true"></span>
+            <span class="v4a-toggle-text">
+              <i class="fa-solid fa-lightbulb text-warning" aria-hidden="true"></i>
+              <span>${t('simple_mode_label', lang)}</span>
+            </span>
+          </label>
+          <span id="v4a-simple-mode-desc" class="v4a-simple-mode-hint">${t('simple_mode_desc', lang)}</span>
         </div>
 
         <div class="v4a-tutor-container">
@@ -493,9 +560,10 @@
           >
             <!-- Initial Welcome Message from Tutor -->
             <div class="v4a-chat-item v4a-chat-item--tutor">
-              <div class="v4a-bubble">
+              <div class="v4a-bubble" dir="auto">
                 ${t('tutor_welcome', lang)}
               </div>
+              ${Voice4AllUI.renderCitations(defaultCitation, lang)}
               <div class="v4a-bubble-footer">
                 <span>${t('brand_title', lang)}</span>
                 <button
@@ -834,6 +902,106 @@
               </button>
             </div>
           </form>
+        </div>
+      `;
+    },
+
+    /**
+     * Render Source Citations for a response
+     */
+    renderCitations(citations, lang = 'en') {
+      if (!Array.isArray(citations) || citations.length === 0) return '';
+      const items = citations.map((c) => {
+        if (typeof c === 'string') {
+          return `<li class="v4a-citation-item"><span class="v4a-citation-badge">${escapeHTML(c)}</span></li>`;
+        }
+        const title = c.title || '';
+        const section = c.section ? ` &bull; ${escapeHTML(c.section)}` : '';
+        const url = c.url || '#';
+        return `
+          <li class="v4a-citation-item">
+            <a href="${escapeHTML(url)}" class="v4a-citation-link" target="_self">
+              <i class="fa-solid fa-link fa-xs me-1" aria-hidden="true"></i>
+              <span>${escapeHTML(title)}${section}</span>
+            </a>
+          </li>
+        `;
+      }).join('');
+
+      return `
+        <div class="v4a-citations-wrap" role="region" aria-label="${t('citations_heading', lang)}">
+          <div class="v4a-citations-title">
+            <i class="fa-solid fa-book-bookmark me-1" aria-hidden="true"></i>
+            <span>${t('citations_heading', lang)}</span>
+          </div>
+          <ul class="v4a-citations-list">
+            ${items}
+          </ul>
+        </div>
+      `;
+    },
+
+    /**
+     * Render a Tutor Chat Bubble with Citations and TTS
+     */
+    renderTutorBubble({ reply, citations = [], isDemo = false, demoNotice = '' }, lang = 'en') {
+      const demoTag = isDemo
+        ? `<span class="badge text-bg-warning fs-xs mb-1">${escapeHTML(demoNotice || 'Demo')}</span>`
+        : '';
+      const citationsHtml = Voice4AllUI.renderCitations(citations, lang);
+
+      return `
+        <div class="v4a-chat-item v4a-chat-item--tutor">
+          ${demoTag}
+          <div class="v4a-bubble" dir="auto">${escapeHTML(reply)}</div>
+          ${citationsHtml}
+          <div class="v4a-bubble-footer">
+            <span>${t('brand_title', lang)}</span>
+            <button
+              type="button"
+              class="v4a-tts-btn"
+              data-v4a-speech-text="${escapeHTML(reply)}"
+              aria-label="${t('listen_btn_aria', lang)}"
+            >
+              <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+              <span>${t('listen_btn', lang)}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    },
+
+    /**
+     * Render a User Chat Bubble
+     */
+    renderUserBubble(message) {
+      return `
+        <div class="v4a-chat-item v4a-chat-item--user">
+          <div class="v4a-bubble" dir="auto">${escapeHTML(message)}</div>
+          <div class="v4a-bubble-footer">
+            <span>You</span>
+          </div>
+        </div>
+      `;
+    },
+
+    /**
+     * Render an accessible Error Bubble with Retry
+     */
+    renderErrorBubble(errorText, lang = 'en') {
+      return `
+        <div class="v4a-chat-item v4a-chat-item--tutor v4a-chat-item--error" role="alert">
+          <div class="v4a-bubble v4a-bubble--error">
+            <div class="d-flex align-items-center gap-2 mb-1 text-danger">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <strong>${t('tutor_error', lang)}</strong>
+            </div>
+            ${errorText ? `<p class="mb-2 fs-xs text-muted">${escapeHTML(errorText)}</p>` : ''}
+            <button type="button" class="v4a-btn v4a-btn--outline v4a-btn-retry" style="padding: 4px 10px; font-size: 11px;">
+              <i class="fa-solid fa-rotate-right me-1" aria-hidden="true"></i>
+              <span>${t('retry_btn', lang)}</span>
+            </button>
+          </div>
         </div>
       `;
     },
