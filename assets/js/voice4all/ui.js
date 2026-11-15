@@ -31,6 +31,8 @@
       demo_status: 'Demo Mode — Backend Offline',
       demo_status_aria: 'Currently operating in demo mode using sample data because backend is offline',
       live_status: 'Backend Connected',
+      backend_demo_status: 'Backend Connected — Demo AI (not live Gemini)',
+      gemini_selected_status: 'Backend Connected — Gemini selected; ask a question to test',
       
       // Tab Navigation
       tablist_aria: 'Voice4All functional sections',
@@ -160,6 +162,8 @@
       demo_status: 'የሙከራ ሁነታ — የጀርባ ሰርቨር አልተገኘም',
       demo_status_aria: 'የጀርባ ሰርቨር ባለመገኘቱ በሙከራ ናሙና መረጃዎች እየሰራ ይገኛል',
       live_status: 'ከዋናው ሰርቨር ጋር ተገናኝቷል',
+      backend_demo_status: 'ከዋናው ሰርቨር ጋር ተገናኝቷል — የሙከራ AI (ቀጥታ Gemini አይደለም)',
+      gemini_selected_status: 'ከዋናው ሰርቨር ጋር ተገናኝቷል — Gemini ተመርጧል፤ ለመሞከር ጥያቄ ይጠይቁ',
 
       // Tab Navigation
       tablist_aria: 'የVoice4All ክፍሎች',

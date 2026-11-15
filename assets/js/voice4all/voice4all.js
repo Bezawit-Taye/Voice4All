@@ -30,6 +30,9 @@
     isListening: false,
     speechRecognition: null,
     currentUtterance: null,
+    currentAudio: null,
+    currentAudioUrl: null,
+    speechRequestId: 0,
     activeFilter: 'all',
     searchQuery: '',
     activeTicket: null,
@@ -84,8 +87,8 @@
 
     // 8. Listen for API backend status changes
     if (root.Voice4AllAPI && typeof root.Voice4AllAPI.onStatusChange === 'function') {
-      root.Voice4AllAPI.onStatusChange((isLive) => {
-        updateStatusBanner(isLive);
+      root.Voice4AllAPI.onStatusChange((isLive, aiProvider) => {
+        updateStatusBanner(isLive, aiProvider);
       });
     }
 
@@ -94,6 +97,23 @@
     window.addEventListener('offline', () => updateNetworkBanner(false));
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       updateNetworkBanner(false);
+    }
+
+    // 9. Check Amharic support and show TTS badge if voice is unavailable
+    if (root.Voice4AllSpeech && typeof root.Voice4AllSpeech.checkAmharicSupport === 'function') {
+      const cap = root.Voice4AllSpeech.checkAmharicSupport();
+      // If Amharic TTS not natively supported, show info badge
+      if (!cap.amharicTTSSupported) {
+        const badge = document.getElementById('v4a-stt-badge') || document.getElementById('v4a-lang-am-btn');
+        if (badge) {
+          const info = document.createElement('span');
+          info.setAttribute('aria-live', 'polite');
+          info.style.cssText = 'font-size:10px;color:#F59E0B;margin-left:4px;';
+          info.title = 'Amharic text-to-speech voice not installed on this device. Text captions will be shown instead.';
+          info.textContent = '⚠ TTS';
+          badge.parentNode && badge.parentNode.insertBefore(info, badge.nextSibling);
+        }
+      }
     }
 
     console.log('[Voice4All] Initialized successfully. Language:', state.lang, 'Simple Mode:', state.simpleMode);
@@ -232,15 +252,22 @@
     root.Voice4AllUI.announce(root.Voice4AllUI.t('clear_chat', state.lang));
   }
 
-  function updateStatusBanner(isLive) {
+  function updateStatusBanner(isBackendReady, aiProvider) {
     const banner = document.getElementById('v4a-status-banner');
     if (!banner) return;
 
-    banner.className = `v4a-status-banner ${isLive ? 'v4a-status-banner--live' : 'v4a-status-banner--demo'}`;
-    const icon = isLive ? 'fa-circle-check' : 'fa-flask';
-    const text = isLive ? root.Voice4AllUI.t('live_status', state.lang) : root.Voice4AllUI.t('demo_status', state.lang);
-    const pill = isLive ? 'LIVE' : 'DEMO';
+    const isGeminiSelected = isBackendReady && (aiProvider === 'gemini' || aiProvider === 'cloud_ai');
+    const statusClass = isGeminiSelected ? 'v4a-status-banner--live' : 'v4a-status-banner--demo';
+    const icon = isGeminiSelected ? 'fa-circle-check' : 'fa-flask';
+    const text = !isBackendReady
+      ? root.Voice4AllUI.t('demo_status', state.lang)
+      : root.Voice4AllUI.t(
+        isGeminiSelected ? 'gemini_selected_status' : 'backend_demo_status',
+        state.lang
+      );
+    const pill = !isBackendReady ? 'OFFLINE' : isGeminiSelected ? 'GEMINI' : 'DEMO';
 
+    banner.className = `v4a-status-banner ${statusClass}`;
     banner.innerHTML = `
       <div class="v4a-status-banner-content">
         <i class="fa-solid ${icon}" aria-hidden="true"></i>
@@ -557,49 +584,101 @@
   // Speech Synthesis (TTS Read Aloud)
   // =========================================================================
 
-  function speakText(text) {
+  async function speakText(text, triggerButton) {
+    stopSpeaking();
+    const requestId = ++state.speechRequestId;
+
     // Show visual captions for sound-off usability (WCAG 1.2)
     if (root.Voice4AllA11y && typeof root.Voice4AllA11y.showCaptions === 'function') {
       root.Voice4AllA11y.showCaptions(text, 10000);
     }
 
-    if (!('speechSynthesis' in root)) return;
+    if (root.Voice4AllAPI && typeof root.Voice4AllAPI.synthesizeSpeech === 'function') {
+      try {
+        const audioBlob = await root.Voice4AllAPI.synthesizeSpeech({
+          text,
+          language: state.lang
+        });
+        if (requestId !== state.speechRequestId) return;
 
-    stopSpeaking();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.className = 'v4a-generated-audio';
+        audio.setAttribute('aria-label', state.lang === 'am' ? 'የድምፅ መልስ' : 'Spoken tutor response');
+        audio.style.display = 'block';
+        audio.style.maxWidth = '100%';
+        audio.src = audioUrl;
+        if (triggerButton) triggerButton.insertAdjacentElement('afterend', audio);
 
-    try {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = state.lang === 'am' ? 'am-ET' : 'en-US';
-      utterance.rate = 1.0;
+        state.currentAudio = audio;
+        state.currentAudioUrl = audioUrl;
+        audio.addEventListener('ended', () => {
+          if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
+            root.Voice4AllA11y.hideCaptions();
+          }
+        }, { once: true });
 
-      utterance.onend = () => {
-        state.currentUtterance = null;
-        if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
-          root.Voice4AllA11y.hideCaptions();
+        try {
+          await audio.play();
+        } catch (err) {
+          root.Voice4AllUI.announce(
+            state.lang === 'am'
+              ? 'ድምፁ ዝግጁ ነው። ለማጫወት የድምፅ መቆጣጠሪያውን ይጠቀሙ።'
+              : 'Audio is ready. Use the audio controls to play it.'
+          );
         }
-      };
+        return;
+      } catch (err) {
+        if (requestId !== state.speechRequestId) return;
+        console.warn('[Voice4All TTS] Hosted speech service unavailable:', err.message);
+      }
+    }
 
-      utterance.onerror = () => {
-        state.currentUtterance = null;
-        if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
-          root.Voice4AllA11y.hideCaptions();
+    if (root.Voice4AllSpeech && typeof root.Voice4AllSpeech.speak === 'function') {
+      const started = root.Voice4AllSpeech.speak(text, {
+        language: state.lang,
+        onEnd: () => {
+          if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
+            root.Voice4AllA11y.hideCaptions();
+          }
+        },
+        onFallbackToText: (reason) => {
+          root.Voice4AllUI.announce(
+            state.lang === 'am'
+              ? `${reason} የጽሑፍ መልሱ በማያ ገጹ ላይ ይገኛል።`
+              : `${reason} The text response is available on screen.`
+          );
         }
-      };
+      });
+      if (started) return;
+    }
 
-      state.currentUtterance = utterance;
-      root.speechSynthesis.speak(utterance);
-    } catch (err) {
-      console.warn('[Voice4All TTS] Error speaking:', err);
+    if (root.Voice4AllA11y && typeof root.Voice4AllA11y.showCaptions === 'function') {
+      root.Voice4AllA11y.showCaptions(text, 12000);
     }
   }
 
   function stopSpeaking() {
+    state.speechRequestId += 1;
     if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
       root.Voice4AllA11y.hideCaptions();
     }
+    if (root.Voice4AllSpeech && typeof root.Voice4AllSpeech.stopSpeaking === 'function') {
+      root.Voice4AllSpeech.stopSpeaking();
+    }
     if ('speechSynthesis' in root && root.speechSynthesis.speaking) {
       root.speechSynthesis.cancel();
-      state.currentUtterance = null;
+    }
+    state.currentUtterance = null;
+    if (state.currentAudio) {
+      state.currentAudio.pause();
+      state.currentAudio.remove();
+      state.currentAudio = null;
+    }
+    if (state.currentAudioUrl) {
+      URL.revokeObjectURL(state.currentAudioUrl);
+      state.currentAudioUrl = null;
     }
   }
 
@@ -984,7 +1063,7 @@ function bindEvents() {
     if (ttsBtn) {
       event.preventDefault();
       const text = ttsBtn.getAttribute('data-v4a-speech-text');
-      speakText(text);
+      speakText(text, ttsBtn);
       return;
     }
 
