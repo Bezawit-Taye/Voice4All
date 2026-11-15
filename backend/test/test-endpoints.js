@@ -11,37 +11,45 @@
  * - Health Check & Dynamic Router Mounts
  */
 
-const http = require('http');
-const app = require('../src/server');
+const http = require("http");
+const app = require("../src/server");
 
 const TEST_PORT = 5097;
 
 function request(options, postData = null) {
   return new Promise((resolve, reject) => {
     const req = http.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+      res.on("end", () => {
         try {
           const parsed = JSON.parse(data);
-          resolve({ status: res.statusCode, headers: res.headers, body: parsed });
+          resolve({
+            status: res.statusCode,
+            headers: res.headers,
+            body: parsed,
+          });
         } catch (e) {
           resolve({ status: res.statusCode, headers: res.headers, body: data });
         }
       });
     });
 
-    req.on('error', (err) => reject(err));
+    req.on("error", (err) => reject(err));
 
     if (postData) {
-      req.write(typeof postData === 'string' ? postData : JSON.stringify(postData));
+      req.write(
+        typeof postData === "string" ? postData : JSON.stringify(postData),
+      );
     }
     req.end();
   });
 }
 
 async function runTests() {
-  console.log('--- Starting Voice4All Workstream B Verification Tests ---\n');
+  console.log("--- Starting Voice4All Workstream B Verification Tests ---\n");
   const server = app.listen(TEST_PORT);
 
   let passed = 0;
@@ -54,214 +62,507 @@ async function runTests() {
       passed++;
     } catch (err) {
       console.error(`[FAIL] ${name}`);
-      console.error('       Error:', err.message);
+      console.error("       Error:", err.message);
       failed++;
     }
   }
 
   try {
     // 1. Health Check
-    await test('GET /api/health verifies all services and routes are ready', async () => {
+    await test("GET /api/health verifies all services and routes are ready", async () => {
       const res = await request({
-        hostname: 'localhost',
+        hostname: "localhost",
         port: TEST_PORT,
-        path: '/api/health',
-        method: 'GET'
+        path: "/api/health",
+        method: "GET",
       });
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.status !== 'ok') throw new Error(`Expected status 'ok', got ${res.body.status}`);
-      const analyticsEndpoint = res.body.mountedEndpoints.find(e => e.path === '/api/analytics');
-      if (!analyticsEndpoint) throw new Error('Missing /api/analytics in mounted endpoints');
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.status !== "ok")
+        throw new Error(`Expected status 'ok', got ${res.body.status}`);
+      const analyticsEndpoint = res.body.mountedEndpoints.find(
+        (e) => e.path === "/api/analytics",
+      );
+      if (!analyticsEndpoint)
+        throw new Error("Missing /api/analytics in mounted endpoints");
+    });
+
+    await test("Static frontend is served while backend source stays private", async () => {
+      const page = await request({
+        hostname: "localhost",
+        port: TEST_PORT,
+        path: "/",
+        method: "GET",
+      });
+      if (
+        page.status !== 200 ||
+        typeof page.body !== "string" ||
+        !page.body.toLowerCase().includes("<html")
+      ) {
+        throw new Error(`Expected frontend HTML, got HTTP ${page.status}`);
+      }
+
+      const source = await request({
+        hostname: "localhost",
+        port: TEST_PORT,
+        path: "/backend/src/server.js",
+        method: "GET",
+      });
+      if (source.status !== 404)
+        throw new Error(
+          `Expected backend source to be blocked, got HTTP ${source.status}`,
+        );
     });
 
     // 2. English Grounding & Citation Accuracy
-    await test('POST /api/tutor/ask with English question returns grounded answer with accurate citations', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'What is the future of the virtual assistant industry and how do AI tools help?',
-        language: 'en'
-      });
+    await test("POST /api/tutor/ask with English question returns grounded answer with accurate citations", async () => {
+      const res = await request(
+        {
+          hostname: "localhost",
+          port: TEST_PORT,
+          path: "/api/tutor/ask",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          question:
+            "What is the future of the virtual assistant industry and how do AI tools help?",
+          language: "en",
+        },
+      );
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.isGrounded !== true) throw new Error('Expected isGrounded: true');
-      if (!Array.isArray(res.body.sources) || res.body.sources.length === 0) throw new Error('Missing citations');
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.isGrounded !== true)
+        throw new Error("Expected isGrounded: true");
+      if (!Array.isArray(res.body.sources) || res.body.sources.length === 0)
+        throw new Error("Missing citations");
 
       const source = res.body.sources[0];
       if (!source.courseTitle || !source.lessonTitle || !source.snippet) {
-        throw new Error('Citation missing required metadata fields');
+        throw new Error("Citation missing required metadata fields");
       }
-      if (!source.courseTitle.includes('VA-1') && !source.courseTitle.includes('WR 100')) {
+      if (
+        !source.courseTitle.includes("VA-1") &&
+        !source.courseTitle.includes("WR 100")
+      ) {
         throw new Error(`Unexpected course citation: ${source.courseTitle}`);
       }
     });
 
     // 3. Amharic Grounding & Citation Accuracy
-    await test('POST /api/tutor/ask with Amharic question returns grounded Amharic answer and citations', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'ንቁ ማዳመጥ በስራ ቦታ ግንኙነት ውስጥ ምን ጥቅም አለው?',
-        language: 'am'
-      });
+    await test("POST /api/tutor/ask with Amharic question returns grounded Amharic answer and citations", async () => {
+      const res = await request(
+        {
+          hostname: "localhost",
+          port: TEST_PORT,
+          path: "/api/tutor/ask",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          question: "ንቁ ማዳመጥ በስራ ቦታ ግንኙነት ውስጥ ምን ጥቅም አለው?",
+          language: "am",
+        },
+      );
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.language !== 'am') throw new Error(`Expected language 'am', got ${res.body.language}`);
-      if (!res.body.answer.includes('ሰላም') && !res.body.answer.includes('ንቁ ማዳመጥ')) {
-        throw new Error('Expected Amharic answer text');
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.language !== "am")
+        throw new Error(`Expected language 'am', got ${res.body.language}`);
+      if (
+        !res.body.answer.includes("ሰላም") &&
+        !res.body.answer.includes("ንቁ ማዳመጥ")
+      ) {
+        throw new Error("Expected Amharic answer text");
       }
-      if (res.body.sources.length === 0) throw new Error('Expected non-empty sources');
-      if (!res.body.sources[0].snippet.includes('ማዳመጥ') && !res.body.sources[0].snippet.includes('መስማት')) {
-        throw new Error('Source snippet missing expected Amharic text');
+      if (res.body.sources.length === 0)
+        throw new Error("Expected non-empty sources");
+      if (
+        !res.body.sources[0].snippet.includes("ማዳመጥ") &&
+        !res.body.sources[0].snippet.includes("መስማት")
+      ) {
+        throw new Error("Source snippet missing expected Amharic text");
+      }
+    });
+
+    await test("POST /api/tutor/ask accepts the frontend message and simple_mode fields", async () => {
+      const previousProvider = process.env.AI_PROVIDER;
+      process.env.AI_PROVIDER = "mock_demo";
+      try {
+        const res = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/ask",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          {
+            message: "What is active listening?",
+            language: "en",
+            simple_mode: true,
+          },
+        );
+
+        if (res.status !== 200)
+          throw new Error(`Expected 200, got ${res.status}`);
+        if (res.body.simplified !== true)
+          throw new Error("Expected simple_mode to enable simplified output");
+        if (!res.body.sources || res.body.sources.length === 0)
+          throw new Error("Expected curriculum citations");
+      } finally {
+        if (previousProvider === undefined) delete process.env.AI_PROVIDER;
+        else process.env.AI_PROVIDER = previousProvider;
+      }
+    });
+
+    await test("Gemini generates a grounded answer and receives redacted question text", async () => {
+      const previousProvider = process.env.AI_PROVIDER;
+      const previousKey = process.env.GEMINI_API_KEY;
+      const previousModel = process.env.GEMINI_MODEL;
+      const originalFetch = global.fetch;
+      let geminiRequest;
+      process.env.AI_PROVIDER = "gemini";
+      process.env.GEMINI_API_KEY = "test-key-not-a-real-credential";
+      process.env.GEMINI_MODEL = "gemini-test-model";
+      global.fetch = async (url, options) => {
+        geminiRequest = { url, options };
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            candidates: [{ content: { parts: [{ text: "ይህ በትምህርቱ ይዘት ላይ የተመሠረተ መልስ ነው።" }] } }],
+          }),
+        };
+      };
+
+      try {
+        const res = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/ask",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          {
+            question: "My name is John Doe, my email is john.doe@example.com. ንቁ ማዳመጥ ምንድን ነው?",
+            language: "am",
+          },
+        );
+
+        if (res.status !== 200)
+          throw new Error(`Expected 200, got ${res.status}`);
+        if (res.body.mode !== "gemini")
+          throw new Error(`Expected Gemini mode, got ${res.body.mode}`);
+        if (res.body.isGrounded !== true || res.body.sources.length === 0)
+          throw new Error("Expected grounded answer with citations");
+        if (!geminiRequest)
+          throw new Error("Expected a request to the Gemini API");
+        const sentPayload = JSON.parse(geminiRequest.options.body);
+        const sentText = sentPayload.contents[0].parts[0].text;
+        if (sentText.includes("john.doe@example.com") || sentText.includes("John Doe"))
+          throw new Error("PII was not redacted before sending the Gemini request");
+        if (geminiRequest.options.headers["x-goog-api-key"] !== process.env.GEMINI_API_KEY)
+          throw new Error("Expected the Gemini API key to be sent in a request header");
+      } finally {
+        global.fetch = originalFetch;
+        if (previousProvider === undefined) delete process.env.AI_PROVIDER;
+        else process.env.AI_PROVIDER = previousProvider;
+        if (previousKey === undefined) delete process.env.GEMINI_API_KEY;
+        else process.env.GEMINI_API_KEY = previousKey;
+        if (previousModel === undefined) delete process.env.GEMINI_MODEL;
+        else process.env.GEMINI_MODEL = previousModel;
+      }
+    });
+
+    await test("Gemini configuration errors do not fall back to demo answers", async () => {
+      const previousProvider = process.env.AI_PROVIDER;
+      const previousKey = process.env.GEMINI_API_KEY;
+      process.env.AI_PROVIDER = "gemini";
+      delete process.env.GEMINI_API_KEY;
+      try {
+        const res = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/ask",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          {
+            question: "What is active listening?",
+            language: "en",
+          },
+        );
+
+        if (res.status !== 503)
+          throw new Error(`Expected 503, got ${res.status}`);
+        if (!res.body.error || !res.body.error.includes("GEMINI_API_KEY"))
+          throw new Error("Expected an explicit missing Gemini key error");
+      } finally {
+        if (previousProvider === undefined) delete process.env.AI_PROVIDER;
+        else process.env.AI_PROVIDER = previousProvider;
+        if (previousKey === undefined) delete process.env.GEMINI_API_KEY;
+        else process.env.GEMINI_API_KEY = previousKey;
+      }
+    });
+
+    await test("POST /api/tutor/speech proxies WAV audio from the hosted TTS service", async () => {
+      const previousUrl = process.env.TTS_SERVICE_URL;
+      const originalFetch = global.fetch;
+      const audioBytes = Buffer.from("RIFF-test-wave");
+      process.env.TTS_SERVICE_URL = "http://omnivoice.test";
+      global.fetch = async (url, options) => {
+        if (url !== "http://omnivoice.test/synthesize")
+          throw new Error(`Unexpected TTS URL: ${url}`);
+        const body = JSON.parse(options.body);
+        if (body.language !== "am" || !body.text)
+          throw new Error("Expected Amharic text in the TTS request");
+        return {
+          ok: true,
+          status: 200,
+          headers: { get: () => "audio/wav" },
+          arrayBuffer: async () => audioBytes.buffer.slice(
+            audioBytes.byteOffset,
+            audioBytes.byteOffset + audioBytes.byteLength,
+          ),
+        };
+      };
+
+      try {
+        const res = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/speech",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          { text: "ሰላም", language: "am" },
+        );
+        if (res.status !== 200)
+          throw new Error(`Expected 200, got ${res.status}`);
+        if (!String(res.headers["content-type"]).startsWith("audio/wav"))
+          throw new Error("Expected an audio/wav response");
+        if (!String(res.body).startsWith("RIFF"))
+          throw new Error("Expected WAV response bytes");
+      } finally {
+        global.fetch = originalFetch;
+        if (previousUrl === undefined) delete process.env.TTS_SERVICE_URL;
+        else process.env.TTS_SERVICE_URL = previousUrl;
+      }
+    });
+
+    await test("POST /api/tutor/speech rejects empty text without calling the TTS service", async () => {
+      const originalFetch = global.fetch;
+      global.fetch = async () => {
+        throw new Error("TTS service should not be called for invalid input");
+      };
+      try {
+        const res = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/speech",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          { text: "   ", language: "am" },
+        );
+        if (res.status !== 400)
+          throw new Error(`Expected 400, got ${res.status}`);
+      } finally {
+        global.fetch = originalFetch;
       }
     });
 
     // 4. Test for Fabricated Answers and Unsupported Questions
-    await test('POST /api/tutor/ask refuses unsupported questions without inventing citations', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'How do I bake a chocolate cake with sprinkles and vanilla frosting?',
-        language: 'en'
-      });
+    await test("POST /api/tutor/ask refuses unsupported questions without inventing citations", async () => {
+      const res = await request(
+        {
+          hostname: "localhost",
+          port: TEST_PORT,
+          path: "/api/tutor/ask",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          question:
+            "How do I bake a chocolate cake with sprinkles and vanilla frosting?",
+          language: "en",
+        },
+      );
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.isGrounded !== false) throw new Error('Expected isGrounded: false for off-topic inquiry');
-      if (res.body.mode !== 'unsupported_refusal') throw new Error(`Expected mode 'unsupported_refusal', got ${res.body.mode}`);
-      if (res.body.sources.length !== 0) throw new Error('Must NOT invent citations for off-topic questions');
-      if (!res.body.answer.includes('not covered in your active course materials')) {
-        throw new Error('Expected polite refusal text explaining answer cannot be found');
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.isGrounded !== false)
+        throw new Error("Expected isGrounded: false for off-topic inquiry");
+      if (res.body.mode !== "unsupported_refusal")
+        throw new Error(
+          `Expected mode 'unsupported_refusal', got ${res.body.mode}`,
+        );
+      if (res.body.sources.length !== 0)
+        throw new Error("Must NOT invent citations for off-topic questions");
+      if (
+        !res.body.answer.includes("not covered in your active course materials")
+      ) {
+        throw new Error(
+          "Expected polite refusal text explaining answer cannot be found",
+        );
       }
     });
 
     // 5. Test Missing Citations Prevention
-    await test('Grounded questions must never produce missing citations', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'What is the BLUF model?',
-        language: 'en'
-      });
+    await test("Grounded questions must never produce missing citations", async () => {
+      const res = await request(
+        {
+          hostname: "localhost",
+          port: TEST_PORT,
+          path: "/api/tutor/ask",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          question: "What is the BLUF model?",
+          language: "en",
+        },
+      );
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
       if (!res.body.sources || res.body.sources.length === 0) {
-        throw new Error('Citation is missing for a valid course question');
+        throw new Error("Citation is missing for a valid course question");
       }
       for (const s of res.body.sources) {
         if (!s.courseTitle || !s.moduleTitle || !s.lessonTitle || !s.snippet) {
-          throw new Error('Found incomplete citation object');
+          throw new Error("Found incomplete citation object");
         }
       }
     });
 
     // 6. Simple-Language Explanations (English & Amharic)
-    await test('POST /api/tutor/ask with simplify: true returns plain-language explanation', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'What is the graduation threshold for this course?',
-        language: 'en',
-        simplify: true
-      });
+    await test("POST /api/tutor/ask with simplify: true returns plain-language explanation", async () => {
+      const res = await request(
+        {
+          hostname: "localhost",
+          port: TEST_PORT,
+          path: "/api/tutor/ask",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          question: "What is the graduation threshold for this course?",
+          language: "en",
+          simplify: true,
+        },
+      );
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.simplified !== true) throw new Error('Expected simplified: true');
-      if (!res.body.answer.includes('Simple Explanation') && !res.body.answer.includes('Plain Language')) {
-        throw new Error('Expected simple explanation header in response');
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
+      if (res.body.simplified !== true)
+        throw new Error("Expected simplified: true");
+      if (
+        !res.body.answer.includes("Simple Explanation") &&
+        !res.body.answer.includes("Plain Language")
+      ) {
+        throw new Error("Expected simple explanation header in response");
       }
     });
 
     // 7. Offline FAQ Matching
-    await test('POST /api/tutor/ask matches offline FAQ from faqs.json', async () => {
-      const res = await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'What is active listening?',
-        language: 'en'
-      });
+    await test("POST /api/tutor/ask matches offline FAQ from faqs.json", async () => {
+      const res = await request(
+        {
+          hostname: "localhost",
+          port: TEST_PORT,
+          path: "/api/tutor/ask",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          question: "What is active listening?",
+          language: "en",
+        },
+      );
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (!res.body.answer.toLowerCase().includes('active listening')) {
-        throw new Error('Did not match active listening FAQ');
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
+      if (!res.body.answer.toLowerCase().includes("active listening")) {
+        throw new Error("Did not match active listening FAQ");
       }
     });
 
     // 8. Zero-PII Anonymous Teacher Analytics
-    await test('GET /api/analytics/summary redacts learner names, emails, and phone numbers', async () => {
+    await test("GET /api/analytics/summary redacts learner names, emails, and phone numbers", async () => {
       // Send a query containing sensitive personal identifiable information
-      await request({
-        hostname: 'localhost',
-        port: TEST_PORT,
-        path: '/api/tutor/ask',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }, {
-        question: 'My name is John Doe and my email is john.doe@example.com, how do I pass?',
-        language: 'en'
-      });
+      await request(
+        {
+          hostname: "localhost",
+          port: TEST_PORT,
+          path: "/api/tutor/ask",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          question:
+            "My name is John Doe and my email is john.doe@example.com, how do I pass?",
+          language: "en",
+        },
+      );
 
       const res = await request({
-        hostname: 'localhost',
+        hostname: "localhost",
         port: TEST_PORT,
-        path: '/api/analytics/summary',
-        method: 'GET'
+        path: "/api/analytics/summary",
+        method: "GET",
       });
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
-      if (!res.body.data || res.body.data.totalQuestions === 0) throw new Error('Expected analytics data');
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
+      if (!res.body.data || res.body.data.totalQuestions === 0)
+        throw new Error("Expected analytics data");
 
       const inquiries = res.body.data.recentAnonymousInquiries || [];
-      const logged = inquiries.find(i => i.question.includes('how do I pass?'));
-      if (!logged) throw new Error('Logged query not found in analytics stream');
+      const logged = inquiries.find((i) =>
+        i.question.includes("how do I pass?"),
+      );
+      if (!logged)
+        throw new Error("Logged query not found in analytics stream");
 
       // Ensure email and name were scrubbed
-      if (logged.question.includes('john.doe@example.com')) {
-        throw new Error('PII Violation: Email was not redacted in analytics!');
+      if (logged.question.includes("john.doe@example.com")) {
+        throw new Error("PII Violation: Email was not redacted in analytics!");
       }
-      if (logged.question.includes('John Doe')) {
-        throw new Error('PII Violation: Learner name was not redacted in analytics!');
+      if (logged.question.includes("John Doe")) {
+        throw new Error(
+          "PII Violation: Learner name was not redacted in analytics!",
+        );
       }
-      if (!logged.question.includes('[REDACTED_EMAIL]') || !logged.question.includes('[REDACTED_NAME]')) {
-        throw new Error('Expected redaction placeholders in logged question text');
+      if (
+        !logged.question.includes("[REDACTED_EMAIL]") ||
+        !logged.question.includes("[REDACTED_NAME]")
+      ) {
+        throw new Error(
+          "Expected redaction placeholders in logged question text",
+        );
       }
     });
 
     // 9. Teacher Analytics Frequently Asked Questions Endpoint
-    await test('GET /api/analytics/faqs returns clustered topic frequencies', async () => {
+    await test("GET /api/analytics/faqs returns clustered topic frequencies", async () => {
       const res = await request({
-        hostname: 'localhost',
+        hostname: "localhost",
         port: TEST_PORT,
-        path: '/api/analytics/faqs',
-        method: 'GET'
+        path: "/api/analytics/faqs",
+        method: "GET",
       });
 
-      if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
+      if (res.status !== 200)
+        throw new Error(`Expected 200, got ${res.status}`);
       if (!Array.isArray(res.body.data) || res.body.data.length === 0) {
-        throw new Error('Expected list of clustered FAQ topics');
+        throw new Error("Expected list of clustered FAQ topics");
       }
     });
 
@@ -276,6 +577,6 @@ async function runTests() {
 }
 
 runTests().catch((err) => {
-  console.error('Fatal test error:', err);
+  console.error("Fatal test error:", err);
   process.exit(1);
 });

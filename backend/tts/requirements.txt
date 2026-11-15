@@ -1,0 +1,5 @@
+# Install a PyTorch/torchaudio build that matches the host (CPU or accelerator) first.
+omnivoice
+fastapi
+uvicorn[standard]
+soundfile
