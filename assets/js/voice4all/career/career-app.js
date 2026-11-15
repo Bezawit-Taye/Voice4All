@@ -14,6 +14,8 @@
 (function () {
   'use strict';
 
+  const TELEGRAM_BOT_URL = 'https://t.me/Voice4AllCareerBot';
+
   // State Management
   const state = {
     lang: 'en',
@@ -54,6 +56,7 @@
       honesty_notice_title: 'Simulated Demonstration Opportunities',
       honesty_notice_text: 'All sample job listings and accommodation drafts are simulated for learning and self-advocacy practice. Requests are NOT transmitted to employers.',
       view_details: 'View Details & Accommodations',
+      telegram_bot: 'Chat on Telegram',
       draft_accommodations: 'Draft Accommodations',
       save_job: 'Save Role',
       saved_job: 'Saved',
@@ -88,6 +91,7 @@
       honesty_notice_title: 'የናሙና ማሳያ የሥራ ዕድሎች',
       honesty_notice_text: 'ሁሉም የሥራ ዝርዝሮች እና የማመቻቸት ረቂቆች ለስልጠና እና ራስን ለመግለጽ የተዘጋጁ ናቸው። ጥያቄዎች ለአሰሪዎች አልተላኩም።',
       view_details: 'ዝርዝር እና ማመቻቸቶችን ይመልከቱ',
+      telegram_bot: 'በቴሌግራም ይወያዩ',
       draft_accommodations: 'ማመቻቸት አዘጋጅ',
       save_job: 'ሥራውን አስቀምጥ',
       saved_job: 'ተቀምጧል',
@@ -297,10 +301,18 @@
           </div>
 
           <div class="career-card-footer">
-            <button type="button" class="btn-career btn-career-primary btn-view-job" data-id="${job.id}">
-              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-              <span>${t('view_details')}</span>
-            </button>
+            <div class="career-card-primary-actions">
+              <button type="button" class="btn-career btn-career-primary btn-view-job" data-id="${job.id}">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                <span>${t('view_details')}</span>
+              </button>
+              <a class="btn-career btn-career-outline btn-telegram-bot"
+                 href="${TELEGRAM_BOT_URL}" target="_blank" rel="noopener noreferrer"
+                 aria-label="${t('telegram_bot')} — ${job.title}">
+                <i class="fa-brands fa-telegram" aria-hidden="true"></i>
+                <span>${t('telegram_bot')}</span>
+              </a>
+            </div>
             <div style="display: flex; gap: 6px;">
               <button type="button" class="btn-career btn-career-outline btn-draft-for-job" data-id="${job.id}" title="${t('draft_accommodations')}">
                 <i class="fa-solid fa-file-pen" aria-hidden="true"></i>

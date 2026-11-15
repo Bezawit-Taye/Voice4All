@@ -392,6 +392,12 @@ body.large-text {
   flex-wrap: wrap;
 }
 
+.career-card-primary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 /* Buttons */
 .btn-career {
   padding: 8px 14px;

@@ -392,31 +392,72 @@
       <!-- ================================================================= -->
       <section class="career-tab-panel" id="panel-notifications" role="tabpanel" aria-labelledby="tab-notifications" hidden>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-          <!-- Telegram Integration -->
-          <div class="career-card">
+          <!-- Telegram Web Embed Chat Widget -->
+          <div class="career-card" style="grid-column: 1 / -1;">
             <div class="career-card-header">
               <div class="career-card-type-row">
                 <span class="career-badge career-badge-remote">
-                  <i class="fa-brands fa-telegram" aria-hidden="true"></i> Telegram Bot Channel
+                  <i class="fa-brands fa-telegram" aria-hidden="true"></i> Telegram Bot — Job Alerts &amp; Career Chat
                 </span>
-                <span id="tg-status-badge" class="career-badge career-badge-simulated">Checking...</span>
+                <span id="tg-status-badge" class="career-badge career-badge-simulated" aria-live="polite">Connecting...</span>
               </div>
-              <h3 class="career-card-title">Screen-Reader Optimized Telegram Alerts</h3>
-            </div>
-            <p class="career-card-desc">
-              Receive structured markdown job notifications formatted with semantic headers and bullet points directly on your desktop or mobile Telegram client.
-            </p>
-
-            <div style="margin-bottom: 16px;">
-              <label for="tg-chat-id" style="font-size: 13px; font-weight: 600;">Telegram Chat ID (Optional):</label>
-              <input type="text" id="tg-chat-id" class="career-search-input" style="padding-left: 14px; margin-top: 4px;" placeholder="e.g. 987654321">
+              <h3 class="career-card-title">Voice4All Telegram Career Channel</h3>
+              <p class="career-card-desc" style="margin-top: 8px;">
+                Receive accessible job alerts and use career commands directly in this embedded chat.
+                Supports right-to-left text, Amharic (አማርኛ), and screen reader announcements.
+                Type <code>/jobs</code>, <code>/search remote</code>, <code>/accommodations</code>, or <code>/help</code>.
+              </p>
             </div>
 
-            <button type="button" id="btn-test-telegram" class="btn-career btn-career-primary">
-              <i class="fa-brands fa-telegram" aria-hidden="true"></i> Dispatch Test Career Alert
-            </button>
+            <!-- Telegram Web Chat Embed -->
+            <div id="tg-chat-embed" role="log" aria-label="Telegram Career Chat" aria-live="polite" aria-atomic="false"
+                 style="border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; height: 340px; overflow-y: auto; padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+              <!-- Messages injected here by JS -->
+              <div class="tg-welcome-msg" style="text-align: center; color: #64748b; font-size: 13px; padding: 20px 0;">
+                <i class="fa-brands fa-telegram" style="font-size: 28px; color: #2563eb; display: block; margin-bottom: 8px;" aria-hidden="true"></i>
+                <strong>Voice4All Career Bot</strong><br>
+                <span>Type <code>/jobs</code> to browse accessible opportunities or <code>/help</code> for all commands.</span>
+              </div>
+            </div>
 
-            <div id="telegram-result-box" style="display: none; margin-top: 16px;"></div>
+            <!-- Screen reader live announcer for new messages -->
+            <div id="v4a-tg-announcer" aria-live="polite" aria-atomic="true" class="career-sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;"></div>
+
+            <!-- Language toggle & Chat input -->
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+              <button type="button" id="tg-lang-en" onclick="tgSetLang('en')"
+                      style="font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid #2563eb; background: #2563eb; color: #fff; cursor: pointer; font-weight: 600;"
+                      aria-pressed="true">EN</button>
+              <button type="button" id="tg-lang-am" onclick="tgSetLang('am')"
+                      style="font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid #94a3b8; background: #fff; color: #475569; cursor: pointer;"
+                      aria-pressed="false">አማ</button>
+              <span style="font-size: 12px; color: #94a3b8; margin-left: auto;">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i> RTL text auto-detected
+              </span>
+            </div>
+
+            <div style="display: flex; gap: 8px; align-items: flex-end;">
+              <textarea id="tg-chat-input" rows="2"
+                        placeholder="Type /jobs, /help, or ask about career opportunities..."
+                        aria-label="Message to Telegram Career Bot"
+                        style="flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 14px; resize: none; font-family: inherit; line-height: 1.4;"
+                        dir="auto"></textarea>
+              <button type="button" id="btn-tg-send"
+                      aria-label="Send message to Telegram bot"
+                      style="padding: 10px 18px; background: #2563eb; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; align-self: stretch;">
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" onclick="tgSendCommand('/jobs')" class="btn-career" style="font-size: 12px; padding: 5px 12px;">📋 /jobs</button>
+              <button type="button" onclick="tgSendCommand('/accommodations')" class="btn-career" style="font-size: 12px; padding: 5px 12px;">📝 /accommodations</button>
+              <button type="button" onclick="tgSendCommand('/help')" class="btn-career" style="font-size: 12px; padding: 5px 12px;">❓ /help</button>
+              <button type="button" id="btn-test-telegram" class="btn-career btn-career-primary" style="font-size: 12px; padding: 5px 14px; margin-left: auto;">
+                <i class="fa-brands fa-telegram" aria-hidden="true"></i> Send Job Alert
+              </button>
+            </div>
+            <div id="telegram-result-box" style="display: none; margin-top: 12px;"></div>
           </div>
 
           <!-- Low-Bandwidth SMS Interface -->
