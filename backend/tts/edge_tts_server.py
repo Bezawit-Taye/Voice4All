@@ -23,6 +23,9 @@ VOICE_BY_LANGUAGE = {
     },
 }
 SPEECH_TIMEOUT_SECONDS = 90
+TOKEN_CONFIGURATION_ERROR = (
+    "Required service configuration is missing: TTS_SERVICE_TOKEN."
+)
 
 
 class SpeechRequest(BaseModel):
@@ -36,13 +39,19 @@ class SpeechRequest(BaseModel):
 
 app = FastAPI(title="Voice4All Edge TTS")
 
+if os.getenv("NODE_ENV") == "production" and not os.getenv(
+    "TTS_SERVICE_TOKEN", ""
+).strip():
+    logger.error(TOKEN_CONFIGURATION_ERROR)
+
 
 @app.get("/health")
 async def health():
-    if os.getenv("NODE_ENV") == "production" and not os.getenv("TTS_SERVICE_TOKEN"):
+    expected_token = os.getenv("TTS_SERVICE_TOKEN", "").strip()
+    if os.getenv("NODE_ENV") == "production" and not expected_token:
         raise HTTPException(
             status_code=503,
-            detail="Speech service configuration is incomplete.",
+            detail=TOKEN_CONFIGURATION_ERROR,
         )
     return {"status": "ok"}
 
@@ -52,11 +61,11 @@ async def synthesize(
     request: SpeechRequest,
     authorization: str | None = Header(default=None),
 ):
-    expected_token = os.getenv("TTS_SERVICE_TOKEN")
+    expected_token = os.getenv("TTS_SERVICE_TOKEN", "").strip()
     if os.getenv("NODE_ENV") == "production" and not expected_token:
         raise HTTPException(
             status_code=503,
-            detail="Speech service configuration is incomplete.",
+            detail=TOKEN_CONFIGURATION_ERROR,
         )
     if expected_token:
         scheme, _, supplied_token = (authorization or "").partition(" ")

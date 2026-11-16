@@ -6,17 +6,21 @@ async function synthesizeSpeech({ text, language, voice = 'female', rate = 1 }) 
 
   try {
     const isProduction = process.env.NODE_ENV === 'production';
-    const token = process.env.TTS_SERVICE_TOKEN;
+    const token = (process.env.TTS_SERVICE_TOKEN || '').trim();
     if (isProduction && !token) {
-      const error = new Error('Speech service is unavailable. Please try again.');
+      const error = new Error(
+        'Required production configuration is missing: TTS_SERVICE_TOKEN.'
+      );
       error.statusCode = 503;
       throw error;
     }
 
-    const configuredUrl = process.env.TTS_SERVICE_URL ||
+    const configuredUrl = (process.env.TTS_SERVICE_URL || '').trim() ||
       (isProduction ? '' : 'http://127.0.0.1:8001');
     if (!configuredUrl) {
-      const error = new Error('Speech service is unavailable. Please try again.');
+      const error = new Error(
+        'Required production configuration is missing: TTS_SERVICE_URL.'
+      );
       error.statusCode = 503;
       throw error;
     }

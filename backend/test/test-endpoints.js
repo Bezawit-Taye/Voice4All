@@ -450,6 +450,51 @@ async function runTests() {
       }
     });
 
+    await test("Production TTS proxy reports missing service configuration", async () => {
+      const previousEnvironment = process.env.NODE_ENV;
+      const previousUrl = process.env.TTS_SERVICE_URL;
+      const previousToken = process.env.TTS_SERVICE_TOKEN;
+      const { synthesizeSpeech } = require("../src/services/tts.service");
+      process.env.NODE_ENV = "production";
+
+      try {
+        process.env.TTS_SERVICE_URL = "voice4all-tts.onrender.com";
+        process.env.TTS_SERVICE_TOKEN = "";
+        try {
+          await synthesizeSpeech({ text: "Hello", language: "en" });
+          throw new Error("Expected missing TTS_SERVICE_TOKEN to fail");
+        } catch (error) {
+          if (
+            error.statusCode !== 503 ||
+            !error.message.includes("TTS_SERVICE_TOKEN")
+          ) {
+            throw error;
+          }
+        }
+
+        process.env.TTS_SERVICE_TOKEN = "test-production-secret";
+        process.env.TTS_SERVICE_URL = "";
+        try {
+          await synthesizeSpeech({ text: "Hello", language: "en" });
+          throw new Error("Expected missing TTS_SERVICE_URL to fail");
+        } catch (error) {
+          if (
+            error.statusCode !== 503 ||
+            !error.message.includes("TTS_SERVICE_URL")
+          ) {
+            throw error;
+          }
+        }
+      } finally {
+        if (previousEnvironment === undefined) delete process.env.NODE_ENV;
+        else process.env.NODE_ENV = previousEnvironment;
+        if (previousUrl === undefined) delete process.env.TTS_SERVICE_URL;
+        else process.env.TTS_SERVICE_URL = previousUrl;
+        if (previousToken === undefined) delete process.env.TTS_SERVICE_TOKEN;
+        else process.env.TTS_SERVICE_TOKEN = previousToken;
+      }
+    });
+
     await test("POST /api/tutor/speech rejects unsupported languages and long text", async () => {
       const originalFetch = global.fetch;
       global.fetch = async () => {
