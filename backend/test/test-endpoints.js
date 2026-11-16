@@ -495,6 +495,190 @@ async function runTests() {
       }
     });
 
+    await test("TTS proxy logs downstream auth failures without credentials", async () => {
+      const previousEnvironment = process.env.NODE_ENV;
+      const previousUrl = process.env.TTS_SERVICE_URL;
+      const previousToken = process.env.TTS_SERVICE_TOKEN;
+      const originalFetch = global.fetch;
+      const originalConsoleError = console.error;
+      const testToken = "test-tts-secret-not-for-logs";
+      const diagnosticLogs = [];
+      const { synthesizeSpeech } = require("../src/services/tts.service");
+      process.env.NODE_ENV = "production";
+      process.env.TTS_SERVICE_URL = "https://tts.example.test";
+      process.env.TTS_SERVICE_TOKEN = testToken;
+      global.fetch = async (url, options) => {
+        if (url !== "https://tts.example.test/synthesize")
+          throw new Error("Unexpected TTS URL");
+        if (options.headers.Authorization !== `Bearer ${testToken}`)
+          throw new Error("Expected bearer authentication");
+        return {
+          ok: false,
+          status: 401,
+          headers: { get: () => "application/json" },
+          text: async () => JSON.stringify({
+            detail: "Unauthorized.",
+            TTS_SERVICE_TOKEN: testToken,
+            extra: "x".repeat(1000),
+          }),
+        };
+      };
+      console.error = (...args) => diagnosticLogs.push(args);
+
+      try {
+        try {
+          await synthesizeSpeech({ text: "Welcome", language: "en" });
+          throw new Error("Expected the upstream auth failure to be rejected");
+        } catch (error) {
+          if (error.statusCode !== 502) throw error;
+        }
+
+        const log = diagnosticLogs.find((args) => args[0] === "[TTS proxy]");
+        if (!log) throw new Error("Expected a TTS diagnostic log");
+        const diagnostic = JSON.parse(log[1]);
+        if (
+          diagnostic.event !== "upstream_authentication_failure" ||
+          diagnostic.status !== 401 ||
+          !diagnostic.responseBody.includes("Unauthorized.") ||
+          diagnostic.responseBody.length > 520 ||
+          diagnostic.responseBody.includes(testToken)
+        ) {
+          throw new Error("Expected bounded, redacted HTTP auth diagnostics");
+        }
+      } finally {
+        global.fetch = originalFetch;
+        console.error = originalConsoleError;
+        if (previousEnvironment === undefined) delete process.env.NODE_ENV;
+        else process.env.NODE_ENV = previousEnvironment;
+        if (previousUrl === undefined) delete process.env.TTS_SERVICE_URL;
+        else process.env.TTS_SERVICE_URL = previousUrl;
+        if (previousToken === undefined) delete process.env.TTS_SERVICE_TOKEN;
+        else process.env.TTS_SERVICE_TOKEN = previousToken;
+      }
+    });
+
+    await test("TTS proxy logs connection and timeout failures", async () => {
+      const previousEnvironment = process.env.NODE_ENV;
+      const previousUrl = process.env.TTS_SERVICE_URL;
+      const previousToken = process.env.TTS_SERVICE_TOKEN;
+      const originalFetch = global.fetch;
+      const originalConsoleError = console.error;
+      const testToken = "test-tts-secret-not-for-logs";
+      const diagnosticLogs = [];
+      const { synthesizeSpeech } = require("../src/services/tts.service");
+      process.env.NODE_ENV = "production";
+      process.env.TTS_SERVICE_URL = "https://tts.example.test";
+      process.env.TTS_SERVICE_TOKEN = testToken;
+      console.error = (...args) => diagnosticLogs.push(args);
+
+      try {
+        const networkError = new TypeError("fetch failed");
+        networkError.cause = Object.assign(
+          new Error("connect ECONNRESET tts.example.test"),
+          { code: "ECONNRESET" },
+        );
+        global.fetch = async () => {
+          throw networkError;
+        };
+        try {
+          await synthesizeSpeech({ text: "Welcome", language: "en" });
+          throw new Error("Expected the connection error to be rejected");
+        } catch (error) {
+          if (error.statusCode !== 503) throw error;
+        }
+
+        const timeoutError = new Error("request aborted");
+        timeoutError.name = "AbortError";
+        global.fetch = async () => {
+          throw timeoutError;
+        };
+        try {
+          await synthesizeSpeech({ text: "Welcome", language: "en" });
+          throw new Error("Expected the timeout to be rejected");
+        } catch (error) {
+          if (error.statusCode !== 504) throw error;
+        }
+
+        const diagnostics = diagnosticLogs
+          .filter((args) => args[0] === "[TTS proxy]")
+          .map((args) => JSON.parse(args[1]));
+        if (
+          !diagnostics.some(
+            (entry) =>
+              entry.event === "upstream_connection_error" &&
+              entry.errorCode === "ECONNRESET",
+          ) ||
+          !diagnostics.some((entry) => entry.event === "upstream_timeout") ||
+          diagnostics.some((entry) => JSON.stringify(entry).includes(testToken))
+        ) {
+          throw new Error("Expected connection and timeout diagnostics without credentials");
+        }
+      } finally {
+        global.fetch = originalFetch;
+        console.error = originalConsoleError;
+        if (previousEnvironment === undefined) delete process.env.NODE_ENV;
+        else process.env.NODE_ENV = previousEnvironment;
+        if (previousUrl === undefined) delete process.env.TTS_SERVICE_URL;
+        else process.env.TTS_SERVICE_URL = previousUrl;
+        if (previousToken === undefined) delete process.env.TTS_SERVICE_TOKEN;
+        else process.env.TTS_SERVICE_TOKEN = previousToken;
+      }
+    });
+
+    await test("TTS proxy logs invalid response formats safely", async () => {
+      const previousEnvironment = process.env.NODE_ENV;
+      const previousUrl = process.env.TTS_SERVICE_URL;
+      const previousToken = process.env.TTS_SERVICE_TOKEN;
+      const originalFetch = global.fetch;
+      const originalConsoleError = console.error;
+      const testToken = "test-tts-secret-not-for-logs";
+      const diagnosticLogs = [];
+      const { synthesizeSpeech } = require("../src/services/tts.service");
+      process.env.NODE_ENV = "production";
+      process.env.TTS_SERVICE_URL = "https://tts.example.test";
+      process.env.TTS_SERVICE_TOKEN = testToken;
+      global.fetch = async () => ({
+        ok: true,
+        status: 200,
+        headers: { get: () => "application/json" },
+        text: async () => JSON.stringify({
+          detail: `Auth failed: Bearer ${testToken}`,
+          authorization: `Bearer ${testToken}`,
+        }),
+      });
+      console.error = (...args) => diagnosticLogs.push(args);
+
+      try {
+        try {
+          await synthesizeSpeech({ text: "Welcome", language: "en" });
+          throw new Error("Expected invalid response format to be rejected");
+        } catch (error) {
+          if (error.statusCode !== 502) throw error;
+        }
+
+        const log = diagnosticLogs.find((args) => args[0] === "[TTS proxy]");
+        if (!log) throw new Error("Expected a TTS diagnostic log");
+        const diagnostic = JSON.parse(log[1]);
+        if (
+          diagnostic.event !== "upstream_invalid_response_format" ||
+          diagnostic.status !== 200 ||
+          diagnostic.contentType !== "application/json" ||
+          diagnostic.responseBody.includes(testToken)
+        ) {
+          throw new Error("Expected safe invalid-format diagnostics");
+        }
+      } finally {
+        global.fetch = originalFetch;
+        console.error = originalConsoleError;
+        if (previousEnvironment === undefined) delete process.env.NODE_ENV;
+        else process.env.NODE_ENV = previousEnvironment;
+        if (previousUrl === undefined) delete process.env.TTS_SERVICE_URL;
+        else process.env.TTS_SERVICE_URL = previousUrl;
+        if (previousToken === undefined) delete process.env.TTS_SERVICE_TOKEN;
+        else process.env.TTS_SERVICE_TOKEN = previousToken;
+      }
+    });
+
     await test("POST /api/tutor/speech rejects unsupported languages and long text", async () => {
       const originalFetch = global.fetch;
       global.fetch = async () => {
