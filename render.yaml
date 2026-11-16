@@ -14,9 +14,8 @@ services:
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /api/health
-    envVarGroups:
-      - voice4all-tts-auth
     envVars:
+      - fromGroup: voice4all-tts-auth
       - key: NODE_ENV
         value: production
       - key: AI_PROVIDER
@@ -40,8 +39,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn edge_tts_server:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
-    envVarGroups:
-      - voice4all-tts-auth
     envVars:
+      - fromGroup: voice4all-tts-auth
       - key: NODE_ENV
         value: production
