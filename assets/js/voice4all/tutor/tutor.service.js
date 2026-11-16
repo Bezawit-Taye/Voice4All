@@ -6,15 +6,18 @@
 
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    module.exports = factory(root);
   } else {
-    root.Voice4AllTutorService = factory();
+    root.Voice4AllTutorService = factory(root);
   }
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof self !== 'undefined' ? self : this, function (root) {
   'use strict';
 
+  const defaultApiBase = root.VOICE4ALL_API_BASE ||
+    (root.location && root.location.protocol === 'file:' ? 'http://localhost:5000' : '');
+
   class TutorService {
-    constructor(apiBaseUrl = 'http://localhost:5000') {
+    constructor(apiBaseUrl = defaultApiBase) {
       this.apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
     }
 
@@ -66,8 +69,8 @@
         // If backend server is unreachable, provide a clear offline notification
         return {
           answer: language === 'am'
-            ? 'ይቅርታ፣ ከአስተማሪው አገልጋይ ጋር መገናኘት አልተቻለም። እባክዎ የበስተጀርባ አገልጋዩ (Backend) በ http://localhost:5000 ላይ መስራቱን ያረጋግጡ።'
-            : 'Unable to connect to the Voice4All tutor service. Please ensure the backend server is running on http://localhost:5000.',
+            ? 'ይቅርታ፣ ከVoice4All አስተማሪ አገልጋይ ጋር መገናኘት አልተቻለም። እባክዎ የበይነመረብ ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።'
+            : 'Unable to connect to the Voice4All tutor service. Please check your internet connection and try again.',
           language,
           sources: [],
           mode: 'connection_error',

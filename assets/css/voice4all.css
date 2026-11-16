@@ -64,6 +64,7 @@
    ========================================================================== */
 #v4a-launcher-host,
 #v4a-drawer-host,
+#v4a-voice-welcome-host,
 .v4a-drawer,
 .v4a-launcher,
 .v4a-captions-box {
@@ -75,6 +76,7 @@
 
 #v4a-launcher-host *,
 #v4a-drawer-host *,
+#v4a-voice-welcome-host *,
 .v4a-drawer *,
 .v4a-launcher *,
 .v4a-captions-box * {
@@ -158,6 +160,174 @@
   line-height: 1;
 }
 
+.v4a-skip-main-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 2000;
+  padding: 10px 14px;
+  color: #ffffff;
+  background: #001f3f;
+  border-radius: var(--v4a-radius-sm);
+  transform: translateY(-160%);
+  transition: transform 0.15s ease;
+}
+
+.v4a-skip-main-link:focus {
+  color: #ffffff;
+  transform: translateY(0);
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.v4a-voice-welcome-host {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  z-index: calc(var(--v4a-z-launcher) + 1);
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 104px);
+  overflow-y: auto;
+}
+
+.v4a-voice-welcome-host[hidden] {
+  display: none !important;
+}
+
+.v4a-voice-welcome {
+  padding: 20px;
+  color: var(--v4a-text-main);
+  background: var(--v4a-bg-surface);
+  border: 2px solid var(--v4a-primary);
+  border-radius: var(--v4a-radius-lg);
+  box-shadow: var(--v4a-shadow-lg);
+}
+
+.v4a-voice-welcome h2 {
+  margin: 0 0 10px;
+  color: var(--v4a-primary);
+  font-size: 1.15rem;
+}
+
+.v4a-voice-welcome p {
+  margin: 0 0 14px;
+  line-height: 1.55;
+}
+
+.v4a-voice-welcome-actions,
+.v4a-voice-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.v4a-voice-welcome-actions [hidden] {
+  display: none !important;
+}
+
+.v4a-voice-welcome-status,
+.v4a-voice-settings-status {
+  margin: 12px 0 0 !important;
+  color: var(--v4a-text-muted);
+  font-size: 0.9rem;
+}
+
+.v4a-voice-settings {
+  margin: 12px 0;
+  padding: 0 14px;
+  border: 1px solid var(--v4a-border);
+  border-radius: var(--v4a-radius-md);
+}
+
+.v4a-voice-settings summary {
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--v4a-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.v4a-voice-settings-content {
+  padding: 0 0 14px;
+}
+
+.v4a-voice-settings-hint {
+  color: var(--v4a-text-muted);
+}
+
+.v4a-voice-setting,
+.v4a-voice-setting-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.v4a-voice-setting {
+  justify-content: space-between;
+}
+
+.v4a-voice-setting select {
+  min-width: 120px;
+  min-height: 40px;
+  padding: 6px 8px;
+  color: var(--v4a-text-main);
+  background: #ffffff;
+  border: 1px solid #64748b;
+  border-radius: var(--v4a-radius-sm);
+}
+
+.v4a-voice-setting input[type="range"] {
+  width: 100%;
+}
+
+.v4a-voice-settings-actions {
+  margin-top: 16px;
+}
+
+.v4a-voice-guidance-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 10px;
+  color: #ffffff;
+  background: var(--v4a-primary);
+  border: 1px solid #ffffff;
+  border-radius: var(--v4a-radius-sm);
+  cursor: pointer;
+}
+
+.v4a-voice-guidance-toggle:focus-visible,
+.v4a-voice-settings :focus-visible,
+.v4a-voice-welcome :focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.v4a-voice-guidance-toggle--speaking i {
+  animation: v4a-speaking-pulse 1s ease-in-out infinite alternate;
+}
+
+.v4a-voice-settings button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-height: 480px) {
+  .v4a-voice-welcome-host {
+    top: 8px;
+    right: 8px;
+    bottom: auto;
+    max-height: calc(100vh - 16px);
+  }
+}
+
+@keyframes v4a-speaking-pulse {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
 /* ==========================================================================
    Backdrop Overlay
    ========================================================================== */
@@ -194,6 +364,7 @@
   z-index: var(--v4a-z-drawer);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   box-shadow: -6px 0 24px rgba(0, 0, 0, 0.18);
   transform: translateX(100%);
   visibility: hidden;
@@ -639,6 +810,10 @@
 .v4a-tts-btn--active {
   color: var(--v4a-danger);
   font-weight: 600;
+}
+
+.v4a-tts-btn--error {
+  color: var(--v4a-danger);
 }
 
 /* Source Citations in Responses */

@@ -1,5 +1,4 @@
-# Install a PyTorch/torchaudio build that matches the host (CPU or accelerator) first.
-omnivoice
+edge-tts
 fastapi
+aiohttp
 uvicorn[standard]
-soundfile

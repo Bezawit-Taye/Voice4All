@@ -68,7 +68,7 @@ Voice4All System Architecture
 - **Backend API & Data Persistence (`backend/src/routes/support.routes.js`):**
   - Formatted ticket tracking (`REQ-YYYY-XXXX`), strict input validation, and role-based access control (`learner`, `agent`, `admin`).
   - Strict affirmative consent enforcement for screen sharing prior to agent connection.
-  - Disk-backed persistent JSON store (`backend/data/support-tickets.json`) resilient across server reboots.
+  - Disk-backed JSON ticket store (`backend/data/support-tickets.json`) for local deployments. Render free filesystems are ephemeral, so production ticket persistence requires a managed database or persistent storage.
 
 ### Module 2: Grounded AI Tutor & Multilingual Speech (Workstream B)
 - **Course-Grounded Retrieval:**
@@ -115,6 +115,10 @@ Voice4All System Architecture
    cd ..
    ```
 
+### Production Deployment
+
+For Vercel frontend and Render Node.js/FastAPI deployment settings, see the [production deployment guide](docs/deployment.md). Deployment remains a manual action in the Vercel and Render dashboards.
+
 ---
 
 ## 5. How to Run the Application
@@ -153,17 +157,25 @@ GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 When Gemini is selected, missing credentials or API errors are shown as errors rather than silently replaced with a demo answer. Course excerpts are retrieved locally and sent with the question; common email, phone, and name patterns are redacted before the Gemini request. Check your Google AI Studio account's current quota and billing terms.
 
-### Enable hosted Amharic speech
-The tutor first requests speech from a self-hosted OmniVoice service, so learners do not install TTS software. If the service is not available, it tries a browser-installed voice and leaves the text answer available when neither can speak Amharic.
+### Enable English and Amharic speech
+The tutor requests MP3 audio from the backend's Edge TTS service. Learners only communicate with the Node.js API; they do not install Python or run a speech service themselves. Edge TTS uses Microsoft's online speech service, requires an internet connection, and is an unofficial client that may change or become unavailable. It requires no API key and is not guaranteed to remain free or available indefinitely.
 
-On the backend host, install a PyTorch/torchaudio build appropriate for its CPU or accelerator, then install and run the speech service from a second terminal:
+From the repository root, install the Python service dependencies in the existing virtual environment, then run the service in one terminal:
 ```powershell
-python -m pip install -r backend\tts\requirements.txt
-python -m uvicorn omnivoice_server:app --app-dir backend\tts --host 127.0.0.1 --port 8001
+backend\tts\.venv\Scripts\python.exe -m pip install -r backend\tts\requirements.txt
+backend\tts\.venv\Scripts\python.exe -m uvicorn edge_tts_server:app --app-dir backend\tts --host 127.0.0.1 --port 8001
 ```
-The first startup downloads the OmniVoice model. Keep `TTS_SERVICE_URL=http://127.0.0.1:8001` in `backend/.env`, or set it to the private internal URL if the services run on separate hosts. Verify it at `http://localhost:8001/health`. For deployment, host both the Node API and this TTS service on the backend; do not expose the model service publicly.
 
-OmniVoice supports Amharic (`am`) and automatic voice generation without a learner-provided recording. Its code is Apache-2.0, but its pretrained weights are CC-BY-NC; review that model license before any commercial deployment.
+In another terminal, start the Node.js backend:
+```powershell
+cd backend
+npm run dev
+```
+
+Keep `TTS_SERVICE_URL=http://127.0.0.1:8001` in `backend/.env`. The same service URL works when Node and Python run on the same host; for separate hosts, set it to the private internal URL reachable by Node. Verify the Python service at `http://127.0.0.1:8001/health`. Amharic uses the `am-ET-MekdesNeural` voice and English uses `en-US-AriaNeural`. If Edge TTS or the internet is unavailable, the UI reports the error and may fall back to a voice installed in the browser.
+
+### Voice navigation assistant
+The Voice4All launcher is available on the learner dashboard, learning materials, career, and support pages. On first use, opening the launcher shows a bilingual, keyboard-accessible choice to enable or decline voice guidance. The choice and voice settings are saved in browser `localStorage`; learners can change them from **Voice settings** in the assistant. Settings include spoken language, female/male voice, speaking rate (0.75×–1.25×), automatic page announcements, learning-content reading, and speech controls. A skip-to-main-content link is added when the page does not already provide one. Voice guidance is optional and complements, rather than replaces, keyboard navigation and screen readers.
 
 Career cards include a **Chat on Telegram** link to [Voice4AllCareerBot](https://t.me/Voice4AllCareerBot). The bot account must exist on Telegram for the link to open a live chat.
 
@@ -175,7 +187,7 @@ Career cards include a **Chat on Telegram** link to [Voice4AllCareerBot](https:/
 |--------|----------|-------------|-------------|
 | `GET` | `/api/health` | Service health status and active modules | Public |
 | `POST` | `/api/tutor/ask` | Grounded multilingual AI course tutor | Public |
-| `POST` | `/api/tutor/speech` | WAV speech generated by the self-hosted OmniVoice service | Public |
+| `POST` | `/api/tutor/speech` | MP3 speech generated by the Edge TTS service | Public |
 | `GET` | `/api/support/requests` | List active support tickets | Learner / Agent |
 | `POST` | `/api/support/requests` | Create a support ticket with consent check | Learner |
 | `GET` | `/api/support/requests/:id` | Get individual ticket status and queue position | Public / Learner |

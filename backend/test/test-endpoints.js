@@ -309,21 +309,32 @@ async function runTests() {
       }
     });
 
-    await test("POST /api/tutor/speech proxies WAV audio from the hosted TTS service", async () => {
+    await test("POST /api/tutor/speech proxies authenticated MP3 audio in Amharic and English", async () => {
       const previousUrl = process.env.TTS_SERVICE_URL;
+      const previousToken = process.env.TTS_SERVICE_TOKEN;
       const originalFetch = global.fetch;
-      const audioBytes = Buffer.from("RIFF-test-wave");
-      process.env.TTS_SERVICE_URL = "http://omnivoice.test";
+      const audioBytes = Buffer.from("ID3-test-mp3");
+      process.env.TTS_SERVICE_URL = "http://edge-tts.test";
+      process.env.TTS_SERVICE_TOKEN = "test-shared-secret";
       global.fetch = async (url, options) => {
-        if (url !== "http://omnivoice.test/synthesize")
+        if (url !== "http://edge-tts.test/synthesize")
           throw new Error(`Unexpected TTS URL: ${url}`);
+        if (options.headers.Authorization !== "Bearer test-shared-secret")
+          throw new Error("Expected the shared TTS service token");
         const body = JSON.parse(options.body);
-        if (body.language !== "am" || !body.text)
-          throw new Error("Expected Amharic text in the TTS request");
+        if (
+          !(
+            (body.language === "am" && body.text === "ሰላም" && body.voice === "female" && body.rate === 1)
+            || (body.language === "en" && body.text === "Welcome to Voice4All." && body.voice === "female" && body.rate === 1.15)
+            || (body.language === "am" && body.text === "ሰላም" && body.voice === "male" && body.rate === 1)
+          )
+        ) {
+          throw new Error("Expected valid Amharic or English speech input");
+        }
         return {
           ok: true,
           status: 200,
-          headers: { get: () => "audio/wav" },
+          headers: { get: () => "audio/mpeg" },
           arrayBuffer: async () => audioBytes.buffer.slice(
             audioBytes.byteOffset,
             audioBytes.byteOffset + audioBytes.byteLength,
@@ -344,14 +355,168 @@ async function runTests() {
         );
         if (res.status !== 200)
           throw new Error(`Expected 200, got ${res.status}`);
-        if (!String(res.headers["content-type"]).startsWith("audio/wav"))
-          throw new Error("Expected an audio/wav response");
-        if (!String(res.body).startsWith("RIFF"))
-          throw new Error("Expected WAV response bytes");
+        if (!String(res.headers["content-type"]).startsWith("audio/mpeg"))
+          throw new Error("Expected an audio/mpeg response");
+        if (!String(res.body).startsWith("ID3"))
+          throw new Error("Expected MP3 response bytes");
+
+        const english = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/speech",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          { text: "Welcome to Voice4All.", language: "en", rate: 1.15 },
+        );
+        if (english.status !== 200)
+          throw new Error(`Expected English speech HTTP 200, got ${english.status}`);
+        if (!String(english.headers["content-type"]).startsWith("audio/mpeg"))
+          throw new Error("Expected English MP3 response");
+
+        const male = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/speech",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          { text: "ሰላም", language: "am", voice: "male" },
+        );
+        if (male.status !== 200)
+          throw new Error(`Expected male Amharic speech HTTP 200, got ${male.status}`);
       } finally {
         global.fetch = originalFetch;
         if (previousUrl === undefined) delete process.env.TTS_SERVICE_URL;
         else process.env.TTS_SERVICE_URL = previousUrl;
+        if (previousToken === undefined) delete process.env.TTS_SERVICE_TOKEN;
+        else process.env.TTS_SERVICE_TOKEN = previousToken;
+      }
+    });
+
+    await test("Production TTS proxy upgrades Render hostnames to HTTPS", async () => {
+      const previousEnvironment = process.env.NODE_ENV;
+      const previousUrl = process.env.TTS_SERVICE_URL;
+      const previousToken = process.env.TTS_SERVICE_TOKEN;
+      const originalFetch = global.fetch;
+      let requestedUrl = "";
+      let authorization = "";
+      const audioBytes = Buffer.from("ID3-production-test");
+      process.env.NODE_ENV = "production";
+      process.env.TTS_SERVICE_URL = "voice4all-tts.onrender.com";
+      process.env.TTS_SERVICE_TOKEN = "test-production-secret";
+      global.fetch = async (url, options) => {
+        requestedUrl = url;
+        authorization = options.headers.Authorization;
+        return {
+          ok: true,
+          status: 200,
+          headers: { get: () => "audio/mpeg" },
+          arrayBuffer: async () =>
+            audioBytes.buffer.slice(
+              audioBytes.byteOffset,
+              audioBytes.byteOffset + audioBytes.byteLength,
+            ),
+        };
+      };
+
+      try {
+        const res = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/speech",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          { text: "Welcome", language: "en" },
+        );
+        if (res.status !== 200)
+          throw new Error(`Expected 200, got ${res.status}`);
+        if (requestedUrl !== "https://voice4all-tts.onrender.com/synthesize")
+          throw new Error(`Expected HTTPS Render URL, got ${requestedUrl}`);
+        if (authorization !== "Bearer test-production-secret")
+          throw new Error("Expected the production TTS shared secret");
+      } finally {
+        global.fetch = originalFetch;
+        if (previousEnvironment === undefined) delete process.env.NODE_ENV;
+        else process.env.NODE_ENV = previousEnvironment;
+        if (previousUrl === undefined) delete process.env.TTS_SERVICE_URL;
+        else process.env.TTS_SERVICE_URL = previousUrl;
+        if (previousToken === undefined) delete process.env.TTS_SERVICE_TOKEN;
+        else process.env.TTS_SERVICE_TOKEN = previousToken;
+      }
+    });
+
+    await test("POST /api/tutor/speech rejects unsupported languages and long text", async () => {
+      const originalFetch = global.fetch;
+      global.fetch = async () => {
+        throw new Error("TTS service should not be called for invalid input");
+      };
+      try {
+        for (const body of [
+          { text: "Hello", language: "fr" },
+          { text: "a".repeat(2001), language: "en" },
+          { text: "Hello", language: "en", rate: 1.3 },
+        ]) {
+          const res = await request(
+            {
+              hostname: "localhost",
+              port: TEST_PORT,
+              path: "/api/tutor/speech",
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            },
+            body,
+          );
+          if (res.status !== 400)
+            throw new Error(`Expected 400 for invalid input, got ${res.status}`);
+        }
+      } finally {
+        global.fetch = originalFetch;
+      }
+    });
+
+    await test("POST /api/tutor/speech returns safe service-unavailable and timeout errors", async () => {
+      const originalFetch = global.fetch;
+      try {
+        global.fetch = async () => {
+          throw new Error("private upstream network detail");
+        };
+        const unavailable = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/speech",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          { text: "Welcome", language: "en" },
+        );
+        if (unavailable.status !== 503 || unavailable.body.error.includes("private upstream"))
+          throw new Error("Expected a generic HTTP 503 service error");
+
+        global.fetch = async () => {
+          const error = new Error("request aborted");
+          error.name = "AbortError";
+          throw error;
+        };
+        const timeout = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/speech",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          { text: "Welcome", language: "en" },
+        );
+        if (timeout.status !== 504)
+          throw new Error(`Expected 504, got ${timeout.status}`);
+      } finally {
+        global.fetch = originalFetch;
       }
     });
 
@@ -444,30 +609,37 @@ async function runTests() {
 
     // 6. Simple-Language Explanations (English & Amharic)
     await test("POST /api/tutor/ask with simplify: true returns plain-language explanation", async () => {
-      const res = await request(
-        {
-          hostname: "localhost",
-          port: TEST_PORT,
-          path: "/api/tutor/ask",
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        },
-        {
-          question: "What is the graduation threshold for this course?",
-          language: "en",
-          simplify: true,
-        },
-      );
+      const previousProvider = process.env.AI_PROVIDER;
+      process.env.AI_PROVIDER = "mock_demo";
+      try {
+        const res = await request(
+          {
+            hostname: "localhost",
+            port: TEST_PORT,
+            path: "/api/tutor/ask",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          },
+          {
+            question: "What is the graduation threshold for this course?",
+            language: "en",
+            simplify: true,
+          },
+        );
 
-      if (res.status !== 200)
-        throw new Error(`Expected 200, got ${res.status}`);
-      if (res.body.simplified !== true)
-        throw new Error("Expected simplified: true");
-      if (
-        !res.body.answer.includes("Simple Explanation") &&
-        !res.body.answer.includes("Plain Language")
-      ) {
-        throw new Error("Expected simple explanation header in response");
+        if (res.status !== 200)
+          throw new Error(`Expected 200, got ${res.status}`);
+        if (res.body.simplified !== true)
+          throw new Error("Expected simplified: true");
+        if (
+          !res.body.answer.includes("Simple Explanation") &&
+          !res.body.answer.includes("Plain Language")
+        ) {
+          throw new Error("Expected simple explanation header in response");
+        }
+      } finally {
+        if (previousProvider === undefined) delete process.env.AI_PROVIDER;
+        else process.env.AI_PROVIDER = previousProvider;
       }
     });
 

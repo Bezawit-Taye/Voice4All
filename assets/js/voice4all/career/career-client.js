@@ -10,7 +10,7 @@
  */
 
 (function (root, factory) {
-  var exp = factory();
+  var exp = factory(root);
   if (typeof module === "object" && module && module.exports) {
     module.exports = exp;
     module.exports.default = exp;
@@ -27,14 +27,18 @@
     : typeof window !== "undefined"
       ? window
       : this,
-  function () {
+  function (root) {
     "use strict";
 
     async function apiFetch(url, options = {}) {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 6000);
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      const apiBase = (root.VOICE4ALL_API_BASE || "").replace(/\/+$/, "");
+      const requestUrl = apiBase && url.startsWith("/")
+        ? `${apiBase}${url}`
+        : url;
       try {
-        const res = await fetch(url, {
+        const res = await fetch(requestUrl, {
           ...options,
           signal: controller.signal,
           headers: {

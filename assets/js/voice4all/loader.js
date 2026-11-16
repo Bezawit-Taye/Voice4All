@@ -52,7 +52,7 @@
 
   const config = {
     apiBase: dataset.apiBase || globalConfig.apiBase || '',
-    lang: dataset.lang || globalConfig.lang || 'en',
+    lang: dataset.lang || globalConfig.lang || null,
     position: dataset.position || globalConfig.position || 'bottom-right',
     simpleMode: dataset.simpleMode === 'true' || globalConfig.simpleMode === true,
     theme: dataset.theme || globalConfig.theme || 'default',

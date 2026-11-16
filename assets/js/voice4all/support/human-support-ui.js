@@ -18,6 +18,11 @@
 (function (root) {
   'use strict';
 
+  function apiUrl(path) {
+    var base = (root.VOICE4ALL_API_BASE || '').replace(/\/+$/, '');
+    return base + (path.startsWith('/') ? path : '/' + path);
+  }
+
   // ── View State Constants ──
   var VIEW = {
     LANDING: 'landing',
@@ -322,7 +327,7 @@
         state.lastMessageCount = (state.ticket.messages || []).length;
       } else {
         // Fallback: direct API call
-        var res = await fetch('/api/support/requests', {
+        var res = await fetch(apiUrl('/api/support/requests'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -391,7 +396,7 @@
       // Fallback manual polling
       state._pollId = setInterval(async function () {
         try {
-          var res = await fetch('/api/support/requests/' + state.requestId);
+          var res = await fetch(apiUrl('/api/support/requests/' + state.requestId));
           var data = await res.json();
           if (data.success) {
             var prev = state.ticket;
@@ -516,7 +521,7 @@
       if (client) {
         await client.sendMessage(state.requestId, text);
       } else {
-        await fetch('/api/support/requests/' + state.requestId + '/messages', {
+        await fetch(apiUrl('/api/support/requests/' + state.requestId + '/messages'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sender: 'learner', senderName: 'Learner', text: text })
@@ -543,7 +548,7 @@
       if (client) {
         await client.cancelRequest(state.requestId);
       } else {
-        await fetch('/api/support/requests/' + state.requestId + '/cancel', {
+        await fetch(apiUrl('/api/support/requests/' + state.requestId + '/cancel'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason: 'Cancelled by learner' })
@@ -589,7 +594,7 @@
       '<div class="v4a-hs-skeleton v4a-hs-skeleton-lg"></div>';
 
     try {
-      var res = await fetch('/api/support/faqs');
+      var res = await fetch(apiUrl('/api/support/faqs'));
       var data = await res.json();
       state.faqs = data.faqs || data || [];
       state.faqsLoaded = true;

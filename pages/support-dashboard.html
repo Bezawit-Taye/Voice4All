@@ -47,6 +47,7 @@
     </div>
   </div>
 
+  <main id="support-main-content">
   <div id="stats" class="stats-bar">
     <div class="stat-card"><div id="stat-queued" class="stat-num">0</div><div class="stat-label">Waiting in Queue</div></div>
     <div class="stat-card"><div id="stat-connected" class="stat-num">0</div><div class="stat-label">Human Connected</div></div>
@@ -72,6 +73,7 @@
   <div id="queue-container">
     <p>Loading active tickets...</p>
   </div>
+  </main>
 
   <div id="aria-announcer" class="v4a-sr-only" aria-live="polite" style="position: absolute; left: -9999px;"></div>
 
@@ -81,7 +83,7 @@
     async function loadQueue() {
       try {
         const urgency = document.getElementById('filter-urgency').value;
-        const res = await fetch('/api/support/queue?urgency=' + urgency);
+        const res = await fetch(`${window.VOICE4ALL_API_BASE || ''}/api/support/queue?urgency=` + urgency);
         const data = await res.json();
         
         document.getElementById('stat-queued').innerText = data.stats.queued;
@@ -173,7 +175,7 @@
     async function claimTicket(id) {
       const agent = prompt('Enter your support specialist name:', activeAgentName) || activeAgentName;
       activeAgentName = agent;
-      await fetch('/api/support/requests/' + id + '/assign', {
+      await fetch(`${window.VOICE4ALL_API_BASE || ''}/api/support/requests/` + id + '/assign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agentName: agent, agentId: 'agent-portal' })
@@ -185,7 +187,7 @@
       const input = document.getElementById('reply-input-' + id);
       if (!input || !input.value.trim()) return;
       const text = input.value.trim();
-      await fetch('/api/support/requests/' + id + '/messages', {
+      await fetch(`${window.VOICE4ALL_API_BASE || ''}/api/support/requests/` + id + '/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -199,7 +201,7 @@
     }
 
     async function stopScreenShare(id) {
-      const res = await fetch('/api/support/requests/' + id + '/screen-share/stop', {
+      const res = await fetch(`${window.VOICE4ALL_API_BASE || ''}/api/support/requests/` + id + '/screen-share/stop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stoppedBy: 'agent' })
@@ -212,7 +214,7 @@
     async function resolveTicket(id) {
       const notes = prompt('Enter resolution notes:', 'Assisted learner with lesson concept clarification.');
       if (notes) {
-        await fetch('/api/support/requests/' + id + '/resolve', {
+        await fetch(`${window.VOICE4ALL_API_BASE || ''}/api/support/requests/` + id + '/resolve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ resolutionNotes: notes })
@@ -224,5 +226,6 @@
     loadQueue();
     setInterval(loadQueue, 4000);
   </script>
+  <script src="../assets/js/voice4all/loader.js"></script>
 </body>
 </html>

@@ -11,6 +11,8 @@ backend/.env
 # Build, archives and tooling
 _tooling
 *.zip
+dist/
+.vercel/
 
 # Logs
 npm-debug.log*

@@ -75,8 +75,8 @@ router.post('/ask', async (req, res, next) => {
 
 router.post('/speech', async (req, res, next) => {
   try {
-    const { text, language = 'am' } = req.body || {};
-    if (typeof text !== 'string' || !text.trim() || text.length > 2000) {
+    const { text, language = 'am', voice = 'female', rate = 1 } = req.body || {};
+    if (typeof text !== 'string' || !text.trim() || text.trim().length > 2000) {
       return res.status(400).json({
         error: 'text is required and must be no more than 2000 characters.'
       });
@@ -84,10 +84,16 @@ router.post('/speech', async (req, res, next) => {
     if (language !== 'am' && language !== 'en') {
       return res.status(400).json({ error: 'language must be "am" or "en".' });
     }
+    if (voice !== 'female' && voice !== 'male') {
+      return res.status(400).json({ error: 'voice must be "female" or "male".' });
+    }
+    if (typeof rate !== 'number' || !Number.isFinite(rate) || rate < 0.75 || rate > 1.25) {
+      return res.status(400).json({ error: 'rate must be a number between 0.75 and 1.25.' });
+    }
 
-    const audio = await synthesizeSpeech({ text: text.trim(), language });
+    const audio = await synthesizeSpeech({ text: text.trim(), language, voice, rate });
     res.set('Cache-Control', 'no-store');
-    res.type('audio/wav').send(audio);
+    res.type('audio/mpeg').send(audio);
   } catch (err) {
     next(err);
   }

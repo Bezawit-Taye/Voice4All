@@ -16,11 +16,19 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
+const configuredOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : [];
+
+if (
+  NODE_ENV === "production" &&
+  (!configuredOrigins.length || configuredOrigins.includes("*"))
+) {
+  throw new Error("Production requires explicit CORS_ORIGIN values; wildcards are not allowed.");
+}
 
 // 1. CORS Configuration
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
-  : ["*"];
+const allowedOrigins = configuredOrigins.length ? configuredOrigins : ["*"];
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -32,10 +40,12 @@ app.use(
       ) {
         return callback(null, true);
       }
-      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+      const error = new Error("Origin is not allowed by CORS.");
+      error.status = 403;
+      return callback(error);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   }),
 );
@@ -156,21 +166,34 @@ app.use("*", (req, res) => {
 app.use((err, req, res, next) => {
   console.error("[Server Error]", err.stack || err.message);
   const statusCode = err.status || err.statusCode || 500;
+  const publicError =
+    NODE_ENV === "production"
+      ? statusCode === 400
+        ? "Invalid request."
+        : statusCode === 403
+          ? "Origin is not allowed."
+          : statusCode === 413
+            ? "Request is too large."
+            : "Internal Server Error."
+      : err.message || "Internal Server Error";
   res.status(statusCode).json({
     status: "error",
-    error: err.message || "Internal Server Error",
+    error: publicError,
   });
 });
 
 // Start server if executed directly
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Voice4All Backend running on http://localhost:${PORT}`);
-    console.log(`- Health Check: http://localhost:${PORT}/api/health`);
-    console.log(`- Tutor Ask:    POST http://localhost:${PORT}/api/tutor/ask`);
-    console.log(`- Support API:  http://localhost:${PORT}/api/support`);
-    console.log(`- Career API:   http://localhost:${PORT}/api/career`);
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Voice4All Backend listening on port ${PORT}`);
+    console.log(`- Health Check: /api/health`);
+    console.log(`- Tutor Ask:    POST /api/tutor/ask`);
+    console.log(`- Support API:  /api/support`);
+    console.log(`- Career API:   /api/career`);
   });
+  server.headersTimeout = 30_000;
+  server.requestTimeout = 60_000;
+  server.timeout = 185_000;
 }
 
 module.exports = app;

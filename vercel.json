@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "node -e \"console.log('No frontend dependencies to install')\"",
+  "buildCommand": "node scripts/build-vercel.js",
+  "outputDirectory": "dist",
+  "cleanUrls": false,
+  "trailingSlash": false
+}

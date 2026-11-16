@@ -20,13 +20,12 @@
   // Configurable base URL (default: current host / relative)
   let apiBase =
     (typeof root !== "undefined" && root.VOICE4ALL_API_BASE) ||
-    (typeof window !== "undefined" &&
-    window.location &&
-    (window.location.protocol === "file:" ||
-      (window.location.port && window.location.port !== "5000"))
+    (typeof root !== "undefined" &&
+    root.location &&
+    root.location.protocol === "file:"
       ? "http://localhost:5000"
       : "");
-  const REQUEST_TIMEOUT_MS = 3000;
+  const REQUEST_TIMEOUT_MS = 30000;
 
   let backendAvailable = false;
   let aiProvider = null;
@@ -546,7 +545,7 @@
       }
     },
 
-    async synthesizeSpeech({ text, language = "am" }) {
+    async synthesizeSpeech({ text, language = "am", voice = "female", rate = 1 }) {
       if (!text || typeof text !== "string" || !text.trim()) {
         throw new Error("Please provide text to read aloud.");
       }
@@ -555,9 +554,9 @@
         `${apiBase}/api/tutor/speech`,
         {
           method: "POST",
-          body: JSON.stringify({ text: text.trim(), language }),
+          body: JSON.stringify({ text: text.trim(), language, voice, rate }),
         },
-        120000,
+        180000,
       );
 
       if (!response.ok) {
@@ -567,7 +566,7 @@
         );
       }
 
-      if (!(response.headers.get("content-type") || "").startsWith("audio/wav")) {
+      if (!(response.headers.get("content-type") || "").startsWith("audio/mpeg")) {
         throw new Error("Speech service returned an unsupported audio format.");
       }
 

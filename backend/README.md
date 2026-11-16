@@ -6,6 +6,8 @@ This service provides the backend foundation and intelligent AI tutor for the Vo
 
 ## 🚀 Quick Start
 
+For the Vercel/Render production setup, environment variables, and manual deployment steps, see the [production deployment guide](../docs/deployment.md).
+
 ### 1. Prerequisites
 - [Node.js](https://nodejs.org/) v18+ (tested on Node v24)
 - npm v9+
@@ -48,6 +50,23 @@ npm start
 ```
 
 The server starts on `http://localhost:5000`.
+
+### 5. Optional English and Amharic text-to-speech
+
+The tutor's `/api/tutor/speech` endpoint proxies MP3 audio from the Python Edge TTS service. Edge TTS is an unofficial client for Microsoft's online speech service; it needs internet access and is not guaranteed to stay free or permanently available. No API key or local TTS model is required.
+
+From the repository root, start the Python service in a separate terminal:
+```powershell
+backend\tts\.venv\Scripts\python.exe -m pip install -r backend\tts\requirements.txt
+backend\tts\.venv\Scripts\python.exe -m uvicorn edge_tts_server:app --app-dir backend\tts --host 127.0.0.1 --port 8001
+```
+
+Then start the Node backend from `backend` in another terminal:
+```powershell
+npm run dev
+```
+
+Set `TTS_SERVICE_URL=http://127.0.0.1:8001` in `backend/.env`. You can verify service readiness at `http://127.0.0.1:8001/health`. Amharic uses `am-ET-MekdesNeural` (female) or `am-ET-AmehaNeural` (male); English uses `en-US-AriaNeural` (female) or `en-US-GuyNeural` (male). The existing `POST /api/tutor/speech` endpoint accepts `voice` (`female` or `male`) and a `rate` from `0.75` to `1.25`.
 
 ### 5. Running Automated Tests
 ```bash

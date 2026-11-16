@@ -409,7 +409,7 @@
   </main>
 
   <script>
-    const API_BASE = 'http://localhost:5000/api/analytics';
+    const API_BASE = `${window.VOICE4ALL_API_BASE || ''}/api/analytics`;
 
     async function loadDashboardData() {
       const refreshBtn = document.getElementById('btn-refresh');
@@ -517,5 +517,6 @@
     // Auto load on start
     document.addEventListener('DOMContentLoaded', loadDashboardData);
   </script>
+  <script src="../assets/js/voice4all/loader.js"></script>
 </body>
 </html>

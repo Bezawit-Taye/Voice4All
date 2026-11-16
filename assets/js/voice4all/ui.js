@@ -26,6 +26,56 @@
       switch_to_am: 'Switch to Amharic',
       switch_to_en: 'Switch to English',
       lang_label: 'Language',
+      skip_to_main: 'Skip to main content',
+      voice_welcome_title: 'Voice navigation assistant',
+      voice_welcome_message: 'Welcome to Voice4All. Would you like me to guide you through the platform using voice instructions and read content aloud, or would you prefer to navigate independently?',
+      voice_enable_yes: 'Yes, enable voice guidance',
+      voice_enable_no: 'No, continue without voice guidance',
+      voice_play_welcome: 'Play welcome message',
+      voice_welcome_playing: 'Playing the welcome message.',
+      voice_welcome_finished: 'Welcome message finished.',
+      voice_autoplay_blocked: 'Your browser did not start the welcome audio. Select Play welcome message to listen.',
+      voice_welcome_unavailable: 'Voice guidance could not connect. Check your internet connection and try again.',
+      voice_settings: 'Voice settings',
+      voice_settings_hint: 'Choose spoken guidance, language, voice, and reading preferences.',
+      voice_guidance_enabled: 'Enable voice guidance',
+      voice_toggle_on: 'Voice guidance on',
+      voice_toggle_off: 'Voice guidance off',
+      voice_toggle_speaking: 'Voice guidance on, speaking',
+      voice_language: 'Spoken language',
+      voice_voice: 'Voice',
+      voice_voice_female: 'Female (Mekdes / Aria)',
+      voice_voice_male: 'Male (Ameha / Guy)',
+      voice_speed: 'Speaking speed',
+      voice_auto_pages: 'Announce page and section changes',
+      voice_auto_read: 'Automatically read learning content',
+      voice_test: 'Test selected voice',
+      voice_test_text: 'This is a Voice4All voice guidance test.',
+      voice_read_page: 'Read this page',
+      voice_pause: 'Pause speech',
+      voice_resume: 'Resume speech',
+      voice_stop: 'Stop speech',
+      voice_repeat: 'Repeat announcement',
+      voice_reset: 'Restore default settings',
+      voice_settings_reset: 'Voice settings restored to defaults.',
+      voice_status_ready: 'Voice guidance is ready.',
+      voice_status_loading: 'Preparing speech...',
+      voice_status_speaking: 'Speaking.',
+      voice_status_paused: 'Speech paused.',
+      voice_status_blocked: 'Audio is ready. Select Resume speech to listen.',
+      voice_enabled_notice: 'Voice guidance enabled.',
+      voice_disabled_notice: 'Voice guidance disabled.',
+      voice_guidance_intro: 'Voice guidance is on. Use the Voice settings section to adjust speech, or use the keyboard to explore the assistant.',
+      voice_page_dashboard: 'You are on the Voice4All learner dashboard. From here, you can access your courses, learning materials, tutor, support services, and career opportunities. Use the page navigation or keyboard to choose a feature.',
+      voice_page_lesson: 'You are viewing learning materials: {title}. Use the lesson navigation to select a topic. You can ask the Voice4All tutor a question or read the lesson aloud.',
+      voice_page_career: 'You are in Career and Professional Development. Browse and filter job opportunities, search listings, or request workplace accommodations.',
+      voice_page_support: 'You are in Human Support. Describe the help you need, choose a support method, and submit a request to connect with the support team.',
+      voice_page_support_agent: 'You are in the Voice4All support workspace. Review learner requests, open a request for details, and update its status as you assist the learner.',
+      voice_page_teacher: 'You are on the Voice4All teacher dashboard. Review anonymous learner questions, usage trends, and curriculum gaps.',
+      voice_page_home: 'You are on the Voice4All home page. Choose a learner dashboard, learning materials, support service, or career resource to continue.',
+      voice_tab_tutor: 'You are in the AI tutor section. Type a question in Amharic or English, or use the microphone button. Tutor answers include a read-aloud button.',
+      voice_tab_help: 'You are in Live Help. Submit a support request and choose how you would like the team to contact you.',
+      voice_tab_career: 'You are in Career. Search and filter opportunities, then review job details or request accommodations.',
       
       // Status Banner
       demo_status: 'Demo Mode — Backend Offline',
@@ -59,6 +109,12 @@
       listen_btn_aria: 'Read tutor response aloud with speech synthesis',
       speaking_label: 'Speaking...',
       stop_speech_btn: 'Stop',
+      speech_loading: 'Preparing audio...',
+      speech_error_label: 'Audio unavailable',
+      speech_unavailable: 'Speech is temporarily unavailable. Check your internet connection and try again.',
+      speech_fallback_attempt: 'Trying a voice available on this device.',
+      speech_playback_failed: 'Unable to play this audio. Please use the audio controls or try again.',
+      speech_audio_ready: 'Audio is ready. Use the audio controls to play it.',
       tutor_loading: 'Tutor is formulating response...',
       tutor_error: 'Unable to reach the tutor service. Switched to demo mode.',
       clear_chat: 'Clear chat history',
@@ -157,6 +213,56 @@
       switch_to_am: 'ወደ አማርኛ ቀይር',
       switch_to_en: 'ወደ እንግሊዝኛ ቀይር',
       lang_label: 'ቋንቋ',
+      skip_to_main: 'ወደ ዋናው ይዘት ዝለል',
+      voice_welcome_title: 'የድምጽ የአሰሳ ረዳት',
+      voice_welcome_message: 'ወደ Voice4All እንኳን በደህና መጡ። የድምጽ መመሪያ እንድሰጥዎት እና ይዘቱን ጮክ ብዬ እንዳነብልዎት ይፈልጋሉ፣ ወይስ በራስዎ መንገድ ማሰስ ይመርጣሉ?',
+      voice_enable_yes: 'አዎ፣ የድምጽ መመሪያን አንቃ',
+      voice_enable_no: 'አይ፣ ያለ የድምጽ መመሪያ ቀጥል',
+      voice_play_welcome: 'የእንኳን ደህና መጡ መልዕክትን አጫውት',
+      voice_welcome_playing: 'የእንኳን ደህና መጡ መልዕክቱ በመጫወት ላይ ነው።',
+      voice_welcome_finished: 'የእንኳን ደህና መጡ መልዕክቱ ተጠናቋል።',
+      voice_autoplay_blocked: 'አሳሹ የእንኳን ደህና መጡ ድምጽን በራሱ ማጫወት አልቻለም። ለማዳመጥ የእንኳን ደህና መጡ መልዕክትን አጫውት የሚለውን ይምረጡ።',
+      voice_welcome_unavailable: 'የድምጽ መመሪያ አልተገናኘም። የበይነመረብ ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።',
+      voice_settings: 'የድምጽ ቅንብሮች',
+      voice_settings_hint: 'የድምጽ መመሪያ፣ ቋንቋ፣ ድምጽ እና የንባብ ምርጫዎችን ይምረጡ።',
+      voice_guidance_enabled: 'የድምጽ መመሪያን አንቃ',
+      voice_toggle_on: 'የድምጽ መመሪያ በርቷል',
+      voice_toggle_off: 'የድምጽ መመሪያ ጠፍቷል',
+      voice_toggle_speaking: 'የድምጽ መመሪያ በርቷል፣ በመናገር ላይ ነው',
+      voice_language: 'የንግግር ቋንቋ',
+      voice_voice: 'ድምጽ',
+      voice_voice_female: 'ሴት (Mekdes / Aria)',
+      voice_voice_male: 'ወንድ (Ameha / Guy)',
+      voice_speed: 'የንግግር ፍጥነት',
+      voice_auto_pages: 'የገጽ እና ክፍል ለውጦችን አሳውቅ',
+      voice_auto_read: 'የትምህርት ይዘትን በራስ-ሰር አንብብ',
+      voice_test: 'የተመረጠውን ድምጽ ሞክር',
+      voice_test_text: 'ይህ የVoice4All የድምጽ መመሪያ ሙከራ ነው።',
+      voice_read_page: 'ይህን ገጽ አንብብ',
+      voice_pause: 'ንግግሩን ለጊዜው አቁም',
+      voice_resume: 'ንግግሩን ቀጥል',
+      voice_stop: 'ንግግሩን አቁም',
+      voice_repeat: 'መልዕክቱን ድገም',
+      voice_reset: 'ነባሪ ቅንብሮችን መልስ',
+      voice_settings_reset: 'የድምጽ ቅንብሮች ወደ ነባሪ ተመልሰዋል።',
+      voice_status_ready: 'የድምጽ መመሪያ ዝግጁ ነው።',
+      voice_status_loading: 'ድምጽ በማዘጋጀት ላይ...',
+      voice_status_speaking: 'በመናገር ላይ።',
+      voice_status_paused: 'ንግግሩ ለጊዜው ቆሟል።',
+      voice_status_blocked: 'ድምጹ ዝግጁ ነው። ለማዳመጥ ንግግሩን ቀጥል የሚለውን ይምረጡ።',
+      voice_enabled_notice: 'የድምጽ መመሪያ በርቷል።',
+      voice_disabled_notice: 'የድምጽ መመሪያ ጠፍቷል።',
+      voice_guidance_intro: 'የድምጽ መመሪያ በርቷል። ንግግርን ለማስተካከል የድምጽ ቅንብሮችን ይጠቀሙ ወይም አስተማሪውን በቁልፍ ሰሌዳ ያስሱ።',
+      voice_page_dashboard: 'በVoice4All የተማሪ ዳሽቦርድ ላይ ነዎት። ከዚህ ኮርሶችዎን፣ የትምህርት ቁሳቁሶችን፣ አስተማሪውን፣ የድጋፍ አገልግሎቶችን እና የሥራ ዕድሎችን ማግኘት ይችላሉ። ባህሪ ለመምረጥ የገጹን አሰሳ ወይም ቁልፍ ሰሌዳ ይጠቀሙ።',
+      voice_page_lesson: 'የትምህርት ቁሳቁስ እየተመለከቱ ነው፡ {title}። ርዕስ ለመምረጥ የትምህርት አሰሳውን ይጠቀሙ። ለVoice4All አስተማሪ ጥያቄ መጠየቅ ወይም ትምህርቱን ጮክ ብለው ማንበብ ይችላሉ።',
+      voice_page_career: 'በሙያ እና ሙያዊ እድገት ክፍል ውስጥ ነዎት። የሥራ ዕድሎችን ያስሱ፣ ይፈልጉ ወይም በሥራ ቦታ ማመቻቸት ይጠይቁ።',
+      voice_page_support: 'በሰው ድጋፍ ክፍል ውስጥ ነዎት። የሚፈልጉትን እገዛ ይግለጹ፣ የድጋፍ መንገድ ይምረጡ እና ከቡድኑ ጋር ለመገናኘት ጥያቄ ያስገቡ።',
+      voice_page_support_agent: 'በVoice4All የድጋፍ የሥራ ቦታ ላይ ነዎት። የተማሪ ጥያቄዎችን ይመልከቱ፣ ዝርዝሮችን ይክፈቱ እና ለተማሪው እርዳታ ሲሰጡ ሁኔታውን ያዘምኑ።',
+      voice_page_teacher: 'በVoice4All የአስተማሪ ዳሽቦርድ ላይ ነዎት። የተማሪዎችን ስም የማይጠቅሱ ጥያቄዎች፣ የአጠቃቀም አዝማሚያዎች እና የስርዓተ-ትምህርት ክፍተቶችን ይመልከቱ።',
+      voice_page_home: 'በVoice4All መነሻ ገጽ ላይ ነዎት። ለመቀጠል የተማሪ ዳሽቦርድ፣ የትምህርት ቁሳቁስ፣ የድጋፍ አገልግሎት ወይም የሙያ ሀብት ይምረጡ።',
+      voice_tab_tutor: 'በAI አስተማሪ ክፍል ውስጥ ነዎት። በአማርኛ ወይም በእንግሊዝኛ ጥያቄ ይጻፉ ወይም የማይክሮፎን ቁልፉን ይጠቀሙ። የአስተማሪውን መልስ በድምጽ ማዳመጥ ይችላሉ።',
+      voice_tab_help: 'በቀጥታ እርዳታ ክፍል ውስጥ ነዎት። የድጋፍ ጥያቄ ያስገቡ እና ቡድኑ እንዴት እንዲያገኝዎት እንደሚፈልጉ ይምረጡ።',
+      voice_tab_career: 'በሙያ ክፍል ውስጥ ነዎት። ዕድሎችን ይፈልጉ እና ያጣሩ፣ ከዚያ የሥራ ዝርዝሮችን ይመልከቱ ወይም ማመቻቸት ይጠይቁ።',
 
       // Status Banner
       demo_status: 'የሙከራ ሁነታ — የጀርባ ሰርቨር አልተገኘም',
@@ -190,6 +296,12 @@
       listen_btn_aria: 'የአስተማሪውን መልስ በድምጽ አዳምጥ',
       speaking_label: 'በመናገር ላይ...',
       stop_speech_btn: 'አቁም',
+      speech_loading: 'ድምፅ በማዘጋጀት ላይ...',
+      speech_error_label: 'ድምፅ አልተገኘም',
+      speech_unavailable: 'የድምፅ አገልግሎት ለጊዜው አይገኝም። የበይነመረብ ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።',
+      speech_fallback_attempt: 'በዚህ መሣሪያ ላይ ያለውን ድምፅ ለመጠቀም እየሞከርን ነው።',
+      speech_playback_failed: 'ይህን ድምፅ ማጫወት አልተቻለም። የድምፅ መቆጣጠሪያዎቹን ይጠቀሙ ወይም እንደገና ይሞክሩ።',
+      speech_audio_ready: 'ድምፁ ዝግጁ ነው። ለማጫወት የድምፅ መቆጣጠሪያዎቹን ይጠቀሙ።',
       tutor_loading: 'አስተማሪው መልስ በማዘጋጀት ላይ ነው...',
       tutor_error: 'ከአስተማሪው ሰርቨር ጋር መገናኘት አልተቻለም። ወደ ሙከራ ሁነታ ተቀይሯል።',
       clear_chat: 'የውይይት ታሪክን አጽዳ',
@@ -361,7 +473,7 @@
     /**
      * Render the side drawer structure
      */
-    renderDrawerShell(lang = 'en', isBackendAvailable = false) {
+    renderDrawerShell(lang = 'en', isBackendAvailable = false, voiceSettings = {}) {
       const isAm = (lang === 'am');
       return `
         <div id="v4a-backdrop" class="v4a-backdrop" aria-hidden="true"></div>
@@ -406,6 +518,17 @@
                 >አማ</button>
               </div>
 
+              <button
+                type="button"
+                id="v4a-voice-guidance-toggle"
+                class="v4a-voice-guidance-toggle"
+                aria-pressed="${voiceSettings.enabled === true}"
+                aria-label="${t(voiceSettings.enabled === true ? 'voice_toggle_on' : 'voice_toggle_off', lang)}"
+              >
+                <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                <span>${t(voiceSettings.enabled === true ? 'voice_toggle_on' : 'voice_toggle_off', lang)}</span>
+              </button>
+
               <!-- Close Button -->
               <button
                 type="button"
@@ -447,6 +570,8 @@
             </div>
             <span class="v4a-status-pill">${isBackendAvailable ? 'LIVE' : 'DEMO'}</span>
           </div>
+
+          ${Voice4AllUI.renderVoiceSettings(lang, voiceSettings)}
 
           <!-- Accessible Tablist -->
           <div class="v4a-tablist" role="tablist" aria-label="${t('tablist_aria', lang)}">
@@ -513,6 +638,78 @@
             tabindex="0"
           ></div>
         </aside>
+      `;
+    },
+
+    renderVoiceSettings(lang = 'en', settings = {}) {
+      const isAm = lang === 'am';
+      const rate = Math.min(1.25, Math.max(0.75, Number(settings.rate) || 1));
+      const selectedLanguage = settings.language === 'am' ? 'am' : 'en';
+      const selectedVoice = settings.voice === 'male' ? 'male' : 'female';
+
+      return `
+        <details id="v4a-voice-settings" class="v4a-voice-settings" lang="${lang}" dir="${isAm ? 'auto' : 'ltr'}">
+          <summary>${t('voice_settings', lang)}</summary>
+          <div class="v4a-voice-settings-content">
+            <p class="v4a-voice-settings-hint">${t('voice_settings_hint', lang)}</p>
+            <label class="v4a-voice-setting-toggle" for="v4a-voice-guidance-enabled">
+              <input type="checkbox" id="v4a-voice-guidance-enabled" ${settings.enabled === true ? 'checked' : ''}>
+              <span>${t('voice_guidance_enabled', lang)}</span>
+            </label>
+            <label class="v4a-voice-setting" for="v4a-voice-language">
+              <span>${t('voice_language', lang)}</span>
+              <select id="v4a-voice-language">
+                <option value="en" ${selectedLanguage === 'en' ? 'selected' : ''}>English</option>
+                <option value="am" ${selectedLanguage === 'am' ? 'selected' : ''}>አማርኛ</option>
+              </select>
+            </label>
+            <label class="v4a-voice-setting" for="v4a-voice-selection">
+              <span>${t('voice_voice', lang)}</span>
+              <select id="v4a-voice-selection">
+                <option value="female" ${selectedVoice === 'female' ? 'selected' : ''}>${t('voice_voice_female', lang)}</option>
+                <option value="male" ${selectedVoice === 'male' ? 'selected' : ''}>${t('voice_voice_male', lang)}</option>
+              </select>
+            </label>
+            <label class="v4a-voice-setting" for="v4a-voice-rate">
+              <span>${t('voice_speed', lang)} <output id="v4a-voice-rate-value">${rate.toFixed(2)}×</output></span>
+              <input id="v4a-voice-rate" type="range" min="0.75" max="1.25" step="0.05" value="${rate}">
+            </label>
+            <label class="v4a-voice-setting-toggle" for="v4a-auto-announcements">
+              <input type="checkbox" id="v4a-auto-announcements" ${settings.autoAnnouncePages !== false ? 'checked' : ''}>
+              <span>${t('voice_auto_pages', lang)}</span>
+            </label>
+            <label class="v4a-voice-setting-toggle" for="v4a-auto-read-learning">
+              <input type="checkbox" id="v4a-auto-read-learning" ${settings.autoReadLearning === true ? 'checked' : ''}>
+              <span>${t('voice_auto_read', lang)}</span>
+            </label>
+            <div class="v4a-voice-settings-actions" role="group" aria-label="${t('voice_settings', lang)}">
+              <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-test">${t('voice_test', lang)}</button>
+              <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-read-current-page">${t('voice_read_page', lang)}</button>
+              <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-pause">${t('voice_pause', lang)}</button>
+              <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-resume">${t('voice_resume', lang)}</button>
+              <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-stop">${t('voice_stop', lang)}</button>
+              <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-repeat">${t('voice_repeat', lang)}</button>
+              <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-reset">${t('voice_reset', lang)}</button>
+            </div>
+            <p id="v4a-voice-settings-status" class="v4a-voice-settings-status" role="status" aria-live="polite">${t('voice_status_ready', lang)}</p>
+          </div>
+        </details>
+      `;
+    },
+
+    renderVoiceWelcome(lang = 'en') {
+      const isAm = lang === 'am';
+      return `
+        <section class="v4a-voice-welcome" role="region" aria-labelledby="v4a-voice-welcome-title" aria-describedby="v4a-voice-welcome-message" lang="${lang}" dir="${isAm ? 'auto' : 'ltr'}">
+          <h2 id="v4a-voice-welcome-title">${t('voice_welcome_title', lang)}</h2>
+          <p id="v4a-voice-welcome-message">${t('voice_welcome_message', lang)}</p>
+          <div class="v4a-voice-welcome-actions">
+            <button type="button" class="v4a-btn v4a-btn--primary" id="v4a-voice-welcome-enable">${t('voice_enable_yes', lang)}</button>
+            <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-welcome-decline">${t('voice_enable_no', lang)}</button>
+            <button type="button" class="v4a-btn v4a-btn--secondary" id="v4a-voice-welcome-play" hidden>${t('voice_play_welcome', lang)}</button>
+          </div>
+          <p id="v4a-voice-welcome-status" class="v4a-voice-welcome-status" role="status" aria-live="polite"></p>
+        </section>
       `;
     },
 
