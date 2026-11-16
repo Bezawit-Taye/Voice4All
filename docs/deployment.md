@@ -1,16 +1,17 @@
 # Voice4All production deployment
 
-This repository is a monorepo with a static, multi-page frontend, an Express API, and a separate FastAPI Edge TTS service. `vercel.json` and `render.yaml` describe the deployable services; no deployment is started by this guide.
+This repository is a monorepo with a static, multi-page frontend, an Express API, and a separate FastAPI Edge TTS service. `vercel.json`, `netlify.toml`, and `render.yaml` describe deployment configuration; no deployment is started by this guide.
 
 ## Accounts and prerequisites
 
 - A GitHub account with this repository pushed to the branch you intend to deploy.
 - A Vercel account connected to that repository.
 - A Render account connected to that repository.
+- A Netlify account if you choose the manual Netlify Drop deployment described below; it does not require connecting GitHub.
 - Optional: a Gemini API key if you choose the live Gemini tutor instead of the default `mock_demo` provider.
 - Optional: provider accounts and credentials for Telegram, Twilio, or Africa's Talking notifications.
 
-The frontend is static HTML/CSS/JavaScript. There is no Vite/Webpack build; a small Node build script copies the public site and injects its API base from `VITE_API_URL`.
+The frontend is static HTML/CSS/JavaScript. There is no root `package.json`, Vite/Webpack build, React router, or SPA. A small Node build script copies the public site and injects its API base from `VITE_API_URL`.
 
 ## Environment variables
 
@@ -18,9 +19,26 @@ The frontend is static HTML/CSS/JavaScript. There is no Vite/Webpack build; a sm
 
 | Variable | Required | Value |
 |---|---|---|
-| `VITE_API_URL` | Yes | Public HTTPS URL of the Render Node service, e.g. `https://voice4all-api.onrender.com`. No trailing path is needed. |
+| `VITE_API_URL` | Yes | Public HTTPS URL of the Render Node service. Copy the actual URL from the Render dashboard; no trailing path is needed. |
 
 This value is public and is embedded in the static build. Never put API keys or the TTS shared secret in Vercel frontend variables. `VOICE4ALL_API_BASE` is accepted as an alternative by the build script, but `VITE_API_URL` is the documented setting.
+
+### Netlify manual deployment
+
+The same public `VITE_API_URL` is required when building for Netlify. It must be the actual Express/Node service URL copied from Render, not the Python TTS URL. The repository's Render Blueprint provides the Node service name but does not verify its assigned public hostname.
+
+For Netlify Drop, build locally from the repository root in PowerShell (replace the placeholder with the exact URL shown in Render):
+
+```powershell
+$env:VITE_API_URL = 'https://<actual-node-service-url-from-render>'
+node .\scripts\build-vercel.js
+```
+
+The script writes the deployable site to `dist\`. Drag the generated `dist` folder into Netlify Drop. Netlify Drop does not run the build or read environment variables from the dashboard, so set `VITE_API_URL` in the shell before building. Do not upload the repository root or `backend\`.
+
+For a Netlify build that runs from a connected repository or the Netlify CLI, [netlify.toml](../netlify.toml) sets the build command to `node scripts/build-vercel.js` and the publish directory to `dist`. No frontend package installation is required.
+
+The site is multi-page: its routes are actual files such as `/pages/career-development.html`. Netlify serves those files directly after refresh, so no SPA fallback redirect is configured. A catch-all rewrite to `/index.html` would not provide React routing and would change how unknown paths behave.
 
 ### Render Node.js service
 
@@ -62,7 +80,7 @@ Local development values and placeholders are in the root [.env.example](../.env
 2. Keep the provided settings from [vercel.json](../vercel.json): build command `node scripts/build-vercel.js`, output directory `dist`, and no dependency install needed. The repo is not an SPA, so direct `.html` page routes are served as static files; no fallback rewrite is required.
 3. Note the production Vercel origin (or configure a custom domain). You can finish the first build after Render is ready.
 
-The Vercel build deliberately fails until `VITE_API_URL` is set to the actual Node service URL. If Vercel starts an initial build during project import, add the variable once Render is deployed and then redeploy.
+The production frontend build deliberately fails until `VITE_API_URL` is set to the actual Node service URL. If Vercel starts an initial build during project import, add the variable once Render is deployed and then redeploy.
 
 ### 2. Create and configure both Render services
 
