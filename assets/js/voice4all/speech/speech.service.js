@@ -30,15 +30,56 @@
       this.currentUtterance = null;
       this.selectedLanguage = 'en'; // 'en' | 'am'
       this.cachedVoices = [];
+      this.speechRequestId = 0;
 
       if (typeof window !== 'undefined' && speechSynthesis) {
-        this.cachedVoices = speechSynthesis.getVoices();
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-          speechSynthesis.onvoiceschanged = () => {
-            this.cachedVoices = speechSynthesis.getVoices();
-          };
+        this.refreshVoices();
+        if (typeof speechSynthesis.addEventListener === 'function') {
+          speechSynthesis.addEventListener('voiceschanged', () => this.refreshVoices());
+        } else if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => this.refreshVoices();
         }
       }
+    }
+
+    refreshVoices() {
+      if (!speechSynthesis) return this.cachedVoices;
+      const voices = speechSynthesis.getVoices();
+      if (voices.length) this.cachedVoices = voices;
+      return this.cachedVoices;
+    }
+
+    waitForVoices(timeoutMs = 1500) {
+      const voices = this.refreshVoices();
+      if (voices.length || !speechSynthesis) return Promise.resolve(voices);
+
+      return new Promise((resolve) => {
+        let timer;
+        const finish = () => {
+          clearTimeout(timer);
+          if (typeof speechSynthesis.removeEventListener === 'function') {
+            speechSynthesis.removeEventListener('voiceschanged', finish);
+          }
+          resolve(this.refreshVoices());
+        };
+
+        if (typeof speechSynthesis.addEventListener === 'function') {
+          speechSynthesis.addEventListener('voiceschanged', finish, { once: true });
+          timer = setTimeout(finish, timeoutMs);
+          return;
+        }
+
+        const deadline = Date.now() + timeoutMs;
+        const poll = () => {
+          const currentVoices = this.refreshVoices();
+          if (currentVoices.length || Date.now() >= deadline) {
+            resolve(currentVoices);
+            return;
+          }
+          timer = setTimeout(poll, 100);
+        };
+        poll();
+      });
     }
 
     /**
@@ -66,7 +107,7 @@
       const tts = this.isTTSSupported();
 
       // Check if any installed voice matches 'am' or 'am-ET'
-      const voices = this.cachedVoices.length > 0 ? this.cachedVoices : (speechSynthesis ? speechSynthesis.getVoices() : []);
+      const voices = this.refreshVoices();
       const amharicVoice = voices.find((v) => v.lang === 'am-ET' || v.lang === 'am' || v.lang.startsWith('am-'));
 
       // In Chromium browsers, SpeechRecognition generally delegates to Google speech services which support am-ET if online
@@ -272,64 +313,63 @@
 
       const lang = options.language || this.selectedLanguage;
       const locale = this.getLocale(lang);
-
-      // Verify if Amharic voice exists before attempting to speak Amharic
-      if (lang === 'am') {
-        const check = this.checkAmharicSupport();
-        if (!check.amharicTTSSupported) {
-          const warning = 'የአማርኛ ድምፅ ንባብ (TTS) በአሳሽዎ ውስጥ አልተደገፈም። እባክዎ ማብራሪያውን ከማያ ገጹ ላይ ያንብቡ።';
-          console.warn('[Voice4All Speech]', warning);
-          if (options.onFallbackToText) options.onFallbackToText(warning);
-          return false;
-        }
-      }
-
       const cleanedText = this.cleanTextForSpeech(text);
       if (!cleanedText) return false;
 
-      try {
-        const utterance = new window.SpeechSynthesisUtterance(cleanedText);
-        utterance.lang = locale;
-        utterance.rate = options.rate || 0.95;
-        utterance.pitch = options.pitch || 1.0;
+      const requestId = this.speechRequestId;
+      this.waitForVoices().then((voices) => {
+        if (requestId !== this.speechRequestId) return;
 
-        const voices = this.cachedVoices.length > 0 ? this.cachedVoices : speechSynthesis.getVoices();
-        if (voices && voices.length > 0) {
-          const matchedVoice = voices.find((v) => v.lang === locale || v.lang.startsWith(locale.split('-')[0]));
-          if (matchedVoice) {
-            utterance.voice = matchedVoice;
-          }
+        if (lang === 'am' && !voices.some((voice) => voice.lang === 'am-ET' || voice.lang === 'am' || voice.lang.startsWith('am-'))) {
+          const warning = 'የአማርኛ ድምፅ ንባብ (TTS) በአሳሽዎ ውስጥ አልተገኘም። እባክዎ የበይነመረብ ግንኙነቱን ያረጋግጡ ወይም የድምጽ መቆጣጠሪያዎችን ይጠቀሙ።';
+          if (options.onFallbackToText) options.onFallbackToText(warning);
+          return;
         }
 
-        utterance.onstart = () => {
-          if (options.onStart) options.onStart();
-        };
+        try {
+          const utterance = new window.SpeechSynthesisUtterance(cleanedText);
+          utterance.lang = locale;
+          utterance.rate = options.rate || 0.95;
+          utterance.pitch = options.pitch || 1.0;
 
-        utterance.onend = () => {
-          this.currentUtterance = null;
-          if (options.onEnd) options.onEnd();
-        };
+          const matchedVoice = voices.find((voice) =>
+            voice.lang === locale || voice.lang.startsWith(locale.split('-')[0])
+          );
+          if (matchedVoice) utterance.voice = matchedVoice;
 
-        utterance.onerror = (e) => {
-          this.currentUtterance = null;
-          console.warn('[Voice4All Speech] Synthesis error:', e);
-          if (options.onError) options.onError(e.error || 'Speech synthesis error');
-        };
+          utterance.onstart = () => {
+            if (requestId === this.speechRequestId && options.onStart) options.onStart();
+          };
 
-        this.currentUtterance = utterance;
-        speechSynthesis.speak(utterance);
-        return true;
-      } catch (err) {
-        console.error('[Voice4All Speech] TTS execution failed:', err);
-        if (options.onError) options.onError(err.message);
-        return false;
-      }
+          utterance.onend = () => {
+            if (requestId !== this.speechRequestId) return;
+            this.currentUtterance = null;
+            if (options.onEnd) options.onEnd();
+          };
+
+          utterance.onerror = (event) => {
+            if (requestId !== this.speechRequestId) return;
+            this.currentUtterance = null;
+            console.warn('[Voice4All Speech] Synthesis error:', event);
+            if (options.onError) options.onError(event.error || 'Speech synthesis error');
+          };
+
+          this.currentUtterance = utterance;
+          speechSynthesis.speak(utterance);
+        } catch (error) {
+          if (requestId !== this.speechRequestId) return;
+          console.error('[Voice4All Speech] TTS execution failed:', error);
+          if (options.onError) options.onError(error.message);
+        }
+      });
+      return true;
     }
 
     /**
      * Stop active Text-to-Speech
      */
     stopSpeaking() {
+      this.speechRequestId += 1;
       if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending)) {
         speechSynthesis.cancel();
       }

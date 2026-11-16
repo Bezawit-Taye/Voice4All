@@ -7,6 +7,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const vm = require('vm');
 
 const app = require('../src/server');
 const careerService = require('../src/services/career.service');
@@ -211,6 +212,73 @@ async function runTests() {
       const indexHtml = fs.readFileSync(indexPath, 'utf8');
       assert.ok(indexHtml.includes('pages/career-development.html'), 'index.html must link to career-development.html');
       pass(`index.html successfully links to pages/career-development.html`);
+    }
+
+    // Test 11: Universal loader includes browser speech fallback before the widget
+    {
+      const loaderPath = path.resolve(__dirname, '../../assets/js/voice4all/loader.js');
+      const loader = fs.readFileSync(loaderPath, 'utf8');
+      const speechServiceIndex = loader.indexOf('`${loaderDir}speech/speech.service.js`');
+      const widgetIndex = loader.indexOf('`${loaderDir}voice4all.js`');
+      assert.ok(speechServiceIndex >= 0, 'loader must include speech.service.js');
+      assert.ok(speechServiceIndex < widgetIndex, 'speech service must load before the widget');
+
+      const uiPath = path.resolve(__dirname, '../../assets/js/voice4all/ui.js');
+      const ui = fs.readFileSync(uiPath, 'utf8');
+      assert.ok(ui.includes('voice_page_options'), 'home-page voice guidance must announce its choices');
+      assert.ok(!ui.includes('Backend Connected — Demo AI (not live Gemini)'), 'demo status banner copy must be removed');
+      pass('loader registers speech fallback and the UI has spoken home-page choices without demo status text');
+    }
+
+    // Test 12: Browser speech waits for voices and cancels stale queued requests
+    {
+      const speechPath = path.resolve(__dirname, '../../assets/js/voice4all/speech/speech.service.js');
+      const source = fs.readFileSync(speechPath, 'utf8');
+      const listeners = new Set();
+      const spoken = [];
+      let voices = [];
+      const synthesis = {
+        speaking: false,
+        pending: false,
+        getVoices: () => voices,
+        addEventListener: (name, listener) => {
+          if (name === 'voiceschanged') listeners.add(listener);
+        },
+        removeEventListener: (name, listener) => {
+          if (name === 'voiceschanged') listeners.delete(listener);
+        },
+        speak: (utterance) => spoken.push(utterance),
+        cancel: () => {}
+      };
+      const sandbox = {
+        module: { exports: {} },
+        window: {
+          speechSynthesis: synthesis,
+          SpeechSynthesisUtterance: function (text) { this.text = text; }
+        },
+        setTimeout,
+        clearTimeout,
+        console
+      };
+      vm.runInNewContext(source, sandbox, { filename: speechPath });
+      const speech = sandbox.module.exports;
+
+      assert.strictEqual(speech.speak('Welcome', { language: 'en' }), true);
+      voices = [{ lang: 'en-US', name: 'Test English' }];
+      Array.from(listeners).forEach((listener) => listener());
+      await new Promise((resolve) => setImmediate(resolve));
+      assert.strictEqual(spoken.length, 1, 'speech should start after browser voices load');
+      assert.strictEqual(spoken[0].voice.name, 'Test English');
+
+      speech.cachedVoices = [];
+      voices = [];
+      speech.speak('Stale request', { language: 'en' });
+      speech.stopSpeaking();
+      voices = [{ lang: 'en-US', name: 'Test English' }];
+      Array.from(listeners).forEach((listener) => listener());
+      await new Promise((resolve) => setImmediate(resolve));
+      assert.strictEqual(spoken.length, 1, 'stopped queued speech must not start');
+      pass('browser voice loading and cancellation are reliable for queued speech');
     }
 
   } catch (err) {

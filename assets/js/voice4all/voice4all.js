@@ -108,14 +108,7 @@
     // 7. Initial load for Career jobs
     loadJobs();
 
-    // 8. Listen for API backend status changes
-    if (root.Voice4AllAPI && typeof root.Voice4AllAPI.onStatusChange === 'function') {
-      root.Voice4AllAPI.onStatusChange((isLive, aiProvider) => {
-        updateStatusBanner(isLive, aiProvider);
-      });
-    }
-
-    // 9. Listen for online/offline events
+    // 8. Listen for online/offline events
     window.addEventListener('online', () => updateNetworkBanner(true));
     window.addEventListener('offline', () => updateNetworkBanner(false));
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
@@ -390,6 +383,25 @@
       const title = heading ? heading.textContent.replace(/\s+/g, ' ').trim().slice(0, 120) : document.title;
       message = message.replace('{title}', title || document.title);
     }
+    if (key === 'voice_page_home') {
+      const main = document.querySelector('main, [role="main"]');
+      const options = main
+        ? Array.from(main.querySelectorAll('a[href]'))
+          .filter((link) => {
+            const href = link.getAttribute('href') || '';
+            return href && !href.startsWith('#') &&
+              !link.closest('[hidden], [aria-hidden="true"]') &&
+              link.getClientRects().length > 0;
+          })
+          .map((link) => link.textContent.replace(/\s+/g, ' ').trim())
+          .filter(Boolean)
+          .slice(0, 8)
+        : [];
+      if (options.length) {
+        message += ` ${root.Voice4AllUI.t('voice_page_options', state.voiceSettings.language)
+          .replace('{options}', options.join(', '))}`;
+      }
+    }
     return message;
   }
 
@@ -468,8 +480,7 @@
       drawerContainer.id = 'v4a-drawer-host';
       document.body.appendChild(drawerContainer);
     }
-    const isLive = root.Voice4AllAPI ? root.Voice4AllAPI.isBackendAvailable() : false;
-    drawerContainer.innerHTML = root.Voice4AllUI.renderDrawerShell(state.lang, isLive, state.voiceSettings);
+    drawerContainer.innerHTML = root.Voice4AllUI.renderDrawerShell(state.lang, state.voiceSettings);
 
     const drawer = document.getElementById('v4a-drawer');
     if (drawer && state.simpleMode) {
@@ -572,31 +583,6 @@
     }
 
     root.Voice4AllUI.announce(root.Voice4AllUI.t('clear_chat', state.lang));
-  }
-
-  function updateStatusBanner(isBackendReady, aiProvider) {
-    const banner = document.getElementById('v4a-status-banner');
-    if (!banner) return;
-
-    const isGeminiSelected = isBackendReady && (aiProvider === 'gemini' || aiProvider === 'cloud_ai');
-    const statusClass = isGeminiSelected ? 'v4a-status-banner--live' : 'v4a-status-banner--demo';
-    const icon = isGeminiSelected ? 'fa-circle-check' : 'fa-flask';
-    const text = !isBackendReady
-      ? root.Voice4AllUI.t('demo_status', state.lang)
-      : root.Voice4AllUI.t(
-        isGeminiSelected ? 'gemini_selected_status' : 'backend_demo_status',
-        state.lang
-      );
-    const pill = !isBackendReady ? 'OFFLINE' : isGeminiSelected ? 'GEMINI' : 'DEMO';
-
-    banner.className = `v4a-status-banner ${statusClass}`;
-    banner.innerHTML = `
-      <div class="v4a-status-banner-content">
-        <i class="fa-solid ${icon}" aria-hidden="true"></i>
-        <span>${text}</span>
-      </div>
-      <span class="v4a-status-pill">${pill}</span>
-    `;
   }
 
   // =========================================================================
@@ -979,6 +965,81 @@
     return audioBlob;
   }
 
+  function releaseSpeechAudio(audio, audioUrl) {
+    if (state.currentAudio === audio) {
+      audio.pause();
+      audio.remove();
+      state.currentAudio = null;
+    }
+    if (state.currentAudioUrl === audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      state.currentAudioUrl = null;
+    }
+  }
+
+  function exposeSpeechAudio(audio, triggerButton) {
+    audio.controls = true;
+    if (audio.isConnected) return;
+    if (triggerButton && triggerButton.isConnected) {
+      triggerButton.insertAdjacentElement('afterend', audio);
+    } else {
+      document.body.appendChild(audio);
+    }
+  }
+
+  function speakWithBrowserFallback(text, language, rate, options, requestId, triggerButton, fallbackAudio = null) {
+    const speech = root.Voice4AllSpeech;
+    let failureHandled = false;
+    const handleFailure = () => {
+      if (requestId !== state.speechRequestId || failureHandled) return;
+      failureHandled = true;
+      if (fallbackAudio) {
+        exposeSpeechAudio(fallbackAudio, triggerButton);
+        setSpeechButtonState(triggerButton, 'blocked');
+        if (typeof options.onAutoplayBlocked === 'function') {
+          options.onAutoplayBlocked();
+        } else {
+          root.Voice4AllUI.announce(root.Voice4AllUI.t('speech_audio_ready', state.lang));
+        }
+        return;
+      }
+
+      setSpeechButtonState(triggerButton, 'error');
+      root.Voice4AllUI.announce(root.Voice4AllUI.t('speech_unavailable', state.lang));
+      if (typeof options.onError === 'function') options.onError();
+    };
+
+    if (!speech || typeof speech.speak !== 'function') {
+      handleFailure();
+      return false;
+    }
+
+    const started = speech.speak(text, {
+      language,
+      rate,
+      onStart: () => {
+        if (requestId !== state.speechRequestId) return;
+        if (fallbackAudio) releaseSpeechAudio(fallbackAudio, fallbackAudio.src);
+        setSpeechButtonState(triggerButton, 'playing');
+        if (typeof options.onStart === 'function') options.onStart();
+      },
+      onEnd: () => {
+        if (requestId === state.speechRequestId) {
+          setSpeechButtonState(triggerButton, 'idle');
+          if (typeof options.onEnd === 'function') options.onEnd();
+        }
+        if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
+          root.Voice4AllA11y.hideCaptions();
+        }
+      },
+      onFallbackToText: handleFailure,
+      onError: handleFailure
+    });
+
+    if (!started) handleFailure();
+    return started;
+  }
+
   async function speakText(text, triggerButton = null, options = {}) {
     const speechText = String(text || '').trim();
     if (!speechText) return;
@@ -1015,6 +1076,21 @@
 
         state.currentAudio = audio;
         state.currentAudioUrl = audioUrl;
+        let browserFallbackAttempted = false;
+        const fallbackToBrowserSpeech = (keepAudioForManualPlay = true) => {
+          if (browserFallbackAttempted || requestId !== state.speechRequestId) return;
+          browserFallbackAttempted = true;
+          if (!keepAudioForManualPlay) releaseSpeechAudio(audio, audioUrl);
+          speakWithBrowserFallback(
+            speechText,
+            language,
+            rate,
+            options,
+            requestId,
+            triggerButton,
+            keepAudioForManualPlay ? audio : null
+          );
+        };
         audio.addEventListener('play', () => {
           if (requestId === state.speechRequestId) {
             setSpeechButtonState(triggerButton, 'playing');
@@ -1037,9 +1113,7 @@
         }, { once: true });
         audio.addEventListener('error', () => {
           if (requestId !== state.speechRequestId) return;
-          setSpeechButtonState(triggerButton, 'error');
-          root.Voice4AllUI.announce(root.Voice4AllUI.t('speech_playback_failed', state.lang));
-          if (typeof options.onError === 'function') options.onError();
+          fallbackToBrowserSpeech(false);
         }, { once: true });
 
         try {
@@ -1047,61 +1121,16 @@
         } catch (err) {
           if (requestId !== state.speechRequestId) return;
           if (audio.paused && state.speechStatus === 'paused') return;
-          if (!audio.paused && state.speechStatus === 'playing') return;
-          setSpeechButtonState(triggerButton, 'blocked');
-          if (typeof options.onAutoplayBlocked === 'function') {
-            options.onAutoplayBlocked();
-          } else {
-            root.Voice4AllUI.announce(root.Voice4AllUI.t('speech_audio_ready', state.lang));
-          }
+          fallbackToBrowserSpeech();
         }
         return;
       } catch (err) {
         if (requestId !== state.speechRequestId) return;
         console.warn('[Voice4All TTS] Hosted speech service unavailable:', err.message);
-        root.Voice4AllUI.announce(root.Voice4AllUI.t('speech_unavailable', state.lang));
       }
     }
 
-    if (root.Voice4AllSpeech && typeof root.Voice4AllSpeech.speak === 'function') {
-      const started = root.Voice4AllSpeech.speak(text, {
-        language,
-        rate,
-        onStart: () => {
-          if (requestId === state.speechRequestId) {
-            setSpeechButtonState(triggerButton, 'playing');
-            if (typeof options.onStart === 'function') options.onStart();
-          }
-        },
-        onEnd: () => {
-          if (requestId === state.speechRequestId) {
-            setSpeechButtonState(triggerButton, 'idle');
-            if (typeof options.onEnd === 'function') options.onEnd();
-          }
-          if (root.Voice4AllA11y && typeof root.Voice4AllA11y.hideCaptions === 'function') {
-            root.Voice4AllA11y.hideCaptions();
-          }
-        },
-        onFallbackToText: () => {
-          if (requestId === state.speechRequestId) {
-            setSpeechButtonState(triggerButton, 'error');
-            root.Voice4AllUI.announce(root.Voice4AllUI.t('speech_unavailable', state.lang));
-            if (typeof options.onError === 'function') options.onError();
-          }
-        },
-        onError: () => {
-          if (requestId === state.speechRequestId) {
-            setSpeechButtonState(triggerButton, 'error');
-            root.Voice4AllUI.announce(root.Voice4AllUI.t('speech_unavailable', state.lang));
-            if (typeof options.onError === 'function') options.onError();
-          }
-        }
-      });
-      if (started) return;
-    }
-
-    setSpeechButtonState(triggerButton, 'error');
-    if (typeof options.onError === 'function') options.onError();
+    speakWithBrowserFallback(speechText, language, rate, options, requestId, triggerButton);
     if (root.Voice4AllA11y && typeof root.Voice4AllA11y.showCaptions === 'function') {
       root.Voice4AllA11y.showCaptions(speechText, 12000);
     }

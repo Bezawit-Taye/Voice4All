@@ -73,16 +73,10 @@
       voice_page_support_agent: 'You are in the Voice4All support workspace. Review learner requests, open a request for details, and update its status as you assist the learner.',
       voice_page_teacher: 'You are on the Voice4All teacher dashboard. Review anonymous learner questions, usage trends, and curriculum gaps.',
       voice_page_home: 'You are on the Voice4All home page. Choose a learner dashboard, learning materials, support service, or career resource to continue.',
+      voice_page_options: 'The home page options are: {options}. Use Tab to move through the links and Enter to open one.',
       voice_tab_tutor: 'You are in the AI tutor section. Type a question in Amharic or English, or use the microphone button. Tutor answers include a read-aloud button.',
       voice_tab_help: 'You are in Live Help. Submit a support request and choose how you would like the team to contact you.',
       voice_tab_career: 'You are in Career. Search and filter opportunities, then review job details or request accommodations.',
-      
-      // Status Banner
-      demo_status: 'Demo Mode — Backend Offline',
-      demo_status_aria: 'Currently operating in demo mode using sample data because backend is offline',
-      live_status: 'Backend Connected',
-      backend_demo_status: 'Backend Connected — Demo AI (not live Gemini)',
-      gemini_selected_status: 'Backend Connected — Gemini selected; ask a question to test',
       
       // Tab Navigation
       tablist_aria: 'Voice4All functional sections',
@@ -260,16 +254,10 @@
       voice_page_support_agent: 'በVoice4All የድጋፍ የሥራ ቦታ ላይ ነዎት። የተማሪ ጥያቄዎችን ይመልከቱ፣ ዝርዝሮችን ይክፈቱ እና ለተማሪው እርዳታ ሲሰጡ ሁኔታውን ያዘምኑ።',
       voice_page_teacher: 'በVoice4All የአስተማሪ ዳሽቦርድ ላይ ነዎት። የተማሪዎችን ስም የማይጠቅሱ ጥያቄዎች፣ የአጠቃቀም አዝማሚያዎች እና የስርዓተ-ትምህርት ክፍተቶችን ይመልከቱ።',
       voice_page_home: 'በVoice4All መነሻ ገጽ ላይ ነዎት። ለመቀጠል የተማሪ ዳሽቦርድ፣ የትምህርት ቁሳቁስ፣ የድጋፍ አገልግሎት ወይም የሙያ ሀብት ይምረጡ።',
+      voice_page_options: 'የመነሻ ገጹ አማራጮች፦ {options}። በአገናኞቹ መካከል ለመንቀሳቀስ Tab ይጫኑ፣ አንዱን ለመክፈት Enter ይጫኑ።',
       voice_tab_tutor: 'በAI አስተማሪ ክፍል ውስጥ ነዎት። በአማርኛ ወይም በእንግሊዝኛ ጥያቄ ይጻፉ ወይም የማይክሮፎን ቁልፉን ይጠቀሙ። የአስተማሪውን መልስ በድምጽ ማዳመጥ ይችላሉ።',
       voice_tab_help: 'በቀጥታ እርዳታ ክፍል ውስጥ ነዎት። የድጋፍ ጥያቄ ያስገቡ እና ቡድኑ እንዴት እንዲያገኝዎት እንደሚፈልጉ ይምረጡ።',
       voice_tab_career: 'በሙያ ክፍል ውስጥ ነዎት። ዕድሎችን ይፈልጉ እና ያጣሩ፣ ከዚያ የሥራ ዝርዝሮችን ይመልከቱ ወይም ማመቻቸት ይጠይቁ።',
-
-      // Status Banner
-      demo_status: 'የሙከራ ሁነታ — የጀርባ ሰርቨር አልተገኘም',
-      demo_status_aria: 'የጀርባ ሰርቨር ባለመገኘቱ በሙከራ ናሙና መረጃዎች እየሰራ ይገኛል',
-      live_status: 'ከዋናው ሰርቨር ጋር ተገናኝቷል',
-      backend_demo_status: 'ከዋናው ሰርቨር ጋር ተገናኝቷል — የሙከራ AI (ቀጥታ Gemini አይደለም)',
-      gemini_selected_status: 'ከዋናው ሰርቨር ጋር ተገናኝቷል — Gemini ተመርጧል፤ ለመሞከር ጥያቄ ይጠይቁ',
 
       // Tab Navigation
       tablist_aria: 'የVoice4All ክፍሎች',
@@ -473,7 +461,7 @@
     /**
      * Render the side drawer structure
      */
-    renderDrawerShell(lang = 'en', isBackendAvailable = false, voiceSettings = {}) {
+    renderDrawerShell(lang = 'en', voiceSettings = {}) {
       const isAm = (lang === 'am');
       return `
         <div id="v4a-backdrop" class="v4a-backdrop" aria-hidden="true"></div>
@@ -555,20 +543,6 @@
             <button type="button" class="v4a-btn v4a-btn--sm" id="v4a-retry-network-btn" style="min-height:30px;padding:2px 8px;font-size:11px;">
               ${t('retry_btn', lang)}
             </button>
-          </div>
-
-          <!-- Backend / Demo Status Banner -->
-          <div
-            id="v4a-status-banner"
-            class="v4a-status-banner ${isBackendAvailable ? 'v4a-status-banner--live' : 'v4a-status-banner--demo'}"
-            role="status"
-            aria-live="polite"
-          >
-            <div class="v4a-status-banner-content">
-              <i class="fa-solid ${isBackendAvailable ? 'fa-circle-check' : 'fa-flask'}" aria-hidden="true"></i>
-              <span>${isBackendAvailable ? t('live_status', lang) : t('demo_status', lang)}</span>
-            </div>
-            <span class="v4a-status-pill">${isBackendAvailable ? 'LIVE' : 'DEMO'}</span>
           </div>
 
           ${Voice4AllUI.renderVoiceSettings(lang, voiceSettings)}

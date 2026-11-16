@@ -492,49 +492,6 @@
 }
 
 /* ==========================================================================
-   Backend Status / Demo Mode Banner
-   ========================================================================== */
-.v4a-status-banner {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  border-bottom: 1px solid transparent;
-}
-
-.v4a-status-banner--demo {
-  background-color: var(--v4a-warning-bg);
-  border-color: var(--v4a-warning-border);
-  color: var(--v4a-warning);
-}
-
-.v4a-status-banner--live {
-  background-color: var(--v4a-success-bg);
-  border-color: #a7f3d0;
-  color: var(--v4a-success);
-}
-
-.v4a-status-banner-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.v4a-status-pill {
-  display: inline-block;
-  padding: 2px 6px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.08);
-}
-
-/* ==========================================================================
    Accessible Tabs Navigation
    ========================================================================== */
 .v4a-tablist {

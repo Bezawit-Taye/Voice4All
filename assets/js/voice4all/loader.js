@@ -18,9 +18,10 @@
  *   - Loads modular scripts in dependency order:
  *       1. accessibility.js
  *       2. api.js
- *       3. ui.js
- *       4. voice4all.js
- *       5. embed.js
+ *       3. speech/speech.service.js
+ *       4. ui.js
+ *       5. voice4all.js
+ *       6. embed.js
  *   - Boots the widget with host configuration and exposes `window.Voice4All`
  *   - Dispatches `voice4all:ready` event and fulfills `window.Voice4AllReady` Promise
  */
@@ -215,6 +216,7 @@
       const scriptsToLoad = [
         `${loaderDir}accessibility.js`,
         `${loaderDir}api.js`,
+        `${loaderDir}speech/speech.service.js`,
         `${loaderDir}ui.js`,
         `${loaderDir}voice4all.js`,
         `${loaderDir}embed.js`
